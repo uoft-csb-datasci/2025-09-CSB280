@@ -1,0 +1,1243 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 01: Where does data really come from?
+
+# Student Name: 
+
+# Student ID:
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this course
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this course is a code-along style; it is 100% hands on! A few hours prior to each lecture, links to the materials will be available for download at [QUERCUS](https://q.utoronto.ca/). The teaching materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the instructor. Other course resources include tutorials with additional R Markdown notebooks that will cover additional materials and practice concepts from class lecture. Complete versions (including code) for each weekly lecture will eventually be made available the day prior to the next lecture date.
+
+As we go along, there will be some in-class comprehension questions for you to solve either individually. These may require you to complete code cells and/or provide a few sentences to answer the question. Please use the spaced provided in the notebook to supply your answers.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Class Objectives
+
+This is the first in a series of twelve lectures. At the end of this session you will be familiar with where complex datasets are stored, and what they generally look like. You will get a tour of the RStudio environment and the R-kernel associated with it. You will learn basic and best practices when working with code. Today's topics are broken into:
+
+1.  Taking a tour of where our data comes from.
+2.  Familiarizing yourself with RStudio, RMarkdown Notebooks, and the R-kernel.
+3.  Getting started with basic programming uses of R.
+4.  An introduction to variables.
+
+These concepts are necessary for coding best practices and to understand your data before beginning analyses.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also used for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX`. You will find a partially coded `skeleton.Rmd` file as well as all of the data files necessary to run the week's lecture.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the lecture code released as an HTML file under the Modules section of Quercus. These will be available on the following Monday morning after each lecture. Lecture slides (if any) will be made available as a PDF soon after each lecture.
+
+------------------------------------------------------------------------
+
+# 1.0.0 What is Data and where does it come from?
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/1953_WatsonCrickDNA_1.png?raw=true" width="1000"/>
+
+Watson and Crick's seminal, Nobel-winning paper on the structure of DNA was a single page!
+:::
+
+Far back in our past, experiments and their results were relegated to live within the publications related to them. While there may have been compendiums of results and observations to produce texts like those used in your biology courses, most *raw data* from experiments remained with the author. If you wanted to see the raw data, you could usually write (on pen and paper!) to the corresponding author to obtain the results. Most of the relevant information was summarized within 4-8 main figures of a publications. If you wanted to read a copy of a manuscript, you could usually find one in your institution's library archives, or you would have to write to the author for a copy. This was generally not a big issue until we began the age of genomic research!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/1953_WatsonCrickDNA_2.png?raw=true" width="1000"/>
+
+Watson and Crick's paper had a single, simple, diagram on the structure of DNA.
+:::
+
+## 1.1.0 Where does data come from now?
+
+As we saw in the lecture slides, nowadays data can come from many places. Within the world of biology, there are many ways to generate experimental data such as (but not limited to)
+
+1.  Collecting measurements and observations of individuals or populations
+2.  Imaging cells, tissues, or whole individuals for phenotyping and analysis
+3.  Electrophysiology experiments
+4.  Gas chromatography and mass spectrometry
+5.  DNA and RNA sequencing
+6.  DNA microarray experiments
+
+Present-day manuscripts are not just simple publications. Most are still 4-6 main figures BUT they can also have 5-20 **supplemental figures**. Many publishers are asking for additional supplemental data sets that contain ***raw data*** used for analysis and figures, ***code*** used analyse data, and ***raw sequencing data*** (if applicable). Publications may also update or identify new genes or proteins across various genomes.
+
+To store all this data, a group of researchers in 1984 realized just how important it would be to catalog, index, and store all the information that would come with genome research - a place to help answer questions like:
+
+1.  What genes are in each genome?
+2.  Which genes are related across genomes?
+3.  What do these genes do?
+4.  What do the sequences of genes look like?
+5.  How can we compare genes within and between genomes?
+6.  How do we related gene sequences to the human condition?
+
+By 1988, the United States had budgeted funding for the National Center for Biotechnology Information (NCBI) and the collection of molecular biology data. Fast forward nearly 40 years and the NCBI has become home to much of the world's publicly available molecular biology research. For more information, you can check out [A Brief History of NCBI's Formation and Growth](https://www.ncbi.nlm.nih.gov/books/NBK148949/)
+
+## 1.2.0 Take a tour of the NCBI
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec01_NCBI_Landing.png?raw=true" width="1000"/>
+
+There are plenty of databases available on the NCBI
+:::
+
+There are more than 30 searchable databases housed within the NCBI landing page. From here you can look for items including:
+
+1.  Publications via `PubMed`
+2.  Gene sequences via `Gene`
+3.  Whole genomes with their annotations via `Genome`
+4.  Lists of species/lineages and any potential informational links to other databases via `Taxonomy`
+
+::: {.alert .alert-block .alert-info}
+**New concept: what is an annotated genome?** Normally when a genome is sequenced, it doesn't have much informational value unless it can be annotated. Often this includes the identification of potential genes either through comparison with similar genomes or using bioinformatics tools that recognize the hallmark signals of protein-coding sequences. Genes of course can be converted to mRNA sequences, and protein sequences. Those sequences can be compared across known databases to suggest common patterns (motifs), and possible functions. The culmination of collecting these pieces of information results in the annotation of that genome!
+:::
+
+### 1.2.1 Learning more about the guanylate cyclase *gcy-35*
+
+Let's take a quick trip through the NCBI to see just how everything links together:
+
+1.  Using the pulldown search box, select the `Gene` database.
+2.  Search for the term `gcy-35` and on the result page select the link that reads `gcy-35 (GCY35) Guanylate cyclase domain-containing protein;Soluble guanylate cyclase gcy-35`
+3.  The resulting page is a report about the gene `gcy-35`
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec01_gcy-35_report.png?raw=true" width="1000"/>
+
+The NCBI will produce a report page on genes including their genomic location and links to additional piece of information.
+:::
+
+4.  Locate the bibliography section, and select the link to `See all citations in PubMed`. Now you can see all of the related publications for that specific gene!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec01_gcy-35_pubmed.png?raw=true" width="1000"/>
+
+What has been published about our gene of interest?
+:::
+
+## 1.3.0 Use the NCBI to find some genomic data
+
+Now that we've seen a few sections of the NCBI, let's take a moment to wind our way through finding some bigger genomic data. Our goal(s) in this section will be to:
+
+1.  Find and identify a specific version of the *C. elegans* genome.
+2.  Using the information on the NCBI, determine some characteristics and summary information about that genome.
+3.  Take a look at the various files associated with our chosen genome.
+
+## 1.3.1 Use the Genome database to find your favourite genome
+
+Go back to the [NCBI homepage](https://www.ncbi.nlm.nih.gov/) and use the `Genome` database to search for the term `Caenorhabditis elegans`. You'll see the top entry of the list has a small "checkmark" symbol and floating over it will identify this as the "reference genome". A reference genome is considered the "standard" representative genome for a species upon which all comparisons based on other samples may be made.
+
+Click on `WBcel235`. This stands for "WormBase *C. elegans* #235" which is the most current annotated version of the *C. elegans* genome. Going further down the resulting report page you will find summary statistics on the assembly.
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: the C. elegans genome was the first fully sequenced animal genome!** While many may take this small worm for granted, this \~1mm invertebrate was the first animal to have its genome completely sequenced. At approximately 100Mb of nucleotides, this endeavour began in the early 1980s with the work of Drs. Robert Waterston and John Sulston. The first "complete" version was announced in 1998 although time and technology have allowed gaps and problem areas of the genome to be completed in the nearly 30 years that have passed. The techniques used to accomplish this feat became the foundation for the human genome project which would begin in 1990 and span 13 years before the publication of its first draft!
+:::
+
+With a simple click at the top of the page, we can download all the sequence and annotation information for the genome!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec01_elegansGenome.png?raw=true" width="1000"/>
+
+You can even download a FASTA file (Remember those?) of an entire genome!
+:::
+
+::: {.alert .alert-block .alert-info}
+**New Concept: what is the difference between RefSeq and GenBank?** In a nutshell, GenBank is a large collection of all publicly submitted archives for a gene, genome, protein etc. This collection, while possibly curated in various ways, can also represent redundant or potentially missing information. The methods for gene identification can vary and may also be inconsistent. RefSeq on the other hand, is wholly curated by the NCBI. Gene identification, orthologous relationships, and all other information is manually or computationally curated using the same standards/requirements across the entire database. The RefSeq databases, is therefore considered a higher-quality database for genome comparison.
+:::
+
+## 1.4.0 Finding raw sequencing data at the SRA
+
+Most experimental publications involving large sequencing projects will usually be required to make their raw data available. This has become the [standard](https://www.nature.com/npjgenmed/editorial-policies/reporting-standards) with many [high-level](https://www.cell.com/pb-assets/journals/research/cellpress/data/RecommendRepositories.pdf) journal [publishers](https://journals.plos.org/plosone/s/data-availability) and fosters a scientific community that is able to re-analyse, and grow from published results.
+
+One standard repository for large sequencing datasets is the Sequence Read Archive hosted by the NCBI. For many genomes and other sequence-related results housed at the NCBI, there may be raw sample information linked. The availability of raw genome or transcriptome reads allows for future analyses that may re-analyse, incorporate, or compare these datasets as technologies and techniques are improved or invented!
+
+### 1.4.1 Find raw reads for the Hawaiian CB4856 genome
+
+Let's take a step back and return to the Genome search page. The second Assembly listed should be `ASM2820141v1` and this refers to the *C. elegans* Hawaiian CB4856 genome. This particular wild isolate of *C. elegans* has an origins that is shrouded in some mystery but it was and remains a widely used genomic specimen in the *C. elegans* scientific community.
+
+1.  Find and click on the `ASM2820141v1` assembly. This will take you to another assembly summary page.
+2.  Scrolling down to the "Sample details" section, click on the "View more" button in the bottom right of the section.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec01_CB4856sample.png?raw=true" width="1000"/>
+:::
+
+3.  You will now see an entry for "SRA" with a link to [SRS15946300](https://www.ncbi.nlm.nih.gov/sra/?term=SAMN31841256/).
+4.  Using the SRA link will take you to a new summary page in the SRA database. Locate the link to "Illumina 150bp PE sequencing of C. elegans CB4856" and click on it.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec01_CB4856_SRAsearch.png?raw=true" width="1000"/>
+:::
+
+5.  You will be directed to a new summary page for that specific set of DNA sequencing. It will list information about the sequencing data including who submitted it, and how the sample was prepared.
+6.  At the bottom of the page a link to a sequencing run [SRR22507560](https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR22507560&display=metadata) will be listed and you can use this to take you to that specific set of raw data on the SRA!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec01_CB4856_SRA.png?raw=true" width="1000"/>
+:::
+
+With the proper tools (not covered in this course) you could download and assemble that genome all by yourself!
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.5.0 Comprehension Question:** From our work in section 1.3.0, please answer the following questions using RefSeq statistics where applicable:
+
+1.  What was the listed size of the genome in megabases (Mb)?
+
+2.  How many estimated genes are there?
+
+3.  How many estimated proteins are there?
+
+4.  How many **complete** *C. elegans* genomes were available?
+:::
+
+------------------------------------------------------------------------
+
+## Section 1.5.0 comprehension answer:
+
+1.  Approximate genomes size: 
+
+2.  Estimated genes:
+
+3.  Estimated proteins: 
+
+4.  Total complete *C. elegans* genomes: 
+
+------------------------------------------------------------------------
+
+# 2.0.0 What is R?
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/R_for_data_science.png?raw=true" width="600"/>
+:::
+
+*R* is a statistical programming language first developed by **R**oss Ihaka and **R**obert Gentleman at the University of Auckland, New Zealand around 1993 before becoming an open source project in 1997. It is based on a programming language ***S*** and was named, in part, as an homage to this inspiration as well as it's original developers.
+
+While this language started as an experiment by the original authors, it soon surpassed the utility and function of its predecessor and is now one of the most powerful statistical programming languages and amongst some of the most popular data science programming languages.
+
+### 2.0.1 Why learn R?
+
+While our friend [Python](https://www.python.org/) may be the Belle of the ball for many data scientists, R was built for statistical analysis and has been extensively developed by the community to produce publication-quality visualizations. You'll find many helpful biology/data science packages are built for R as well including:
+
+-   `DESeq2`: meant for high-throughput RNAseq differential expression analysis
+-   `ggplot2`: the workhorse of data visualization, it is the basis and foundation for additional visualization packages
+-   `biocmanager`: provides access to the vast depth of **Bioconductor** libraries which include analysis of microarray data, gene annotation, differential gene expression and more!
+-   `Mlr` (and others): for machine-learning tasks
+-   `RCrawler`: for data scraping/mining web pages from across the internet
+-   `Spectra`: mass spectrometry analysis in R
+
+More importantly, YOU may eventually encounter data or a problem in your own studies that you want to solve. The techniques and methods you'll learn in this course will be the foundation of the data science journey towards understanding your data or conquering your problem!
+
+------------------------------------------------------------------------
+
+## 2.1.0 R-Markdown Notebooks and the R-kernel
+
+Work with your R-Markdown Notebook on the University of Toronto DataHub will all be contained within a new browser tab with the address bar showing something like `https://r.datatools.utoronto.ca/user/yourUser.ID@utoronto.ca/rstudio/`.
+
+All of this is running non-locally on University of Toronto servers rather than your own machine. You'll see a directory structure from your home folder:
+
+i.e. `\2025-09-CSB280\` and a folder to `Lecture_01` within. Clicking on that, you'll find `Lecture_01_RStudio.skeleton.Rmd` which is the notebook we will use for today's code-along lecture.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/RServer_screenshot.png?raw=true" width="1000"/>
+:::
+
+### 2.1.1 Why is this class using R Markdown Notebooks?
+
+We've implemented the class this way to reduce the burden of having to install various programs. While installation can be a *little* tricky, it's really not that bad. For this course, however, you don't need to go through all of that just to learn introductory R.
+
+R markdown notebooks also give us the option of inserting "markdown" text much like what you're reading at this very *exact* moment. So we can intersperse ideas and information between our learning code blocks.
+
+There is, however an appendix section at the end of this lecture detailing how to install the R-kernel itself and the integrated development environment (IDE) called RStudio. Check out section ***6.0.0*** for more information.
+
+------------------------------------------------------------------------
+
+## 2.2.0 A quick intro to the R environment
+
+R is a language and an **environment** because it has the tools and software for the storage, manipulation, statistical analysis, and graphical display of data. It comes with about 15 built-in 'packages' and is based on a simple programming language ("S"). The core information and programming that makes up R is called the kernel. We may refer to this concept interchangeably as the **R-kernel** or **r-base**. A useful resource is the ["Introduction to R"](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf) found on CRAN.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: More than just popcorn** The **R-kernel** *interprets* the human-readable code we create (**syntax**) to perform operations behind the scenes. By combining the available basic functions provided by the R-kernel, we can create more complex actions culminating in output from mathematical analysis to beautiful data visualizations. At the same time, we will often refer to the **memory** of R. Just as it sounds, the memory stores information that can include functions (instructions) and variables (symbols) that contain simple to complex data.
+:::
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/R_console.png?raw=true" width="1000"/>
+:::
+
+------------------------------------------------------------------------
+
+### 2.2.1 Packages contain useful functions
+
+So... what are in these packages? A **package** can be a collection of
+
+-   functions
+
+-   data objects
+
+-   compiled code
+
+-   functions that *override* base functions in R
+
+**Functions** are the basic workhorses of R; they are the tools we use to analyze our data. Each function can be thought of as a unit that has a specific task. A function (usually) takes input, evaluates it using an expression (e.g. a calculation, plot, merge, etc.), and returns an output (a single value, multiple values, a graphic, etc.).
+
+In this course we will rely a lot on a suite of packages called the `tidyverse` which, itself, is also dependent upon a series of other packages.
+
+### 2.2.2 Useful packages are archived with CRAN and Bioconductor
+
+Users have been encouraged to make their own packages. There are now over 20,000 packages on R repositories (banks of packages), including more than 18,000 on CRAN (Comprehensive R Archive Network) and about 2,100 on Bioconductor.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/cran_pkg.png?raw=true" width="600"/>
+:::
+
+The "**Comprehensive R Archive Network**" (CRAN) is a collection of sites that have the same R and related R material:
+
+-   new and previous versions of R software
+
+-   documentation
+
+-   packages and collections of R packages to download that might be useful in a particular field (CRAN Task Views)
+
+-   links to the R journal and R search sites, bug reports and fixes
+
+Different sites (for example, we used <http://cran.utstat.utoronto.ca/>), are called *mirrors* because they reflect the content from the master site in Austria. There are mirrors worldwide to reduce the burden on the network. CRAN will be referred to here as a main repository for obtaining R packages.
+
+[Bioconductor](https://www.bioconductor.org/) is another repository for R packages, but it specializes in tools for high-throughput genomics data. One nice thing about Bioconductor is that the packages it hosts tend to have good vignettes. A ***vignette*** is the set of documentation for a package, explaining its functions and usages in a tutorial-like format.
+
+------------------------------------------------------------------------
+
+## 2.3.0 R-Markdown notebooks run the programming language R and more
+
+Behind the scenes of each R-Markdown notebook a programming kernel is running. Our notebooks, when encountering code cells, use the R-kernel to interpret each code cell as if it were written specifically for the R language. R-kernel code cells are denoted by a structured set of syntax:
+
+$$```{r}  # code goes here ```$$
+
+Note, however, that there are multiple different kernels (languages) that can be implemented in our R-Markdown notebook, including Python! Additional parameters can be added to the definition of the coding cell, `{r}` , to [generate specific behaviours](https://rmarkdown.rstudio.com/lesson-3.html). As we move from code cell to new code cell, all of the objects we have created are stored within memory. We can refer to these as we run the code and move forward but if you overwrite or change them by mistake, you may to have rerun multiple cell blocks!
+
+There are some options in the "Code" menu that can alleviate these problems such as **Code \> Run Region \> Run All Chunks Above**. If you think you've made a big error by overwriting a key object, you can use that option to "re-initialize" all of your previous code!
+
+While your code is running, you may be able to see a small progress bar in the bottom right corner. There is no way to know for sure if a code cell has been run unless it produces a set of output or an error.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: the grammar of programming languages like R** is called the **syntax**. It is the specific way we generate code for the kernel to interpret. Similar to the grammar of other languages, like English, the placement of words and symbols including their order are very important. However, unlike English, R makes much more frequent use of mathematical symbols and others like parentheses `()`, brackets `[]`, and commas `,`.
+:::
+
+**Remember these friendly keys/shortcuts:**
+
+-   `Alt` + `Ctrl` + `I` to insert a code cell (R-kernel by default)
+-   `Arrow` keys to navigate up and down (and within a cell).
+-   `Ctrl`+`Enter` to run the current line in a cell.
+-   `Ctrl` + `Shift`+`Enter` to run the entire code cell.
+-   `Ctrl`+`Shift` + `C` to quickly comment and uncomment single or multiple lines of code. You can also comment out Markdown code.
+-   `Tab` can be used while coding to autocomplete variable, function and file names, and even look at a list of possible parameters for functions.
+
+### 2.3.1 Navigating the menu bar
+
+If you can't remember your keyboard shortcuts, you can always access the same commands (and more!) through the menu bar.
+
+-   **File**: New File, Open File, Save as, Rename, Knit Document, Close ...
+-   **Edit**: Cut, Copy, Paste, Clear All Output ...
+-   **Code**: Insert Chunk, Run Select Lines, Run Region ...
+-   **Session**: Terminate R, Restart R, Quit Session ...
+-   **Tools**: Install Packages ...
+
+### 2.3.2 Why would you want to use an R-Markdown Notebook?
+
+Depending on your needs, you may find yourself doing the following:
+
+-   Building a data blog for your 20-2000 followers
+-   Collating your own journey into learning data science
+-   Analysing or re-analysing data for your projects using available packages
+-   Analysing multiple datasets for your projects
+-   Collaborating with others on data and analyses for your academic or personal projects
+-   **Explaining** your data and analyses to a supervisor, collaborator, or audience!
+-   Teaching an undergraduate data science course focused on cell and systems biology?
+
+RStudio and the R-Markdown notebook allows you to alternate between "markdown" notes and "code" that can be run or re-run on the fly.
+
+Each data run and it's results can be saved individually as a new notebook to compare data and small changes to analyses!
+
+### 2.3.3 What is markdown language?
+
+Markdown is a special markup (formatting) language that lets you write HTML and Java Script code in combination with other languages like LaTeX. This allows you to make html, pdf, and text documents that are combinations of text and code, enhancing reproducibility, a key aspect in scientific work. Having everything in a single place also boosts productivity during results interpretation - no need to go back and forth between tabs, pages, and documents. They can all be integrated in a single document, allowing for a more fluid narrative of the story that you are communicating to your audience (less distractions for you!). For example, the lines of code below and the text you are reading right now were created in R-Markdown. Do not worry about the R code just yet. We will get there sooner than you think.
+
+As mentioned, R-Markdown also allows you to write in [LaTeX](https://www.latex-project.org/about/), a document preparation system to write mathematical notations. To identify LaTeX code, it must be wrapped between single dollar signs (\$) for inline notation or double dollar signs (\$\$), one at the beginning of the equation and one at the end. For example, the equation ***Yi = beta0 + beta1 xi + epsilon_i, i=1, ..., N*** can be transformed into LaTeX code by adding some characters:
+
+`Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, i=1, \dots, N`
+
+Now, if we use \$\$ before and after the LaTeX code, this is what we get:
+
+$$Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, i=1, \dots,N$$
+
+See? Just like that! Here is an example of a table made in Markdown, showing some of the most popular R libraries for data science:
+
+| Library   | Use                                                            |
+|---------------------|---------------------------------------------------|
+| tidyverse | Simplified tabular-data processing functions                   |
+| ggplot2   | Data visualization package typically included in the tidyverse |
+| shiny     | Used to create interactive R-based web pages and interfaces    |
+| car       | Popular statistical analysis with Type II and III ANOVA tables |
+
+These are just a few examples of what you can do with RStudio and Markdown. To find out more on how to get the best of Markdown, head on over to the [R Markdown cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/).
+
+Once you are finished writing your code and interpreting those results in a markdown notebook, you can render (convert) the notebook into pdf, html, and many other formats. There are several ways to achieve this. The easiest option is to go to **File \> Knit Document** or just hit the **Preview** button located with other icons just below each tab. Afterwards there should be an option to view in browser at which point you can save as an HTML or print it to PDF.
+
+------------------------------------------------------------------------
+
+## 2.4.0 Which should I use: R-Markdown or just R scripts?
+
+I suggest you try out both! **Find what's comfortable for you and experiment with whatever works best for your needs!**
+
+*Personally* I use R/RStudio to generate code scripts but after building many classes in the *R-Markdown Notebook* format, this really is a good tool for running smaller code snippets, especially in the context of working or talking with supervisors and collaborators. Many times your supervisors may want to know something like
+
+-   "What happens if we change the analysis to use X groups instead of Y?"
+-   "What does this look like if we use the median instead of the mode?"
+-   "Can you add/remove those weird points from your dataset?"
+
+You can make quick changes on the fly and see the results there in the notebook without pulling up extra windows or programs. New runs can be saved in different versions or sections of the notebook with quick footnotes on what has changed. When preparing visualizations or analyses for manuscripts it can be quite useful to run a Notebook where you can track various parameters you are tweaking or changing.
+
+Note that R Markdown notebooks can even accommodate, as previously mentioned, other languages like Linux-based Bash and Python so you can mix programming languages as you need. This is actually a helpful way to generate clearly-written bioinformatics pipelines as well.
+
+Again, consider it on a case-by-case basis but we will begin with simple coding and the R-Markdown notebook format.
+
+------------------------------------------------------------------------
+
+## 2.5.0 Making (Coding) Life Easier
+
+Let's discuss some important behaviours before we begin coding:
+
+-   Code annotation (commenting)
+-   Variable naming conventions
+-   Best practices
+
+### 2.5.1 Annotate your code with the hash symbol `#`
+
+It is common practice to annotate your code. Much like annotating a genome, code annotation helps to guide others through the maze of coding cells and code that you've created. You can use it describe what you're doing, how you're doing it, and why you have chosen to do it this way.
+
+Remember: good code is easy to write, but great code is **always** well-annotated.
+
+#### 2.5.1.1 Why bother?
+
+-   "Can you rerun this analysis and change X parameter?" - *your curious supervisor*
+-   "Can you make this plot, but with dashed lines, a different axis, with error bars?" - *your experienced supervisor*
+-   "Can I borrow your code?" - *a collaborator, officemate or your code-literate supervisor*
+-   "Why is that object being sent to that function? What is it returning?" - *You, Me, and every coder ever*
+
+**Your worst collaborator is potentially you in 6 days or 6 months. Do you remember what you had for breakfast last Tuesday?**
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/LOTR_elvish.png?raw=true" width="800"/>
+
+Credit: <https://www.testbytes.net/blog/programming-memes/>
+:::
+
+You can annotate your code for selfish reasons, or altruistic reasons, but annotate your code.
+
+------------------------------------------------------------------------
+
+#### 2.5.1.2 How do I start?
+
+-   It is, in general, part of best coding practices to keep things tidy and organized.
+
+-   A hash-tag `#` will comment your text. Inside a code cell in an R-Markdown Notebook or anywhere in an R script, all text *after* a hashtag will be ignored by R and by many other programming languages. It's very useful to add comments about changes in your code, as well as detailed explanations about your scripts.
+
+-   Put a description of what you are doing near your code at every process, decision point, or non-default argument in a function. For example, why you selected `k=6` for an analysis, or the Spearman over Pearson option for your correlation matrix, or quantile over median normalization, or why you made the decision to filter out certain samples.
+
+-   Break your code into sections to make it readable. As you progress on your journey, you will realize scripts are just a series of steps and major steps should be titled/outlined with your reasoning - much like when making a presentation.
+
+-   Give your objects informative names **that are not the same as function names**.
+
+#### 2.5.1.3 Comments may/should appear in three places
+
+-   **At the beginning of your script:** What's the objective of your script?
+-   **Above every function you create:** Why did you have to write your own function versus those that are already available in package x?
+-   **In-line or in-between lines of code:** Why did you write that piece of code? What does it do? Why did you change a function's defaults?
+
+```         
+# At the beginning of the script, describing the purpose of your script and what you are trying to solve
+
+bedmasAnswer <- 5 + 4 * 6 - 0 #In line: Describing a part of your code that is not obvious what it is for. 
+
+#---------- Section dividers helps organize code structure ----------#
+## Feel free to add extra hash tags to visually separate or emphasize comments
+```
+
+------------------------------------------------------------------------
+
+Maintaining well-documented code is also good for mental health!
+
+**Keyboard shortcuts in RStudio:**
+
+-   Comment/Uncomment lines `CTRL + SHIFT + C` (Windows, Linux) / `Command + SHIFT + C` (Mac)
+-   Reflow Comment (Wrap comments) `CTRL + SHIFT + /` (Windows, Linux) / `Command + SHIFT + /` (Mac)
+
+------------------------------------------------------------------------
+
+### 2.5.2 Naming conventions for files, objects, and functions
+
+-   Cannot start with a number
+-   Cannot contain spaces or special characters in the name
+-   Avoid naming your variables using names already used by R (`for`, `next`, `while`, etc.).
+-   Consider appending the object type to your variable name (data frame = df, list = list or ls, etc.)
+
+**Basically, you have the following options:**
+
+-   All lower case: e.g. **myfirstobject**
+-   Period separated (not compatible with all programming languages): e.g. **my.first.object**
+-   Use underscores: e.g. **my_first_object**
+-   camelCase1: e.g. **myFirstObject**
+-   CamelCase2: e.g. **MyFirstObject**
+
+The most important aspects of naming conventions are being concise and consistent! Throughout this course you'll most often see the **underscore_separated.object_type** style to name variables.
+
+### 2.5.3 Best Practices for writing your markdown notebooks
+
+-   Start each notebook with the description or purpose of the notebook
+
+-   Then load all required packages.
+
+-   Consider what working directory you are in (ie where are your files?)
+
+-   Use comments to mark off sections of code.
+
+-   Name and style code consistently.
+
+-   Break code sections into small, discrete pieces.
+
+-   Keep all of the source files for a project in one directory and use relative paths to access them.
+
+-   Keep track of the memory used by your program.
+
+-   Always start with a clean environment to avoid problems from old objects/functions in memory.
+
+-   Have someone else review your code.
+
+-   Use version control.
+
+For more information on best coding practices, please visit [swcarpentry](https://swcarpentry.github.io/r-novice-inflammation/06-best-practices-R/)
+
+------------------------------------------------------------------------
+
+## 2.6.0 Trouble-shooting basics
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/GooglingForProgrammers.jpg?raw=true" width="700"/>
+:::
+
+We *all* run into problems. We'll see a lot of mistakes happen in class too! That's OK if we can learn from our errors and quickly (or eventually) recover.
+
+### 2.6.1 Common errors
+
+-   *file does not exist*: Use `getwd()` to check where you are working, type`list.files()` or the `Files` pane to check that your file exists there, and `setwd()` to change your directory if necessary. Preferably, work inside an *R project* with all project-related files in that same folder. Your working directory will be set automatically when you open the project (this can be done by using `File -> New Project` and following prompts). For more information on directory structure, see **Tutorial 01**.
+
+-   *typos*: R is case sensitive so always check that you've spelled everything right. Become familiar with using the *tab-autocompletion* feature when possible.
+
+-   *open quotes, parentheses, brackets*:
+
+    -   **RStudio** will highlight the current cursor-denoted bracket set in $\color{grey}{\text{dark grey}}$. If the bracket is unmatched on either side, it will not show a grey highlight.
+    -   When saving **RStudio** produces $\color{red}{\text{x}}$ icons on your left sidebar if your final bracket is not closed.
+
+-   *data type*: Use commands like `typeof()` and `class()` to check what type of data you have. Use `str()` to peak at your data structures if you're making assumptions about it.
+
+-   *unexpected answers*: To access the *help menu*, type `help("function_name")`, `?function_name` (using the name of the function that you want to check), or `help(package = "package_name")`.
+
+    -   The result will be shown in the lower-right pane under the `Help` tab (which is also searchable).
+
+-   *function not found*: Make sure the package name is properly spelled, installed, AND loaded. Libraries can be loaded to the environment using the function `library("package_name")`. If you only need one function from a package, or need to specify to what package a function belongs because there are functions with the same name that belong to different packages, you can use a double colon, i.e. `package_name::function_name`.
+
+-   *the R bomb!!*: The `session aborted` can happen for a variety of reasons, like not having enough computational power to perform a task or also because of a system-wide failure.
+
+    -   restart the whole program and see if it works the next time.
+    -   Use the RStudio debugging tools to run and step into your code at the same time.
+    -   You can use the Environment pane to see the values of variables (or their lack thereof)
+
+-   **cheatsheets**: Meet your new best friends: [cheatsheets](https://rstudio.com/resources/cheatsheets/)!
+
+### 2.6.2 Beginner Advice
+
+-   Try to solve a problem yourself but set a ***cut-off*** on being stuck. That could be 3 minutes or 30 minutes depending on your level of perseverance.
+-   Look at the error and read the actual text to see if it is helpful
+-   Check for syntax errors! A missing `,` or extra `)` still happens to me too!
+
+At this level, many people have had and solved your problem. Beginners get frustrated because they get stuck and take hours to solve a problem themselves. Set your limit, stay within it, then go online and get help.
+
+### 2.6.3 Finding answers online
+
+-   99% of the time, someone has already asked your question
+-   Google, Stack overflow, R Bloggers, SEQanswers, Quora, ResearchGate, RSeek, twitter, even reddit
+-   Including the program, version, error, package and function helps, be specific. Sometimes is useful include your operating system and version (Windows 10, Ubuntu 18, Mac OS 10, etc.).
+
+### 2.6.3.1 Asking a question
+
+-   Summarize your question in the title (be concise and objective!).
+-   Introduce your question, how you ran into the problem, **and how you tried to solve it yourself**. If you haven't done the **bolded thing**, do the **bolded thing**.
+-   Show enough of your code and data for others to try to reproduce the problem/error.
+-   Add tags that match your problem.
+-   Respond to the feedback and vote for the answer that you picked. People put in their free time to answer and help you.
+-   Take a look at [StackOverflow's tips on how to ask questions](https://stackoverflow.com/help/how-to-ask), as well as [CRAN's](https://www.r-project.org/posting-guide.html)
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/StackOverflow.png?raw=true" width="500"/>
+:::
+
+**Remember**: Everyone looks for help online **ALL THE TIME**. It is very common. Also, with programming there are multiple ways to come up with an answer, even different packages that let you do the same thing in different ways. You will work on refining these aspects of your code as you go along in this course and in your coding career.
+
+Last but not least, to make life easier: Under the `Help` pane, there is a *Cheatsheet of Keyboard Shortcuts* or a browser list [here](file:///usr/lib/rstudio/www/docs/keyboard.htm).
+
+------------------------------------------------------------------------
+
+## 2.7.0 Programming in the age of Artificial General Intelligence
+
+It should be noted with some skepticism, that we are in a wondrous time driven more and more by artificial general intelligence. You may wonder, what the utility of this course is when you can simply ask [ChatGPT](https://chatgpt.com/) to help you code. In fact, there are any number of [coding assistants](https://www.google.com/search?q=AI+coding+assistants) that are available now to help produce or critique your code. We won't go into the current and future *perils of AI* since that's a whole other kind of discussion.
+
+Regardless, these tools are a great coding time-saver but still most useful in the hands of those with programming experience. Much like learning the best way to Google a subject, you should have a basic understanding of programming before proceeding to use these tools. This course seeks to arm you with the tools you need for understanding and creating code for working with standard collections of measured biological data. Once you have these concepts in-hand, you will know how to ask coding assistants for help or direction. Otherwise, you might find yourself in an amorphous space without a proper direction and no plan for how to handle your data.
+
+I do encourage you to work with these tools as you continue this journey *after* this introductory course. Each of you will be working with specialized data or statistics in some way and having an assistant will save you some time ***if*** you can understand the code it will return to you. So take the time, learn the material, figure out the ***kind*** of questions you should be asking, and use the tools!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/ChatGPT_screenshot.png?raw=true" width="600"/>
+:::
+
+You can ask ChatGPT how to make a dataframe is, but ***what is*** a dataframe?
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 2.0.0 Comprehension Question:** What are the main differences between an R-markdown Notebook **code cell** and a section of **markdown** text?.
+:::
+
+------------------------------------------------------------------------
+
+## Section 2.0.0 comprehension answer:
+
+
+------------------------------------------------------------------------
+
+# 3.0.0 The basics of working with R
+
+Remember that before we can run, we really need to learn how to walk. This week we will finish by laying the foundation for this complex language. Enough about best practices! Let's get started!
+
+## 3.1.0 Basic use of R
+
+R can do anything your basic, scientific, or graphic calculator can. Note that in our first encounter with the parentheses symbols `()` we use them just like we do in math equations to separate portions of our equation for correct interpretation of how we'd like the evaluation order completed.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: what happens when I run my code cell?** In our next few steps, you'll see what really happens when you run your first code cell. Depending on the nature of the code, you will usually generate some output (aka a result). Where and how is this displayed? Depending on the kind of output it could be simple text, a table format (aka a dataframe), something in between, or even a visual plot.
+:::
+
+### 3.1.1 Basic math equations
+
+```{r}
+# addition
+...
+```
+
+```{r}
+# exponents
+...
+
+# In this case we use the ^ symbol to denote the use of an exponent
+```
+
+### 3.1.2 Basic math functions
+
+Next we'll encounter another use of the `( )` symbols. In this case we use them as separators to hold information that we are passing on to functions like `sqrt()` and `factorial()`. These math functions do exactly what they might sound like. We'll talk more about functions and what they do in the next section!
+
+```{r}
+# basic math functions
+...
+
+# Sounds strange but this is just take a square root!
+```
+
+```{r}
+# advanced math functions
+...
+
+# This is the same as the math notation "3!" which is 1x2x3
+```
+
+```{r}
+# access to constants
+...
+
+# This is a function to calculate the powers of e
+...
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: why does my output always begin with a [1]?** Many functions are capable of producing multiple pieces of output. The `[1]` in this case is used to denote the index of the following value! As we'll learn next week, sometimes we may have hundreds of numbers and the `[x]` conveniently tells us where the adjacent value is positioned amongst the many values in the group. While we are only producing a single value from our equations or functions, we still get the `[1]` for consistency.
+:::
+
+### 3.1.3 Plot equations
+
+Another set of more advanced functions that allows us to plot an equation along an x-y plane.
+
+```{r}
+# Plot a quick equation!
+curve(..., from=0, to=2)
+```
+
+```{r}
+# Plot a parabola
+curve(10*x^2, ...)
+```
+
+------------------------------------------------------------------------
+
+## 3.2.0 Functions do the work for us
+
+You may have noticed above that we had 2 contexts under which we used the parentheses `( )`. There are actually many functions for `( )` within R but this is all dependent upon context.
+
+1.  Most broadly we use `( )` to contain or separate actions and expressions. The development of R centres around a much older programming language that leaned heavily on the use of `( )` but, in a nutshell, everything is evaluated from the innermost `( )` to the outermost set of `( )`.
+
+2.  A secondary purpose of `( )` is to indicate to R that you would like to activate a function by passing the contents of `( )` to the pre-existing function. This takes the form of
+
+    `function_name(parameter_1 = argument_1 , parameter_2 = argument_2, .., parameter_n = argument_n)`.
+
+    or more simply
+
+    `function_name(argument_1, argument_2, ..., argument_n)` but argument order in this case is quite important and must match with the pre-defined parameter order.
+
+3.  Within your function call, arguments are separated using a `,`.
+
+We'll talk about the structure of functions in more detail as the course progresses BUT know that
+
+1.  functions are used to perform common operations that may combine multiple actions or calculations.
+2.  functions are programmed or ***defined*** and they use ***arguments*** as a way to retrieve input or information to perform their jobs.
+3.  functions may or may not ***return*** a value upon their completion.
+4.  The terms **parameter** and **argument** are often used interchangeably but *by definition* parameters are [**p**]{.underline}laceholders/variables, while arguments represent [**a**]{.underline}ctual values.
+
+### 3.2.1 Use the `help()` function or `?` to learn more about functions
+
+Often you may forget what the simple or complicated requirements of a function are but you can use `?` or `help(function_name)` to retrieve a description of a function which includes a description of the input arguments and output (if any) that is returned.
+
+```{r, eval = FALSE}
+# Use ? to retrieve a description of help()
+...
+# Note the lack of ()? 
+# We don't want to invoke the function but rather just provide it's name!
+```
+
+```{r, eval = FALSE}
+# Here we are using the () to define the function we want to know more about
+help(...)
+```
+
+```{r, eval = FALSE}
+# A list of common functions that we don't have time to explore today
+...
+
+# ?c
+# ?seq
+# ?setwd
+# ?sort
+# ?dir
+# ?head
+# ?names
+# ?summary
+# ?dim
+# ?range
+# ?max
+# ?min
+# ?sum
+# ?pairs
+# ?plot
+```
+
+------------------------------------------------------------------------
+
+### 3.2.2 R evaluates functions by the order of parentheses
+
+Remember back in section 3.2.0 we mentioned how R interprets brackets? When working or reading functions in R, it should be noted that functions are generally evaluated (or run) by the R interpreter from left to right and from inner-most parentheses to outer-most. This means you can indeed provide a function as a parameter to another function.
+
+When writing code, it can quickly become complicated with inner functions like this:
+
+`function_1(function_2(function_3())) + function_4()`
+
+As we can see from above, `function_3()` must be evaluated first as it serves as an argument to `function_2()`, which must itself be evaluated so it can be used as an argument to `function_1()` before being added to `function_4()`. Imagine having multiple parts of these all happening in a single line of code? It can certainly hinder code readability down the road.
+
+Of course there are [more complex function evaluations](https://stackoverflow.com/questions/23689211/precedence-of-a-function-call-in-r) but we won't really tread there in this course.
+
+Furthermore, we will learn to remedy this kind of issue further down the road by writing our code in a way that flows more logically for readers. However, it is best to keep these ideas in mind when trying to read someone else's code.
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 3.0.0 Comprehension Question:** In what order will the functions in the following code be evaluated?
+
+$$
+function_2(function_4(function_3(), function_1()), function_5(function_6()))
+$$
+A) 6, 1, 4, 3, 2, 5
+B) 3, 1, 6, 5, 4, 2
+C) 3, 1, 4, 6, 5, 2
+D) 3, 1, 4, 2, 5, 6
+
+:::
+------------------------------------------------------------------------
+
+## Section 3.0.0 comprehension answer:
+
+------------------------------------------------------------------------
+
+# 4.0.0 A [quick] intro to R's variables, data types, and data structures
+
+## 4.1.0 Assigning variables
+
+Up until now we've simply been calculating with R and the output appears after the code cell. There is nothing left behind in the R interpreter or memory. If we wanted to hold onto a number or calculation we would need to ***assign*** it to a named variable. In fact R has multiple methods for assigning a value to a variable and an order of precedence!
+
+`<-` and `<<-` **Leftward assignment**: assignment used by most 'authentic' R programmers but really just a historical throwback.
+
+`=` **Leftward assignment**: commonly used token for assignment in many other programming languages but carries dual meaning!
+
+`->` and `->>` **Rightward assignment**: we won't really be using this in our course. It's generally not good style formatting to use it in your code but I've included it here so you can recognize it in the wild.
+
+**Notes**
+
+-   assignment to a variable *does not* produce any output.
+-   R processes at each new line unless you use a semicolon (`;`) to separate commands
+-   In RStudio, you can use `Alt` + `-` to produce the `<-` symbol
+
+::: {.alert .alert-block .alert-info}
+**New Concept: Variables are placeholders**. Before you go assigning variables you should keep a few additional ideas in mind. A variable is like a special kind of placeholder. In the memory of the kernel (where your code is actually converted to machine language to be run by processors), live the objects that you create. When you store data in R, it needs to live *somewhere* while you access and manipulate it. The gateway to accessing that data is through a **variable**. For this reason:
+
+1.  variable names are *case sensitive* and therefore considered unique. There is a difference between **"ThisVariable"** and ***"thisVariable"***.
+
+2.  multiple variables can point to the same object in memory, at least until it is modified.
+
+3.  the object a variable points to, can be altered or updated.
+
+4.  likewise, variables can be reassigned to new objects!
+:::
+
+Let's try some exercises.
+
+```{r}
+# Assign with the standard =
+
+...
+
+# Use the print() command to print simple and complex expressions
+print(...)
+
+# Or just evaluate the expression to standard output
+...
+```
+
+```{r}
+#Left hand assigner (original way to assign results) 
+# sometimes the <- is necessary for functions originally created in S. 
+# Often seen on R help forums if you Google future issues
+
+a ... 
+a
+```
+
+```{r}
+# Assign some variables
+a <- ...
+b <- ...
+
+# Multiply them
+...
+```
+
+```{r}
+# each code after a semicolon is interpreted as a new line
+a<-4... b <- 2... a*b 
+```
+
+------------------------------------------------------------------------
+
+### 4.1.1 Blank spaces are usually ignored by the interpreter
+
+Notice in our last code cell, that we see assignment in two ways with `a<-4` and `b <- 2`. The only real difference between the first and second, ***syntactically*** is that we've got more spaces in the latter, making it much easier to read.
+
+For R, white space (or blank space) is used to separate between commands, special characters, and variables, as the code is run but the ***total*** number of spaces between is irrelevant to the interpreter when it is running your code.
+
+Let's see it in action
+
+```{r}
+b <- 2
+
+a<-3...b*a
+
+# versus
+
+a = 3; b * a
+```
+
+------------------------------------------------------------------------
+
+Here's a more complex example of code:
+
+```         
+for (i in unique(raw_area_long$date)){sub.dat<-subset(raw_area_long, raw_area_long$date==i)
+umoles<-(((sub.dat$area[sub.dat$date==i]-calib_coeff$intercept[calib_coeff$date==i])/calib_coeff$slope[calib_coeff$date==i])/1000)*sub.dat$headspace_mL[sub.dat$date==i]}
+```
+
+Using spaces to organize the above code, we can clarify what's happening! Notice we even use indentation to help sort out the ***flow*** of our code. We'll talk more about that in detail as the course progresses.
+
+```         
+for (i in unique(raw_area_long$date)) {
+  
+  sub.dat <- subset (raw_area_long, raw_area_long$date == i) 
+  umoles <- ( ( ( sub.dat$area[sub.dat$date == i] - 
+                    calib_coeff$intercept [calib_coeff$date == i] ) / 
+                  calib_coeff$slope [ calib_coeff$date == i] ) / 1000 ) * 
+    sub.dat$headspace_mL 
+
+}
+```
+
+------------------------------------------------------------------------
+
+### 4.1.1.1 A special case where blank space can change interpretation
+
+Due to the nature of how the R-kernel ***interprets*** the order/context of symbols, and how symbols can be combined, we must address the importance of `<-` versus `< -`.
+
+-   The former case `<-` is our symbol for leftward assignment
+
+-   The latter case breaks our symbol into two parts to create an *expression* (more on that in section **3.2.0**)
+
+::: {.alert .alert-block .alert-warning}
+**Warning: spaces still matter** While R will generally treat one versus two blank spaces the same, the ***presence*** of at least a single space **IS** noticed by the interpreter. Thus you must be cognizant of the difference between `a <- 4` and `a < -4`. In the former case you are making an assignment with `<-` in the latter case, you are making a comparison asking if the variable `a` is less than `-4`. We'll get more into comparisons in a few weeks though.
+:::
+
+```{r}
+# Assignment 
+a <- 3
+
+# Evaluation
+a ...
+
+# Evaluation with extra space!
+a ...
+```
+
+------------------------------------------------------------------------
+
+### 4.1.2 R calculates from the right side first before (leftward) assignment
+
+R calculates the right side of the assignment ***first*** and the result is then applied to the left. This is a common paradigm in programming that simplifies variable behaviours for counting and tracking results as they build up over time.
+
+This also allows us to increment variables or manipulate objects to update them!
+
+```{r}
+# What will be the final value of i?
+
+i <- 1
+i <- ...
+i
+```
+
+This behaviour can be extended in a more complex fashion to encompass multiple variables
+
+::: {.alert .alert-block .alert-warning}
+**Warning: variables are not exactly set in stone** Variables are specific identifiers/placeholders that allow us to ***access*** our data. We can **change** the nature and size of that data simply by reassigning the value of the variable. What happens under the hood to manage these changes, is not our problem to think about right now. The R kernel manages all that for us.
+
+Consequently, if none of your variables point to your object in memory (i.e. you've reassigned all your variables in one way or another) then you will no longer have access to that object. It may not cease to exist, but you will not be able to touch it!
+:::
+
+```{r}
+# Remind ourselves the values of a and b
+a;b
+# Use multiple values in an expression assigned to a variable 
+result <- ...
+result
+
+# make a calculation
+result ...
+```
+
+```{r}
+# Use and overwrite the current value of "result"
+... <- result ^ pi 
+
+# this PERMANENTLY overwrote your old 'result' object. If this is an important value be sure to keep it safe!
+result
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-info}
+**New Concept: Use the `Tab` key to autocomplete** Remember that variable names are case-sensitive. When assigning variables, remember to use original, descriptive names to reduce errors in your code. However, large variable names can be a burden sometime to type out. To save yourself some trouble, you can use the `Tab` key to help autocomplete your code. This help complete or identify pre-existing variable names matching the start of what you've typed. The same goes for functions, filenames, etc.
+
+So remember to walk the fine balance between **descriptive** and *overly long* variable names. Let **autocomplete** take the wheel.
+:::
+
+```{r}
+# A quick example of autocomplete
+thisNewVariable <- ...
+
+a <- ...
+
+...
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 4.0.0 Comprehension Question:** In your own words, describe what the following code cell does. You can use the markdown section following the coding cell.
+:::
+
+```{r}
+# comprehension answer code 4.0.0
+# What does this code do?
+
+variable1 <- 2025
+variable_2 <- 280
+variableThree <- 3
+Variable1 <- (variable1 + variable_2)/variableThree
+
+```
+
+## Section 4.0.0 comprehension answer:
+
+------------------------------------------------------------------------
+
+# 5.0.0 Class summary
+
+In today's class we covered a number of diverse topics including:
+
+1.  Finding and sourcing biological data
+2.  Working with R markdown notebooks
+3.  Basic syntax for making calculations in R
+4.  Assignment of variables and their evaluation
+
+Next week we'll dive into learning how complex sets of data are stored in R!
+
+## 5.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). ***Don't forget to fill in your name and student number at the top of the notebook!*** To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 5.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*
+
+------------------------------------------------------------------------
+
+## 5.3.0 Glossary of terms:
+
+Functions: pre-packaged or user-defined code that performs a job. These small "programs" can receive input and generally return some sort of output or modify an object in memory.
+
+Syntax: the specific grammar of a language. The arrangement of specific symbols or special characters that is recognized by a programming language's interpreter so that the code can be executed to completion. Incorrect syntax usage can often be recognized by the interpreter, creating error messages before the code is fully executed.
+
+Variable: a label/name used by programming languages to identify a location in memory where data, values, or structures (all of which may collectively be called *objects*) are stored. Variables can be reused to locate other objects. When objects in memory no longer have variables attached to them, they will become inaccessible. 
+
+## 5.4.0 Reference and Resources
+
+-   ["Introduction to R"](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf)
+-   ["A History of the NCBI"](https://www.ncbi.nlm.nih.gov/books/NBK148949/)
+-   ["How R remembers objects"](https://adv-r.hadley.nz/names-values.html)
+
+I usually like to put in any links or references here. I don't think it's worth really building a full citation but any papers or books should probably have some kind of citation.
+
+How to perform Linear algebra in R: <https://github.com/patrickwalls/R-examples/blob/master/LinearAlgebraInR.Rmd>\
+Using R in the command line: <http://stat545.com/block002_hello-r-workspace-wd-project.html>\
+A complete introduction to R: <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf>\
+Best practices for writing code: <https://swcarpentry.github.io/r-novice-inflammation/06-best-practices-R/>\
+How to ask for help on Stack Overflow: <https://stackoverflow.com/help/how-to-ask>\
+How to ask for help on the R development project: <https://www.r-project.org/posting-guide.html>\
+What is object-oriented programming? <http://www.quantide.com/ramarro-chapter-07/>
+
+------------------------------------------------------------------------
+
+# 6.0.0 Appendix 1: Installing R and RStudio for Desktop
+
+As we work through the course, you are not wholly required to use the University of Toronto RStudio servers. These have a distinct advantage in that the class code has been thoroughly tested on these servers and should provide nearly identical output regardless of the operating system on your own laptop or desktop. The servers are relatively fast BUT overall memory is limited.
+
+If you have plans to do more intense analyses with R, then you will be better served by installing and maintaining your own version of RStudio. This will require the installation of both the R kernel AND RStudio. For class files, you will also need to separately download these from the GitHub or learn to pull files from the GitHub repository, since it is [publicly available here](https://github.com/uoft-csb-datasci/2025-09-CSB280)
+
+## 6.1.0 Installing R
+
+As of 2025-09-02, the version used on \<r.datatools.utoronto.ca\> is 4.5.1 (2025-06-13, Great Square Root). This is the same as the latest stable version of R:
+
+Windows:\
+- Go to <http://cran.utstat.utoronto.ca/>\
+- Click on 'Download R for Windows'\
+- Click on 'install R for the first time'\
+- Click on the link at the top: 'Download R-4.5.1 for Windows' and download the installer for R.\ 
+- Double-click on the .exe file once it has downloaded and follow the instructions.
+
+(Mac) OS X:\
+- Go to <http://cran.utstat.utoronto.ca/>\
+- Click on 'Download R for (Mac) OS X'\
+- Identify your MAC processor type (ARM-64 or Intel-based).\
+- Under the "Latest release" section, choose the correct "R-4.5.1-arm64.pkg" or "R-4.5.1-x86_64.pkg" version\
+- Open the .pkg file once it has downloaded and follow the instructions.
+
+------------------------------------------------------------------------
+
+Linux:\
+- Open a terminal (Ctrl + alt + t) - sudo apt-get update\
+- sudo apt list -a r-base\
+- You may see multiple versions of r-base available or you may only get one. If 4.5.1 is available to you, then include this in the following commands - sudo apt-get install r-base=4.5.1\
+- sudo apt-get install r-base-dev=4.5.1 (so you can compile packages from source)
+
+------------------------------------------------------------------------
+
+## 6.2.0 Installing RStudio
+
+As of 2025-07-21, the latest RStudio version is 2025.05.1+513
+
+Windows 10/11:\
+- Go to <https://posit.co/download/rstudio-desktop/>\
+- Click on 'RSTUDIO-2025.05.1-513.EXE' to download the installer (or a newer version)\
+- Double-click on the .exe file once it has downloaded and follow the instructions.
+
+(Mac) OS 10.15+:\
+- Go to <https://posit.co/download/rstudio-desktop/>\
+- Click on 'RSTUDIO-2025.05.1-513.DMG' to download the installer (or a newer version)\
+- Double-click on the .dmg file once it has downloaded and follow the instructions.
+
+------------------------------------------------------------------------
+
+Linux:\
+- Go to <https://posit.co/download/rstudio-desktop/>\
+- Click on the installer that describes your Linux distribution, e.g. 'RSTUDIO-2025.05.1-513.-AMD64.DEB' (or a newer version)\
+- Double-click on the .deb file once it has downloaded and follow the instructions.\
+- If double-clicking on your .deb file did not open the software manager, open the terminal (Ctrl + alt + t) and type:
+
+-   `sudo dpkg -i /path/to/installer/`RSTUDIO-2025.05.1-513.-AMD64.DEB
+
+    *Note: You have 3 things that could change in this last command.*
+
+    1.  This assumes you have just opened the terminal and are in your home directory. (If not, you have to modify your path. You can get to your home directory by typing cd \~.)\
+    2.  This assumes you have downloaded the .deb file to Downloads. (If you downloaded the file somewhere else, you have to change the path to the file, or download the .deb file to Downloads).\
+    3.  This assumes your file name for .deb is the same as above. (Put the name matching the .deb file you downloaded).
+
+If you have a problem with installing R or RStudio, you can also try to solve the problem yourself by Googling any error messages you get. You can also try to get in touch with me or the course TAs.
+
+

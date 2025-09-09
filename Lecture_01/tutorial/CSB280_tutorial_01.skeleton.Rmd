@@ -1,0 +1,605 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+# Data Science for Cell and Systems Biology
+
+# Tutorial 01: Working with RStudio and learning the structure of file systems
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this tutorial
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this tutorial is a code-along style; it is 100% hands on! These tutorial sessions are meant to complement the materials discussed in class, taking some concepts a little further by applying them in some new ways. We may also discuss new material that is related to the content from recent lectures. **Future class lectures, quizzes and exams, could reference back to any of these topics so do your best to keep up!**
+
+A few hours prior to each tutorial, the materials for tutorial will be available through the nbgitpuller link used for class lectures. The tutorial materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the TAs. Complete versions (including code) for each weekly tutorial will be made available approximately one day prior to the next lecture date.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Tutorial Objectives
+
+This is the first in a series of eleven tutorials. At the end of this session you will be more familiar with how to work with the RStudio integrated development environment (IDE) and how to set certain options for easier future use. After that, you will learn ***where*** datasets are stored in a file system. Today's topics are broken into:
+
+1.  Familiarizing yourself with RStudio, and the R-kernel.
+2.  Identifying where files are stored on your file system.
+3.  Proper formatting of variables and code indentation
+4.  Tips and tricks for pseudocoding
+
+These concepts are necessary for efficiently coding on your own so you can work through technical issues, programming bugs, and file system errors.
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this tutorial
+
+### 0.4.1 Weekly tutorial skeleton files
+
+Each week, new tutorial files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX/tutorial/`. You will find a partially coded `tutorial_skeleton.Rmd` file in this subdirectory as well as all of the data files necessary to run the week's tutorial.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+------------------------------------------------------------------------
+
+# 1.0.0 Optimizing your RStudio experience
+
+## 1.1.0 *RStudio* is an integrated development environment (IDE) for R
+
+A flagship IDE for R is RStudio. It runs the R-kernel but offers additional tools and interfaces that allow the user and programmer to see and understand their code much better than just R by itself.
+
+RStudio simplifies some basic tasks like
+
+-   installing libraries and packages (even older versions of libraries)
+
+-   viewing environmental variables and objects
+
+-   accessing help information on functions
+
+-   Autocompleting programming calls to functions and variables
+
+-   Debugging broken code with step-through and tracing
+
+### 1.1.1 Why would you want to use R and RStudio?
+
+**"What if I'm doing more than just running data through packages?"**
+
+-   Building code from scratch
+-   Working with non-standard file types
+-   Performing extensive analysis on large datasets
+-   Generating multiple output files
+-   Creating functions and libraries to reference in other scripts
+-   Debugging or stepping slowly through complex code
+-   Publishing complex code for a manuscript(?)
+
+As a development environment **RStudio** offers features like debugging, and access to environmental variable states. It is a fully integrated development environment that makes it easy to look for help on package and function information, saving data states to come back to later, working on multiple scripts that may reference into each other. It has a clear user interface that can make looking at certain data objects like "tables" much easier too.
+
+------------------------------------------------------------------------
+
+## 1.2.0 Running RStudio on the University of Toronto datatools hub
+
+For simplicity and consistency, we will be running our course on the University of Toronto datatools hub. By running on the same servers, we will be able to experience the same results and will be insulated from small differences in packages and implementations between RStudio versions and some operating systems.
+
+There are, however, still a few small problems that plague the servers, including memory limitations. While we will try to keep under the 2Gb memory limit, small errors in coding could result in large memory consumption. Once your memory limit has been reached, the server may become unresponsive, requiring you to restart your session. To avoid major interruptions:
+
+1.  Save your skeleton notebooks often!
+    -   This is as simple as using the **`[ctrl]+s`** keyboard shortcut or the floppy disk icon on the top left of the window. This will ensure that completed code is not lost as skeleton notebooks are due for submission before the next lecture.
+    -   You can also alter R so that it will automatically save your work when you are idle (ie not typing) for more than a set number of seconds. Go to **`Tools > Global Options > Code > "Saving" Tab`** and on the bottom of this pane find the `When editor is idle:` drop down box. Alter the value to "**Save and write changes**" and set an `Idle period:` of 5000ms or 10000ms.
+2.  A session restart will mean that all variables have been cleared from memory. You can re-run your code in 3 ways:
+    -   From the menu, select **`Code > Run Region > Run all chunks above`**.
+    -   Within the code cell you want to run next, click on the **`Run all chunks above`** icon on the top right of the code cell. This is the second of 3 icons and looks like a downward pointing triangle above a small line.
+    -   Use the shortcut keys **`[ctrl] + [alt] + [shift] + p`** after positioning your cursor in correct code cell.
+    -   Use these methods from the code cell that you'd like to run next. All previous code will run up to (but excluding) your current code position.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: Error-proofing your code** If you are creating a tutorial or intentionally introducing errors, the R-kernel will normally terminate the **`Run all chunks above`** command at the first error-producing code chunk. However, using the `{r, error=TRUE}` definition in the code cell, will allow the kernel to continue past a code chunk error.
+:::
+
+------------------------------------------------------------------------
+
+## 1.3.0 Getting to know the RStudio environment
+
+RStudio is an IDE (Integrated Development Environment) for R that provides a more user-friendly experience than using R in a terminal setting. It has 4 main areas or panes, which you can customize to some extent under `Tools > Global Options > Pane Layout`:
+
+1.  **Source** - The code you are annotating and keeping in your script.
+2.  **Console** - Where your code is executed.
+3.  **Environment** - What global objects you have created and functions you have written/sourced.\
+    History - A record of all the code you have executed in the console.\
+    Connections - Which data sources you are connecting to. (Not being used in this course.)
+4.  **Files, Plots, Packages, Help, Viewer** - self-explanatory(ish) if you click on their tabs.
+
+All of the panes can be minimized or maximized using the large and small box outlines in the top right of each pane.
+
+::: {align="center"}
+<img src="https://github.com/camok/CSB_Course_Materials/blob/main/IntroR/R_studio_default_layout.jpg?raw=true" width="900"/>
+:::
+
+### 1.3.1 Source
+
+The **Source** is where you are keeping the code and annotation that you want to be saved as your script. The tab at the top left of the pane has your script or notebook name (i.e. 'Untitled.R' or `Lecture01.Rmd`), and you can switch between files by toggling the tabs. You can save, search or publish your source code using the buttons along the pane header. Code in the Source pane is *run* or *executed* automatically or, in the case of a notebook, when you need to.
+
+To run your current line of code or a highlighted segment of code from the Source pane you can:\
+a) click the button `'Run' -> 'Run Selected Line(s)'`,\
+b) click `'Code' -> 'Run Selected Line(s)'` from the menu bar,\
+c) use the keyboard shortcut `CTRL + ENTER` (Windows & Linux) `Command + ENTER` (Mac) (recommended),\
+d) copy and paste your code into the Console and hit `Enter` (not recommended).
+
+There are always many ways to do things in R, but the fastest way will always be the option that keeps your hands on the keyboard.
+
+------------------------------------------------------------------------
+
+### 1.3.2 Console
+
+You can also type and execute your code (by hitting `ENTER`) in the **Console** when the `>` prompt is visible. If you enter code and you see a `+` instead of a prompt, R doesn't think you are finished entering code (i.e. you might be missing a closing parentheses or bracket). If this isn't immediately fixable, you can hit `Esc` twice to get back to your prompt. Using the up and down arrow keys, you can find previous commands in the `Console` if you want to rerun code or fix an error resulting from a typo.
+
+On the `Console` tab in the top left of that pane is your current working directory. Pressing the arrow next to your working directory will open your current folder in the Files pane. If you find your Console is getting too cluttered, selecting the broom icon in that pane will clear it for you. The `Console` also shows information: upon start up about R (such as version number), during the installation of packages, when there are warnings, and when there are errors.
+
+------------------------------------------------------------------------
+
+### 1.3.3 Environment
+
+In the **Global Environment** you can see all of the stored objects you have created or sourced (imported from another script). The Global Environment can become cluttered, so it also has a broom button to clear its workspace. This will also erase any objects you've imported into memory.
+
+**Objects** are made by using the assignment operator `<-`. On the left side of the arrow, you have the name of your object. On the right side you have what you are assigning to that object. In this sense, you can think of an object as a container. The container holds the values given as well as information about 'class' and 'methods' (which we will come back to).
+
+Type `x <- c(2,4)` in the `Console` followed by `Enter`. 1D objects' data types can be seen immediately as well as their first few values. Now type `y <- data.frame(numbers = c(1,2,3), letters = c("a","b","c"))` in the Console followed by `Enter`. You can immediately see the dimension of 2D objects, and you can check the structure of data frames and lists (more later) by clicking on the object's arrow. Clicking on the object name will open the object to view in a new tab. Custom functions created in session or sourced will also appear in this pane.
+
+On the `Environment` pane, the `Global Environment` drop down menu, displays all of the currently loaded packages. *Loaded* means that all of the tools/functions in the package are available for use without having to explicitly name the package itself! R comes with a number of packages pre-loaded (i.e. base, grDevices).
+
+In the `History` tab are all of the commands you have executed in the Console during your session. You can select a line of code and send it to the Source or Console.
+
+The Connections tab is to connect to data sources such as Spark and will not be used in this lesson.
+
+------------------------------------------------------------------------
+
+### 1.3.4 Files, Plots, Packages, Help, Viewer
+
+The `Files` tab allows you to search through directories; you can go to or set your working directory by making the appropriate selection under the `More` (blue gear) drop-down menu. The `...` to the top left of the pane allows you to search for a folder in a more traditional manner.
+
+The `Plots` tab is where plots you make in a .R script will appear (notebooks and markdown plots will be shown in the Source pane). There is the option to Export and save these plots manually.
+
+The `Packages` tab has all of the packages that are installed and their versions, and buttons to Install or Update packages. A check mark in the box next to the package means that the package is loaded. You can load a package by adding a check mark next to a package, however it is good practice to instead load the package in your script to aid in reproducibility.
+
+The `Help` menu has the documentation for all packages and functions. For each function you will find a description of what the function does, the arguments it takes, what the function does to the inputs (details), what it outputs, and an example. Some of the help documentation is difficult to read or less than comprehensive, in which case goggling the function is a good idea.
+
+The `Viewer` will display vignettes, or local web content such as a Shiny app, interactive graphs, or a rendered html document.
+
+------------------------------------------------------------------------
+
+### 1.3.5 Global Options
+
+I suggest you take a look at main menu option `Tools -> Global Options` to customize your experience.
+
+For example, under `Code -> Editing` I have selected `Soft-wrap R source files` followed by `Apply` so that my text will wrap by itself when I am typing and not create a long line of text.
+
+You may also want to change the `Appearance` of your code. I like the `RStudio theme: Modern` and `Editor font: Ubuntu Mono`, but pick whatever you like! Again, you need to hit `Apply` to make changes.
+
+That whirlwind tour isn't everything the IDE can do, but it is enough to get started.
+
+------------------------------------------------------------------------
+
+## 1.4.0 Getting to know about your instances of R
+
+Although every version of RStudio running off of the <https://datatools.utoronto.ca> server should be identical, you may choose to run your own version on your desktop. You may also try to install packages for specific tasks that relate to your work or needs. Sometimes there can be issues when a package is built with a specific version of R in mind. Perhaps it relies on a newer or older version of R because of how certain objects are treated.
+
+While the releases of R tend to be stable and small updates are usually meant to fix bugs in the language, or re-implement base functions to run faster in the background, there can be major revisions! This is usually when the first number changes ie between 3.0.5 and 4.0.3 a major change was made to how R was implemented. The same goes for packages that rely on other packages!
+
+You can quickly check your current version of the R kernel with `R.Version()`
+
+```{r}
+# What is the current version of R?
+
+...
+```
+
+In fact, you can install multiple versions of the R kernel on your system! Using the `Tools -> Global Options -> General` tab, you can switch between different versions of the R kernel. You need to restart RStudio for the changes to take effect, but this allows you to operate different versions of R for different contexts.
+
+Of course, this requires installing packages separately for each version, so buyer beware!
+
+------------------------------------------------------------------------
+
+### 1.4.1 Identify loaded packages with `sessionInfo()`
+
+While in our previous section, we were able to specifically identify our R version, sometimes it is also helpful to see which packages are currently loaded into memory. As mentioned above, you can use the `Environment -> Global Environment` pane on the top right side of the IDE. You can also do it directly through code using the `sessionInfo()` function.
+
+```{r}
+# Determine which packages are loaded into memory 
+
+...
+```
+
+The output of this function gives us a clear look at the packages that are loaded, but ALSO their version at the same time. You also can see some additional details again like the version of R you are working with.
+
+------------------------------------------------------------------------
+
+### 1.4.2 Navigate quickly between panes using shortcuts!
+
+Sometimes you just want to quickly check/run code when working between your main `Source` pane, and the `Console` pane. Here is a quick list of shortcuts you can use to quickly navigate between the panes.
+
+-   `ctrl + 1`: Source/Editor
+-   `ctrl + 2`: Console
+-   `ctrl + 3`: Help
+-   `ctrl + 4`: History
+-   `ctrl + 5`: Files
+-   `ctrl + 6`: Plots
+-   `ctrl + 7`: Packages
+-   `ctrl + 8`: Environment
+-   `ctrl + 9`: Viewer
+
+**Protip:** You can maximize any pane by adding `shift` to the same command: ie `ctrl + shift + 2` to maximize your console! Repeating the same command will revert to the previous state
+
+------------------------------------------------------------------------
+
+# 2.0.0 Understanding where files are stored
+
+Over the remainder of the lectures in this course, we will start working with data files by importing them or loading them into the memory of R. Where, however, are these files stored?
+
+## 2.1.0 Absolute versus Relative location
+
+The address or location we use is also commonly known as the `Path` to that location. When working with files in most file systems, you can refer to folders or files based on their ***absolute*** path or their ***relative*** path.
+
+### 2.1.1 The absolute file path
+
+In the case of an absolute path, every file has a specific address located within a file system. It usually follows a pattern like: $$<Disk/Drive>:<folder1>/<folder2>/.../<filename>$$ Noting from the above location, it is always required to include the Disk or Drive where the address begins. Commonly you may see things like `C` or `D` if you are windows user.
+
+In other systems, you may not normally default to a specific drive but rather begin at a `home` directory which can be accessed quickly using a special symbol like the tilde `~`. In those cases you will see something more like:
+
+$$~/<folder1>/<folder2>/.../<filename>$$
+
+or
+
+$$/Users/<userName>/<folder1>/.../<filename>$$ You'll also note by now that folders in our path are separated with the `/` forward slash. This is what we use in R to define our file paths, however, on a system like Windows, a `\` backslash is used to work with files in the background.
+
+The nice thing about an absolute path is that *as long as you are on the file system or drive* the absolute location to a file never changes. When you move to a different computer or server, all that goes out the window.
+
+------------------------------------------------------------------------
+
+### 2.1.2 The relative file path
+
+The strength in using a relative file path is that everything remains much more flexible. The relative path denotes the specific path to get from where you are currently in the structure to get to the desired folder or file. To navigate such a path, we will add two more specific pieces of syntax: - `.`: represents the current directory - `..`: represents going back (or up) to the previous folder, also known as the *parent folder*.
+
+### 2.1.3 Comparing between absolute and relative file paths
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/FolderExample.png?raw=true" width="700"/>
+:::
+
+Using the above file structure example, we will identify the absolute and relative locations of "tutorial.Rmd" and "rubric.pdf". For each example, we'll also play around with our current location!
+
+| Current location | file | Absolute Path | Relative Path |
+|:---|:---|:---|:---|
+| CSB280 | tutorial.Rmd | home/CSB280/Lec_02/tutorial/tutorial.Rmd | ./Lec_02/tutorial/tutorial.Rmd |
+| CSB280 | rubric.pdf | home/BIO260/Exam/rubric.pdf | ../BIO260/Exam/rubric.pdf |
+| Exam | tutorial.Rmd | home/CSB280/Lec_02/tutorial/tutorial.Rmd | ../../home/CSB280/Lec_02/tutorial/tutorial.Rmd |
+| Exam | rubric.pdf | home/BIO260/Exam/rubric.pdf | ./rubric.pdf |
+
+Notice how regardless of our "Current Location" the absolute paths of both files remains the same!
+
+------------------------------------------------------------------------
+
+## 2.2.0 Browsing your files with R
+
+Now that you have a sense of what a basic file structure should be like, let's learn how to examine files and file structure using the functions provided with R.
+
+### 2.2.1 Use `getwd()` and `setwd()`
+
+How do we know where we are in the file structure of our current file system? To access this information, you can use the `getwd()` (get working directory) function. Similarly, if you would like to set your current location to a specific location on the system, you can use the `setwd()` function.
+
+Give it a try!
+
+```{r}
+# Use getwd() to find your working directory
+
+...
+```
+
+```{r}
+# Set the working directory to the parent directory of Lecture01
+
+...
+
+# Check where you are
+getwd()
+```
+
+Unfortunately, we cannot permanently change the working directory for our notebooks using `setwd()` without making some major changes to the markdown notebook. Let just stick with our tutorial directory for now.
+
+------------------------------------------------------------------------
+
+### 2.2.2 Use `dir()` to see the files within the current directory
+
+If you wish to see the files where you currently are, you will need some kind of function to return that information. For R, we can use the `dir()` function, which has the parameter `path`. By default, `path = "."` which will look at the current directory listed in `getwd()`. On the other hand you can provide your own `path` argument if you'd like to look around.
+
+```{r}
+# What files are in the current path?
+
+...
+```
+
+Within our current path, we see our "CSB280_tutorial_01.Rmd" file, while we also see something called "data". While we can't be sure what kind of file it is, the lack of file extension suggests that this is a folder.
+
+To examine the "data" folder closer we have two options - providing a `path` parameter OR using the `recursive = TRUE` argument. In the latter case, this will go through ALL subfolders and return any files stored within.
+
+```{r}
+# The following sets of code have the same result: 
+
+# Here the "." means from my current location and "/" denotes a folder within
+dir(path = ...)
+
+# The same can be achieved without the "./" since we are referencing a folder path!
+dir(path = ...)
+```
+
+```{r}
+# Try using the recursive behaviour!
+dir(recursive = TRUE)
+```
+
+Note that in our recursive version of `dir()` that the "data" folder itself is not listed BUT all of it's contents are listed as relative paths!
+
+------------------------------------------------------------------------
+
+# 3.0.0 More on variables and formatting
+
+While we briefly touched on variable names and code formatting in class, we didn't encounter any specific errors or discuss at depth the importance of code indentation.
+
+------------------------------------------------------------------------
+
+## 3.1.0 Specific rules for variable names
+
+We introduced variables in our first lecture and learned how to assign, use, and alter them. There are a few rules, however, regarding the naming of variables that must be remembered:
+
+1.  Variable names can contain *almost* any combination of letter, number, `_` or `.` characters. Other characters are not allowed.
+2.  Variable names can begin with any letter but not a number.
+3.  Variable names can begin with `.` but must not be followed by a number.
+4.  There is a list of reserved words which cannot be used. We may have encountered some already like `TRUE` or `FALSE`,
+
+```{r}
+# Use the help function to identify reserved words
+help(...)
+```
+
+------------------------------------------------------------------------
+
+### 3.1.1 The consequences of assigning variables to reserved names
+
+When generating your code, you will know when trying to run it, whether or not you've created an acceptable variable
+
+```{r, error=TRUE}
+# Regardless of what comes after, you cannot start a variable with a number!
+... <- "today"
+```
+
+So starting our variable with a number produces an error...
+
+```{r, error=TRUE}
+# What about a variable starting with an underscore
+... <- TRUE
+
+```
+
+Our first two examples result in a similar error - "unexpected symbol" because we have started our variable names with a character that would be legal in any other position. In fact, every programming language has its own separate syntax. Another Python fact: variables CAN begin with `_` and programmers often use `_` as a variable name on its own as a throwaway or placeholder symbol!
+
+```{r, error=TRUE}
+# What about an illegal character?
+
+... <- "yes"
+```
+
+In this third case, we've employed an **illegal** character as part of our variable name. The `@` symbol has it's own purpose in R and we have inadvertently tried to access part of a non-existent variable `illeg` using the `@` symbol!
+
+------------------------------------------------------------------------
+
+```{r, error=TRUE}
+# What about using a reserved word?
+... <- 10
+```
+
+In this last example, we have attempted to assign a value, 10, to the `next` reserved word. R has tried to use `next` as intended and become confused by the leftward assignment that follows as this is not the intended usage of this word.
+
+While all of our examples broke the rules of variable naming, we saw that three different kind of errors were generated. By looking carefully at the error produced, you can begin to understand the nature of your coding errors. Otherwise, learn to follow the rules and you'll be fine!
+
+------------------------------------------------------------------------
+
+## 3.2.0 Indentation simplifies how our code is read
+
+As we saw in our first lecture in section 4.1.1, indentation and space, while mostly ignored by R, can be extremely helpful to reading through code. Here are some general tips and tricks for making your code more readable:
+
+1.  Groupings of information, especially when separated by commas `,` can be broken up across new lines. This is helpful when, for instance, providing multiple parameter/argument pairings to a function.
+2.  Use the `Tab` characters to clean up your spacing. Using these to indent your code can allow you to align items from the same comma-separated group as mentioned above. Like a blank space, these characters can be used any number of times to produce cleaner code.
+3.  Consequently, paired enclosing characters (ie `()`, `[]`, `{}`) are often separated across large empty spaces.
+4.  Enclosing characters may be broken up by spaces, but they may also be separated across numerous new lines. While a newline is usually used to signal the beginning of a new line of code, the use of enclosing characters such as `()` will allow the code within to be treated as a single line or "expression".
+
+We'll practice over a couple of examples to familiarize ourselves with indenting code
+
+```{r}
+# Print the results of a dir() call
+print(dir(path=".",pattern=".png",full.names=TRUE,recursive=TRUE))
+
+# Repeat the code With indentation
+print(dir(path=".", pattern=".png", full.names=TRUE, recursive=TRUE))
+
+
+```
+
+Comparing the two sets of code above, we can immediately see how the use of indenting and line spacing has made it easier to read through and identify important aspects of the code.
+
+1.  We can see that we are calling on *two* functions - both `print()` and within that the `dir()` function.
+2.  For the `dir()` function, we are using 4 arguments, each being separated by a line. Compare this to the original formatting of the same code and how you must take additional care to read how many parameters are being assigned.
+3.  We can see specifically how the closing parentheses partner with their open counterparts, ensuring that the syntax is well-formed.
+
+------------------------------------------------------------------------
+
+Let's practice once more by indenting the following code which uses a grouping of code called a `for` loop. This for loop is known as a control structure and allows us to repeat the same set of code multiple times. Note that in some languages like `Python` the indentation of code is **mandatory** to initiate specific kinds of programming structures and paradigms!
+
+```{r}
+# Here's an example with a for loop. 
+# We'll build a for loop that executes 20 times
+for (variableName in 1:20){tempVariable<-tempVariable + variableName;print(variableName);print(tempVariable)}
+
+# Now for the indented version
+# With indenting, we can also add lines to clarify our intentions
+
+for (variableName in 1:20){
+  # We wish to increment tempVariable with each loop
+  # The value of variableName will change with each loop
+  tempVariable<-...
+  
+  # Now we print the loop value
+  print(...)
+  
+  # print the growing value of tempVariable
+  print(...)
+  }
+
+
+```
+
+In the above case, we took the time to spread our code out. We had multiple commands on a single line, using the `;` character to accomplish this. When we updated for an indented version, we removed the `;` and freely added a number of comments ***in-between*** our lines of code so that we can explain what is happening or sometimes why we've made a specific choice with that code.
+
+------------------------------------------------------------------------
+
+# 4.0.0 Pseudocoding - programming by logic versus syntax
+
+Often the hardest part about programming can be about getting the correct logic in the steps you want to take. The purpose of a program can be thought of a journey from point A to B. The more complicated that journey, the more intermediate steps you might expect to take. Like baking a cake, some steps may be interchangeable (like order of dry ingredients) but bigger steps are not (like mixing your batter comes *before* baking!).
+
+When working your programs/code, walking in with a general plan can be very useful and that's where pseudocoding comes in! When pseudocoding, it may begin with some very simple steps, before you re-evaluate your plan to add more intermediate and detailed steps. In these cases, we are less concerned with perfect syntax and more concerned with the clarity of your ideas.
+
+As we work through the lectures we'll see this in more details. Some of your quiz and exam questions may also ask you to pseudo code as part of an answer. Here are some general rules you can follow:
+
+1.  Follow the general rules of variable naming. Make your variable names clear and unique. Avoid similar-sounding variables!
+2.  When referring to functions that we've learned, be as close and specific as possible. Some functions have similar names! Example `as.integer("1")` will coerce a value into an integer type as you'll learn next week. `integer()` will create a vector of integers, which we'll learn about in later lectures.
+3.  To be clear, use `()` at the end of a function name, otherwise it will look like a variable
+4.  Math notation can be written as you might in a programming language with `+`, `-`, `*`, `/`, `^` although standard math symbols will also be understandable.
+5.  Use the left-arrow (written as a single symbol) or `=` for leftward assignment.
+6.  Clear meaning and intention is acceptable over syntactically correct pseudocode that doesn't perform as expected!
+
+Here's a simple example for you to check out:
+
+radiusValue = 5 + 5
+
+diameterValue = 2 x pi x radiusValue
+
+areaValue = pi x radiusValue \^ 2 **OR** areaValue = 3.14 x radiusValue \^ 2
+
+radiusRecalculation = sqrt(areaValue / pi) **OR** radiusRecalculation = squareRoot(areaValue / pi)
+
+\# Note that in the alternative case, there is no squareRoot() function in base R but the meaning is clear!
+
+------------------------------------------------------------------------
+
+# 5.0.0 Tutorial summary
+
+At the end of this tutorial you've had a little more exposure to:
+
+1.  RStudio as an IDE and how to navigate it successfully
+2.  How files are stored and how to work from them using absolute and relative file paths
+3.  Variable names and clean code formatting with indentation
+4.  Using pseudocode to clearly express your program ideas/strategies
+
+In coming lectures you will use some of these concepts more! For instance understanding the process of loading of data will make more sense now that you have a firmer understanding of file system structure.
+
+------------------------------------------------------------------------
+
+## 5.1.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*

@@ -158,7 +158,7 @@ After each lecture there will be a completed version of the lecture code release
 
 In last week's lecture we were working with mostly numbers and variables. While we did not explicitly state it, R keeps track of the types of values it stores because a number needs to be stored and interpreted differently than something like a single character, or a word (often known as a string in other programming languages).
 
-When we refer to the kind of value a variable might point to, we use the name "data type" to describe this value. Data types are used to classify the basic spectrum of values that are used in R. Here's a table describing *some* of the common data types we'll encounter.
+When we refer to the kind of value a variable might point to, we use the name "data type" to describe this value. These basic data types can also be described as atomic values. Data types are used to classify the basic spectrum of values that are used in R. Here's a table describing *some* of the common data types we'll encounter.
 
 | Data type | Description | Example |
 |:------------------|:----------------------------------|:------------------|
@@ -172,7 +172,7 @@ When we refer to the kind of value a variable might point to, we use the name "d
 
 ### 1.0.1 Atomic values - *"One is the loneliest data type"*
 
-One single value from any of the above data types. It is the smallest possible "unit" of data within R.
+Variables, as we've seen, can be assigned to one single value from any of the above atomic values. While it is the smallest possible "unit" of data within R, as we'll soon see, they are actually not stored as their own special data structure.
 
 In our next example, we'll also take the opportunity to use the `str()` function, which we spoke briefly about last lecture. The `str()` function, also referred to as the `structure` function allows us to view a summary of information from any variable/object. Depending on the complexity of the structure, it will show less or more information. At *minimum* the function will return the data type of object. We'll definitely see much more use of this function throughout the remainder of today's lecture and the course.
 

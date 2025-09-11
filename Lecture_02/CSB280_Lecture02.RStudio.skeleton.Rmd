@@ -1,0 +1,1519 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 02: How do we store data in R?
+
+# Student Name: 
+
+# Student ID:
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this course
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this course is a code-along style; it is 100% hands on! A few hours prior to each lecture, links to the materials will be available for download at [QUERCUS](https://q.utoronto.ca/). The teaching materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the instructor. Other course resources include tutorials with additional R Markdown notebooks that will cover additional materials and practice concepts from class lecture. Complete versions (including code) for each weekly lecture will eventually be made available the day prior to the next lecture date.
+
+As we go along, there will be some in-class comprehension questions for you to solve either individually. These may require you to complete code cells and/or provide a few sentences to answer the question. Please use the spaced provided in the notebook to supply your answers.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Class Objectives
+
+This is the second in a series of twelve lectures. At the end of this session you will be familiar with how data is stored in R through data structures, how to recognize and use these data structures. Understanding these basics ideas will be required for future work with tabular and complex datasets.
+
+Today's topics are broken into:
+
+1.  Basic data types
+2.  Basic data structures
+3.  Storing tabular data in R `dataframe` structures
+
+These concepts are necessary for coding best practices and to understand your data before beginning analyses.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also used for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX`. You will find a partially coded `skeleton.Rmd` file as well as all of the data files necessary to run the week's lecture.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the lecture code released as an HTML file under the Modules section of Quercus. These will be available on the following Monday morning after each lecture. Lecture slides (if any) will be made available as a PDF soon after each lecture.
+
+------------------------------------------------------------------------
+
+# 1.0.0 Data types are the basic building blocks of R
+
+In last week's lecture we were working with mostly numbers and variables. While we did not explicitly state it, R keeps track of the types of values it stores because a number needs to be stored and interpreted differently than something like a single character, or a word (often known as a string in other programming languages).
+
+When we refer to the kind of value a variable might point to, we use the name "data type" to describe this value. Data types are used to classify the basic spectrum of values that are used in R. Here's a table describing *some* of the common data types we'll encounter.
+
+| Data type | Description | Example |
+|:------------------|:----------------------------------|:------------------|
+| character | Can be single or multiple characters (strings) of letters and symbols. Assigned using double `'` or `"` | a#c&E |
+| integer | Whole number values, either positive or negative | 1 |
+| double | Any number that is not an integer, AKA *numeric* | 7.5 |
+| logical | Also known as a boolean, representing the state of a conditional (question) | TRUE or FALSE |
+| NA | Represents the value of "Not Available" usually seen when imported data has missing values | NA |
+
+------------------------------------------------------------------------
+
+### 1.0.1 Atomic values - *"One is the loneliest data type"*
+
+One single value from any of the above data types. It is the smallest possible "unit" of data within R.
+
+In our next example, we'll also take the opportunity to use the `str()` function, which we spoke briefly about last lecture. The `str()` function, also referred to as the `structure` function allows us to view a summary of information from any variable/object. Depending on the complexity of the structure, it will show less or more information. At *minimum* the function will return the data type of object. We'll definitely see much more use of this function throughout the remainder of today's lecture and the course.
+
+```{r atomic_values}
+# It doesn't matter what your variable is named, an atomic is still a single value
+b <- ...
+X <- ...
+
+str(b)
+str(X)
+X
+```
+
+Why is `X` printed that way with a `[1]`? We'll soon find out!
+
+::: {.alert .alert-block .alert-info}
+**New Concept: two types of numbers** Although character items must be in a set of either single **or** double quotations, they still produce a single data type. On the other hand, when an `L` is placed next to a number, this specifies it as an integer rather than a double. In essence there are two ways that numbers can be stored based on the complexity needed to store them. Integers are numbers that must simply track the sign (positive versus negative values). Double or numeric data types, on the other hand have the ability to track both sign, and decimal value which takes up more memory.
+
+Therefore, you may decided to use this notation in order to specifically save on memory as integers use less than numeric doubles!
+:::
+
+------------------------------------------------------------------------
+
+## 1.1.0 Data structures hold single or multiple values
+
+The job of data structures is to "host" the different data types. These structures can hold one or more values in their posession. There are five basic types of data structures that we may encounter while using R:
+
+| Data structure | Dimensions | Restrictions |
+|:------------------|:------------------|:----------------------------------|
+| vector | 1D | Holds a single data type |
+| matrix | 2D | Holds a single data type |
+| array | nD | Holds a single data type |
+| dataframe | 2D | Holds multiple data types with some restrictions |
+| list | 1D (technically) | Holds multiple data types AND structures |
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/data_structures.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+### 1.2.0 Vectors are like a queue of a single data type
+
+There is a numerical order to a vector, much like a queue AND you can access each element (piece of data) individually or in groups. We instantiate (create) a vector with the notation `c(element_1, element_2, element_3, ... element_n)` where a simple `c()` creates a simple empty vector. In this case, the `c()` stands for concatenate.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: what are atomic vectors** all the vectors of our **basic data types** can also be considered **atomic vectors**. Run into enough errors while running your code, and you will see things like "cannot operate on an atomic vector" or something along that line. It should be remembered that the vector can only hold data of a *single type*. The most basic vectors are those that hold the basic/atomic value data types and are thus called atomic vectors.
+
+Fun fact: although atomic values may be thought of as stand-alone objects, they are actually atomic vectors with a single element! That's why printing a single value such as in section 1.0.1, you will see the `[1]` beside it, to denote that it is the first element in the vector!
+:::
+
+Here are what vectors of each basic data 'type' would look like.
+
+```{r char_vectors}
+# character vectors
+character_vector <- c(...)
+character_vector
+```
+
+```{r num_vectors}
+# numeric vectors
+numeric_vector <- c(...) # The colon specifies an inclusive range of values
+numeric_vector
+```
+
+```{r logical_vectors}
+# logical vectors
+logical_vector <- c(...) # TRUE and FALSE are also know as "boolean" values
+logical_vector
+```
+
+```{r int_vectors}
+# Integer vectors
+integer_vector <- c(...) 
+# The "L" makes the numbers integers. Can be used to get your code to run faster and consume less memory. 
+# A double ("numeric") vector uses 8 bytes per element. An integer vector uses only 4 bytes per element
+
+integer_vector
+```
+
+```{r mixed_vectors}
+# What happens if we try to include more than one type of data?
+mixed_vector <- c("bacteria", 1, TRUE, ...)
+mixed_vector
+
+# Let's look at the structure of our vector
+str(mixed_vector)
+```
+
+------------------------------------------------------------------------
+
+### 1.2.1 Coercion changes data from one type to another (if possible)
+
+R will implicitly (aka in the background) *coerce* (force) your vector to be of **one data type**. In the case of our last code cell, the type that is most inclusive is a character vector. When we explicitly force a change from one data type to the next, it is known as ***conversion*** or ***casting***.
+
+```{r coercion}
+# Let's convert our mixed_vector
+into_numeric <- ...(mixed_vector); into_numeric
+
+# What about our logical_vector?
+...(logical_vector)
+```
+
+------------------------------------------------------------------------
+
+### 1.2.2 What happened to our data??
+
+Let's highlight the unexpected result from above for a couple of reasons:
+
+1.  Keep your data types in mind. It is good practice to look at your object or the global environment to make sure the object that you just made is what you think it is.
+
+2.  It can be useful for data analysis to be able to switch from TRUE/FALSE to 1/0, and it is pretty easy, as we have just seen.
+
+::: {.alert .alert-block .alert-success}
+**Learn more about data-type coercion:** If you're interested in learning the order of operations for coercion, you can find more information on how R handles it in [R in a nutshell](https://www.oreilly.com/library/view/r-in-a/9781449358204/ch05s08.html)
+:::
+
+### 1.2.3 Vector contents can be individually named using the `names()` function
+
+Within a vector, each individual element can be assigned to a character-based name. This can act as a way to locate values based on what they represent and not by their position within the vector. To accomplish this, we use the `names()` function, which works in two ways:
+
+1.  It can *retrieve* the names of the elements in a vector.
+
+2.  It can *set* the names of the elements in a vector by supplying a character vector equivalent in length to the vector itself.
+
+```{r vector_naming1}
+# What is inside our vector?
+logical_vector
+
+# Retrieve the names of the vector
+...(logical_vector)
+
+```
+
+At first glance, the `logical_vector` we've created, does not have any names assigned to it, despite having values.
+
+```{r vector_naming2}
+# Assign some "meaningful" names to our logical vector
+names(logical_vector) <- c("male", "elderly", "...")
+
+# review the updated vector
+logical_vector
+
+# Retrieve the names of the vector
+names(logical_vector)
+
+```
+
+```{r vector_naming3}
+# You can also include names for elements during the creation of the vector!
+
+logical_vector <- c(..., "elderly" = FALSE, "heart attack" = TRUE)
+
+logical_vector
+```
+
+------------------------------------------------------------------------
+
+### 1.2.4 Use `length()` to identify the number of elements in a vector
+
+Remember that a vector is a *container* for your data which you can think of as a queue of boxes where each box contains a value. We can retrieve the length of this queue using the `length()` function. We'll learn additional functions later that we can apply broadly to retrieve information about various objects.
+
+```{r vector_length}
+# The number of elements in a vector is its length.
+...(character_vector)
+
+length(...)
+
+length(logical_vector)
+```
+
+------------------------------------------------------------------------
+
+### 1.2.5 Use the `[ ]` indexing notation to extract values
+
+For most data structures in R, you can use index notation to extract values from the object. To accomplish this, use the square brackets `[ ]`, separating dimensions using a comma (`,`). You can create indices using:
+
+-   Positive integers (select values)
+-   Negative integers (exclude values)
+-   Zero
+-   Blank spaces (multi-dimensional indexing)
+-   Logical values (should match container size, but not necessarily)
+-   Element names
+
+These indices can be supplied singly, as a vector with `c()`, or a range with `start:end`. Note, however, that you ***cannot mix*** positive and negative values! Throughout the course, we may also refer to the act of ***indexing*** portions of a data structure as ***slicing***.
+
+::: {.alert .alert-block .alert-warning}
+**Warning: indexing from 1 instead of 0** Indexing in R follows real-world arithmetic notation where vectors are represented as n-tuples indexed from 1 to n. This might be unfamiliar if you're coming from a 0-indexed system like C++, Java, or Python.
+:::
+
+```{r vector_indexing1}
+# Display our character vector again
+character_vector
+
+# You can grab a specific element by its index
+character_vector[...]
+```
+
+### 1.2.6 Generate a vector with a range of values using the `:`
+
+Now that we are more familiar with vectors, we can explore some simple but powerful bits of syntax in R. We've only seen it a couple of times but we'll take a closer look now at `:` which can be used to generate a vector with the numbers ranging from `start:end`.
+
+```{r ranges}
+# Use the ":" to generate a range of indices automatically as a vector
+
+... # All positive values
+
+-5:0 # Negative values to 0
+
+-5:5 # A range spanning across negative to positive values
+```
+
+We can substitute the results of our range creating it directly into an indexing call without the need for creating a variable to hold that vector.
+
+```{r vector_indexing2}
+#second and third element in the vector inclusive (varies across programming languages)
+character_vector[...]
+```
+
+```{r vector_indexing3}
+#you can use negative indexing to drop/remove specific values
+character_vector[...]
+
+character_vector[...]
+```
+
+```{r vector_indexing4, error = TRUE}
+# Note that you can't mix negative and positive values!
+character_vector[c(..., 2)]
+```
+
+```{r vector_indexing5}
+# You can grab elements by their assigned "names"
+logical_vector["male"]
+
+logical_vector[...]
+```
+
+```{r vector_indexing6}
+# We can substitute a logical vector in our indexing call
+character_vector
+
+# We don't need to use a like-sized vector, but it's best for beginners
+character_vector[...]
+
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.2.7 Comprehension Question:** Look at the following code. What do you expect the result to be when you run it? Why/How do you think this happens? **Hint:** think again about how sequences of numbers are generated above using the **[start:end]** notation.
+:::
+
+```{r CQ_1-2-7}
+# comprehension answer code 1.2.7
+compQ <- c(2:11); compQ
+
+compQ[-5:0]
+```
+
+------------------------------------------------------------------------
+
+## Section 1.2.7 comprehension answer:
+
+
+------------------------------------------------------------------------
+
+## 1.3.0 Matrices are 2-dimensional containers of a single data type
+
+Matrices can be thought of as a 2D version of vectors. They can be indexed similarly to vectors but with a `[row,column]` format. Other than that, they follow many of the same rules including that only a single data type can be stored inside each matrix.
+
+### 1.3.0.1 Use the `rep()` function to create a repeating sequence
+
+Often times, you may need to repeat a sequence of values like 1,2,3,1,2,3 or 1,1,1,2,2,2,3,3,3. Rather than write that by yourself or use a complex set of code, you can use the `rep()` function to ***repeat*** the sequence you want to create.
+
+The `rep()` function takes on the form of `rep(x, each, times)` where:
+
+-   `x`: is a vector of 1 or more values you'd like to repeat.
+-   `each`: is used to repeat each element of `x` one by one by the specified value. The default value is 1.
+-   `times`: is used to repeat the *resulting vector* produced by `x` and `each` by the specified value. The default value is 1.
+
+```{r rep()}
+# Compare the different uses of the parameters of rep() using "each", and "times" 
+rep(..., each = ...)
+
+rep(c(1,3,5), times = ...)
+
+rep(c(1,3,5), each = ..., times = ...)
+```
+
+### 1.3.1 Instantiate a matrix using the `matrix()` function
+
+Unlike with vectors which have a simple syntax to instantiate in `c()`. To create a matrix, we must use a slightly more complex function which can take many forms. We'll use the form of `matrix(data, nrow, ncol)` where:
+
+-   `data`: is a vector or *matrix-like* object
+-   `nrow`: denotes the number of rows in our matrix
+-   `ncol`: denotes the number of columns in our matrix
+
+Recall that in R, functions within functions are read inside-out, i.e. moving from the inner most parenthesis and outwards. To create our following matrix, we'll use the code:
+
+`matrix(data = c(rep(0, 10), rep(1,10)), nrow = 5, ncol = 5)`
+
+Here the two `rep(...)` functions will be evaluated before evaluating the `matrix(...)` function.
+
+Let's build a matrix with our code and see what it looks like.
+
+```{r matrices1}
+# What will the output be?
+# Note that each "parameter" has been separated to its own line
+my_matrix <- matrix(data = c(rep(0, 10), rep(...)), 
+                    nrow = ..., 
+                    ncol = ...)
+
+my_matrix
+```
+
+```{r matrices2}
+# Equivalent result by calling rep just once
+
+my_matrix <- matrix(c(rep(0:1, each = ...)), 
+                    nrow = 5, 
+                    ncol = 5)
+
+my_matrix
+```
+
+------------------------------------------------------------------------
+
+### 1.3.2 Vector recycling occurs on some element-wise operations
+
+What happened above? Look up the `matrix()` function. Why did R not throw an error but rather gave us:
+
+`Warning: data length differs from size of matrix: [20 != 5x5]`?
+
+A special property of vectors in R called **vector recycling** allows the values of a smaller vector to be reused in certain math operations (i.e. addition, subtraction, and even indexing!). In many cases the larger vector must be a multiple of the smaller.
+
+How would I make this same matrix from above without vector recycling as part of the `matrix()` function? Can you think of 2 ways?
+
+```{r matrices3}
+# Make a matrix by recycling within rep() but not within the matrix() call
+my_matrix <- matrix(c(rep(..., 
+                          each = 10, 
+                          times = 2, 
+                          length = 25)), 
+                    nrow = 5, 
+                    ncol = 5)
+
+# print the matrix
+my_matrix; print("version 1")
+```
+
+```{r matrices4}
+# We can replicate through coercion of a Logical to Numeric
+my_matrix <- matrix(as.numeric(c(rep(FALSE, 10), rep(TRUE,10), rep(FALSE, 5))), nrow = 5, ncol = 5)
+my_matrix; print("version 2")
+```
+
+------------------------------------------------------------------------
+
+**Notice how the matrices are populated one column at a time?**
+
+------------------------------------------------------------------------
+
+### 1.3.3 Bracket and parentheses location matters!
+
+Remember that each call to a function whether it is `c()`, `rep()`, `matrix()`, etc., uses parentheses to define the start and end of parameters that are being supplied. Some of the hardest-to-find errors in our code involves the misplacement or incorrect pairings of `()` in multi-layered functions.
+
+```{r matrices5}
+matrix(c(rep(0, 10), rep(1,10), nrow = 5, ncol = 5))
+```
+
+**What happened above?**
+
+R code is evaluated inside-out but the brackets here are poorly positioned. With the command above you end up with a single column matrix of numbers equivalent to c(0x10, 1x10, 5, 5).
+
+**Remember** to be mindful of your bracket placement or you'll be in for some headaches! Youll get better at recognizing this with practice, but writing out your code with certain layouts will help you to align the opening and closing of your parentheses/brackets as well!
+
+```{r matrices6}
+# When in doubt, fix your layout!
+# Now you can see when you close off your data parameter
+matrix(data = c(rep(0, 10), 
+                rep(1,10)
+                ...,
+       nrow = 5, 
+       ncol = 5
+       )
+```
+
+------------------------------------------------------------------------
+
+### 1.3.4 A matrix is a 2D object
+
+As you've noticed by now, the matrix is a 2D object so there are a few more properties and tricks to it than a simple vector. We can use a number of useful functions to gain insights about our object:
+
+-   `str()` provides a summary of our data structure.
+-   `nrow()` provides the number of rows.
+-   `ncol()` provides the number of columns.
+-   `dim()` reports the number of (rows, columns).
+-   `length()` gives a report on the total number of entries.
+
+Let's try these out and see for ourselves.
+
+```{r matrix_info}
+# A matrix is a 2D object. We can now check out a couple more properties - like the number of rows and columns.
+my_matrix
+
+print("structure")
+str(my_matrix)
+
+print("rows")
+...(my_matrix)
+
+print("columns")
+...(my_matrix)
+
+print("dimensions")
+...(my_matrix) # reported as rows vs columns
+
+print("length")
+length(my_matrix)
+```
+
+Note especially with `str()` how you are returned `num [1:5, 1:5]`which indicates a data structure which is **numeric** and 2-dimensional because you have *two sequences* in the`[ ]` index notation noting 5 rows and 5 columns.
+
+------------------------------------------------------------------------
+
+### 1.3.5 Use `[row, column]` notation to access portions of a matrix
+
+Recall the `[ ]` indexing notation from vectors can be applied to matrices as well. The major difference is the requirement to use a `,` even when "slicing" a matrix only by rows or columns. Leaving an empty character (also known as open notation) before or after the comma is equivalent to saying "all elements of that dimension".
+
+```{r matrix_indexing1}
+#To access a specific row or column we can still use indexing.
+
+# Return rows 3:5 and all columns
+my_matrix[...,]
+
+# Return all rows, and column 4
+my_matrix[, ...]
+```
+
+------------------------------------------------------------------------
+
+### 1.3.6 Subsetting a matrix returns a vector or matrix
+
+Note that when we are sub-setting a single row or column, we end up with a vector, otherwise another matrix is returned. We'll utilize the `is.vector()` function here to help us out. It will return a `TRUE` (yes, it is a vector!) or `FALSE` result depending on the nature of the object supplied.
+
+```{r matrix_indexing2}
+# Is a Matrix just a vector?
+...(my_matrix)
+
+# What is returned when we slice off a column
+is.vector(my_matrix[,...])
+
+# Look at the object returned for a vector
+str(my_matrix[,4])
+
+# vs. a matrix
+str(my_matrix[1:2,1:4])
+```
+
+### 1.3.7 Transpose your matrix with `t()`
+
+You may find sometimes that you want to swap your columns and rows around. When dealing with a matrix, this can be easily accomplished with the `t()` command.
+
+```{r matrix_transpose}
+# It is common to transpose matrices. Note that the set of ones will now be in rows rather than columns.
+
+...(my_matrix)
+```
+
+------------------------------------------------------------------------
+
+## 1.4.0 Dataframes
+
+### 1.4.0.1 Object classes
+
+Now that we have had the opportunity to create a few different objects, let's talk about what an object *class* is. An object class can be thought of as how an object will behave in a function. Some objects share similar properties like how a matrix and dataframe have both rows and columns. Because some functions can use different kinds of data structures as input, we must define those data structures into classes so that the functions knows how to treat the input! Note that:
+
+-   dataframes, lists and matrices have their own classes
+-   vectors inherit from their data type (i.e. vectors of characters behave like characters)
+
+Use the `class()` function to retrieve the class information of a variable or object.
+
+```{r return_class}
+class(...)
+class(numeric_vector)
+class(my_matrix)
+```
+
+Some R package developers have created their own object classes. We won't deal with this today, but it is good to be aware of from a trouble-shooting perspective that your data may need to be formatted to fit a certain class of object when using different packages.
+
+------------------------------------------------------------------------
+
+## 1.4.1 Dataframes are groups of vectors disguised as matrices
+
+Whereas matrices are limited to a **single specific data type** within each instance, dataframes are like vectors to the extent that they can hold different types of data. More specifically
+
+1.  **Within a column**, all members must be of the same data type (i.e. character, numeric, Factor, etc.)
+2.  **All columns** must have the same number of rows (hence the matrix shape)
+
+This object allows us to generate tables of mixed information (i.e. tabular data) much like an Excel spreadsheet.
+
+To instantiate a new dataframe, we use the `data.frame()` function which takes the form of:
+
+```         
+data.frame(column_name1 = vector1, column_name2 = vector2, ..., column_nameN = vectorN)
+```
+
+From the syntax above, you may think there are explicitly named parameters like `column_name1`, etc., but this is not the case. You can think of the initialization much like making a named vector! So `column_name1` is the name of the column you wish to create. You can subset vectors if needed in order to meet rule 2 from above.
+
+```{r dataframe_construction1, error = TRUE}
+# Let's make a dataframe
+# Recall that we can generate a vector simply using c(data1, data2, ..., dataN)
+
+my_dataframe <- data.frame(... = c('bacteria', 'virus', 'archaea'),
+                            ... = c(1:10),
+                            ... = c(TRUE, FALSE, TRUE))
+
+```
+
+------------------------------------------------------------------------
+
+Oops! We have broken the second rule of dataframe club. `numCol` had 10 values in it compared to our other 2 sets of data.
+
+```{r dataframe_construction2}
+# Let's make a dataframe correctly
+
+my_dataframe <- data.frame(charCol = c('bacteria', 'virus', 'archaea'), 
+                            numCol = c(...),
+                            logCol = c(TRUE, FALSE, TRUE))
+
+my_dataframe
+```
+
+Many R packages have been made to work with data in dataframes, and this is the class of object where we will spend most of our time.
+
+Let's use some of the functions we have learned for finding out about the structure of our dataframe.
+
+```{r dataframe_info}
+# What is the structure of a dataframe?
+str(my_dataframe)
+
+# What are the dimensions of the dataframe?
+...(my_dataframe)
+```
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: Is a Dataframe the right tool for you?** While a dataframe is more flexible in the data it can hold, it comes at a price: more memory and slower access. A matrix contains just a single data type and thus can potentially take a smaller memory footprint overall. When working with your data, consider if you need the power of a **dataframe** (multiple data types, statistical analyses, etc.) or just a **matrix** (numerical values, simple mathematical calculations). In most cases you'll resort to a dataframe but it's good to keep in mind that matrices can simplify things for you!
+:::
+
+------------------------------------------------------------------------
+
+### 1.4.2 Casting a matrix to a dataframe using `as.data.frame()`
+
+As we saw in secetion 1.2.1 with coercion and casting, we can also convert between data structures if they are similar enough. For example, I can convert the `my_matrix` object into a dataframe. Since a dataframe can hold any type of data, it can hold all of the numeric data in `my_matrix`. To accomplish this casting, we use the `as.data.frame()` function.
+
+```{r}
+# What does our original matrix look like?
+my_matrix
+# cast a matrix to a dataframe
+new_data_frame <- ...(my_matrix)
+new_data_frame
+```
+
+------------------------------------------------------------------------
+
+Notice that our new dataframe has columns names like V1, V2, etc. Since our matrix did not have any proper column names, the conversion process substituted a name into the columns for us. The columns of a dataframe must have some kind of name so these values are substituted in.
+
+### 1.4.3 You can access and rename dataframe columns (like a header!) with `colnames()`
+
+After converting our matrix we are left with the generic identifiers in our column names. Sometimes you may wish to ***rename*** these to be more descriptive, to add clarity or for whatever reason suits you. To accomplish this change, use the `colnames()` function much like we did with `names()` for the vector data structure.
+
+As with `names()`, the `colnames()` function can be used to retrieve and assign. In the latter case, the dataframe object is updated in memory with no need to assign the result to a variable. You can also rename all or specific columns as you see fit by using the index operators like this `colnames(df)[ ]`!
+
+```{r dataframe_colnames1}
+# Note that R just made up column names for us. We can provide our own vector of column names.
+...(new_data_frame) <- c("col1", "col2", "col3", "col4", "col5")
+
+#equivalent to
+colnames(new_data_frame) <- c(paste0(rep("col",5), 1:5))
+
+# View the updated dataframe
+new_data_frame
+```
+
+```{r dataframe_colnames2}
+# Rename our columns using specific positions
+colnames(new_data_frame)[...] = c("newcol1", "newcol3", "newcol5")
+
+# Let's check our handiwork
+new_data_frame
+```
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: the paste() and paste0() functions** allow you to concatenate (that means join!) multiple sets of characters or character-like vectors together into a single character or collapse them into a single element character vector. You can even choose how you'd like to separate the values in a vector using the **sep** parameter or the **collapse** parameter to determine how multiple vectors will be joined. It all depends on what you want to achieve.
+:::
+
+------------------------------------------------------------------------
+
+### 1.4.4 You can't always cast a dataframe to a matrix as expected
+
+Casting (like coercion) can only be accomplished if the objects or data types (within) are compatible. We can convert our `new_data_frame` to a matrix but what about `my_dataframe` which is made of up characters, numbers, and logicals?
+
+```{r dataframe_coercion}
+# In contrast, our dataframe with multiple data types cannot be converted into a matrix
+# A matrix can only hold one data type. We could however, transform our new_data_frame back into a matrix. 
+# The matrix will retain our column heading.
+
+new_matrix <- ...(my_dataframe)
+str(new_matrix)
+new_matrix
+```
+
+```{r}
+# Let's look at the "numCol" column closer
+str(new_matrix[,2])
+```
+
+Notice that the numeric vector is now a character vector! Since the matrix can only accommodate a single data type, the coercion converted our character, numeric, and logical, values into just character types!
+
+------------------------------------------------------------------------
+
+### 1.4.5 Some useful dataframe commands (for now)
+
+`nrow(new_data_frame)` \# retrieve the number of rows in a dataframe
+
+`ncol(new_data_frame)` \# retrieve the number of columns in a dataframe
+
+`new_data_frame$column_name` \# Access a specific column by it's name
+
+`new_data_frame[x,y]` \# Access a specific element located at row x, column y
+
+There are many more ways to access and manipulate dataframes that we'll explore in later lectures. For now we'll explore how to index data in the two most common ways:
+
+```{r}
+# access your dataframe by a specific column
+my_dataframe$...
+
+# Using $ should return a vector
+is.vector(my_dataframe$...)
+
+```
+
+```{r}
+# access your dataframe with a [row, col] index notation
+
+# Access all of row 2
+my_dataframe[...]
+
+# Access all of column 2 (returns a vector)
+my_dataframe[...]
+
+# Access everything EXCEPT column 2
+my_dataframe[...]
+
+```
+
+------------------------------------------------------------------------
+
+## 1.5.0 Lists are amorphous bundles strung together with code
+
+Lists can hold ***mixed data types*** of different dimensions. These are especially useful for bundling data of ***different types*** for passing around your scripts! Rather than having to call multiple variables by name, you can store them in a single list! We're not talking about just basic data types but rather data structures as well!
+
+We use the `list()` function to instantiate a `list` object. Like a vector, we can specifically name each element/object within a list. The elements of a list are also indexed based on their order during its creation.
+
+```{r}
+# Note that we've separated out each "element" into a new line for readability
+mixed_list <- ...(charVector = c('bacteria', 'virus', 'archaea'), 
+                   numVector = c(1:10), 
+                   logVector = c(TRUE, FALSE, TRUE))
+
+print(mixed_list)
+```
+
+------------------------------------------------------------------------
+
+### 1.5.1 Lists can get complicated.
+
+If you forget what is in your list, use the `str()` function to check out its structure. It will tell you the number of items in your list and their data types. Notice that R has chosen the data types of our vectors for us when we first instantiate them into `mixed_list`.
+
+You can (and should) call `str()` on any R object. You can also try it on one of our vectors.
+
+```{r}
+str(...)
+
+str(...)
+```
+
+------------------------------------------------------------------------
+
+### 1.5.2 Accessing elements from a list with `[[ ]]` and `[ ]`
+
+Accessing lists is much like opening up a box of ***boxes*** of chocolates. You never know what you're gonna get... when you forget the structure!
+
+You can access elements with a mixture of number and naming annotations:
+
+-   `[x]`, `[x:y]`, `[c(x, y, z)]` returns a `list` object containing the elements requested
+
+-   `$element_name` returns the named element as its original object. Note that tab-completion can help you here by providing the element names!
+
+-   `[[x]]` directly returns the x^th^ "element" of the list and can only be used to access a *single element* at a time. That element could be another object like a vector or dataframe, or just a single atomic depending on your list.
+
+```{r}
+# To subset for 'virus', I first have to subset for the character element of the list. 
+# Kind of like a Russian nested doll or a present, where you have to open the outer layer to get to the next.
+
+# Retrieve a single element directly
+print("Retrieve a single element")
+mixed_list...
+
+# What kind of object is that?
+print("What kind of object is it?")
+str(mixed_list[[1]])
+
+# Compare to using single []
+print("Contrast to using the [] notation")
+str(mixed_list...)
+
+# Access using a named element
+print("What is returned using an element's name?")
+str(mixed_list$...)
+```
+
+------------------------------------------------------------------------
+
+### 1.5.3 Use additional instances of `[ ]` notation to access sub-elements of a list
+
+Unlike a dataframe or array object, where we can access individual elements with simple `[x, y, z]` notation, we need to take an extra step to retrieve our list elements directly, at which point we can access them based on the appropriate notation. `list` objects are a container for other objects and are therefore agnostic to the nature of these objects.
+
+```{r}
+# Begin with [[]] notation and THEN index [] with the appropriate syntax 
+mixed_list[[1]]...
+mixed_list$charVector...
+
+# This will fail (but not error!) because it returns a list with a single character vector!
+# there is no element [2] in the returned list.
+mixed_list...
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.5.4 Comprehension Question:** What are some important differences between a dataframe and a matrix? Can one be converted to the other and in what direction?
+:::
+
+------------------------------------------------------------------------
+
+## Section 1.5.4 comprehension answer:
+
+------------------------------------------------------------------------
+
+# 2.0.0 Special data types
+
+In R there are a few special data types or classes that are implemented to facilitate real-world concepts and situations beyond numbers and strings. Two cases we will address in this section come with their own behaviours and helper functions so we've set them aside until now.
+
+## 2.1.0 Factors represent categorical data
+
+Ah, the dreaded factors! A factor is a *class* of data used to encode a character vector into **categories**. They are mainly used to store categorical variables (variables consisting of types or groups). Some simple examples might include classifying the sex of your rodent subjects (male or female) or flower colours in your plant experiment (ie. white, red, and pink). For various reasons you may wish to limit the possible entries in your category, or you have very a narrow range of choices for your qualitative measurements. Although it is tempting to think of `factors` as character vectors, this is a dangerous mistake (you will get betrayed, badly!). Regardless of the original data types, a factor's labels will always be stored as character information.
+
+Factors make perfect sense if you are a statistician designing a programming language (!) but to everyone else they exist solely to torment us with confusing errors (for now). A factor is really just an integer vector or character data with an additional attribute, called `Levels`, which defines the possible values.
+
+This is used by the R kernel to simplify the process of organizing data based on its categories and also restricts the labeling of data to the specific levels in the factor.
+
+**Why not just use character vectors, you ask?**
+
+Believe it or not, factors do have some useful properties. For example, factors allow you to specify all possible values a variable may take - even if those values are not in your data set! Think of *Data Validation* in Excel, which can be used to define the possible values of a cell or cells.
+
+We can directly convert a vector to a factor using the `factor()` function.
+
+```{r}
+factor_vector = ...(c("up", "down", "down", "sideways", "up"))
+
+factor_vector
+```
+
+```{r}
+# or
+print(factor_vector) 
+# print() is needed inside iterative functions (e.g. looping) to actually print the output that is being generated
+```
+
+------------------------------------------------------------------------
+
+### 2.1.1 Use `levels()` to access factor information
+
+As we'll see later down the road, you may wish to know how many categories you are working with and what their labels are. When printing the information for a factor, as soon above, it will print all of the values plus the specific categories used to create it. We call these categories the "levels" of the factor.
+
+You can access level information directly with the `levels()` function which will return a vector object and the `nlevels()` functions which will return just the number of levels in a factor.
+
+```{r}
+# Access levels of a factor directly with level()
+...(factor_vector)
+
+# Is it a vector?
+...(levels(factor_vector))
+```
+
+```{r}
+# How many levels does our factor have?
+...(factor_vector)
+```
+
+------------------------------------------------------------------------
+
+### 2.1.2 Coerce your factor to an integer with `as.integer()`
+
+That's right, under the hood a factor is just a fancy integer representation of your data, mapped to a set of character values. Thus we can cast or coerce it to an integer without much issue.
+
+```{r}
+# Show the factor again
+factor_vector
+# Cast that factor
+...(factor_vector) 
+
+#Notice the alphabetic rearrangement! It's important to keep this in mind when looping (week 7)
+```
+
+------------------------------------------------------------------------
+
+### 2.1.3 A brief note about R 4.0.x versus r 3.x.x
+
+Since the inception of R, `data.frame()` calls have been used to create dataframes **but** the default behaviour was to convert strings (and characters) to factors! This is a throwback to the purpose of R, which was to perform statistical analyses on datasets with methods like **ANOVA**, which can examine the relationships between categorical variables (i.e. factors)!
+
+As R has become more popular and its applications and packages have expanded, incoming users have been faced with remembering this obscure behaviour, leading to lost hours of debugging grief as they wonder why they can't pull information from their dataframes to do a simple analysis on *C. elegans* strain abundance via molecular inversion probes in datasets of multiplexed populations. **#SuspiciouslySpecific**
+
+That meant that users usually had to create dataframes including the parameter `stringsAsFactors` to make:
+
+`data.frame(name=character(), value=numeric(), stringsAsFactors = FALSE)`
+
+This is one of the first instances where a parameter in our function isn't really data or values but rather a logical value of `TRUE` or `FALSE`. These parameters in other programming languages might also be called **flags** as they are used to set a specific behaviour in their function.
+
+------------------------------------------------------------------------
+
+### 2.1.4 The default behaviour of `data.frame()` creation [does not]{.underline} create factors from strings
+
+Fret no more! As of **R 4.x.x** the default behaviour has switched and `stringsAsFactors=FALSE` is the **default**! Now if we want our characters to be factors, we must convert them ***explicitly***, or turn this behaviour on at the outset of creating each dataframe!
+
+```{r dataframe_factors1}
+# Look at the dataframe with and without the stringsAsFactors call
+my_dataframe <- data.frame(charCol = c('bacteria', 'virus', 'archaea'), 
+                            numCol = c(1:3), 
+                            logCol = c(TRUE, FALSE, TRUE))
+
+str(my_dataframe)
+```
+
+------------------------------------------------------------------------
+
+### 2.1.5 Specify factors during dataframe creation with `stringsAsFactors` or `as.factor()`
+
+Depending on your needs, you can specify that *all* columns of strings/text be converted to factors with the `stringsAsFactors` parameter or you can coerce *specific columns* as factors when initializing them using the `as.factor()` function.
+
+```{r dataframe_factors2}
+# All character vectors become factors
+my_dataframe <- data.frame(charCol = c('bacteria', 'virus', 'archaea'), 
+                            numCol = c(1:3), 
+                            logCol = c(TRUE, FALSE, TRUE), 
+                            ...)
+
+str(my_dataframe)
+```
+
+```{r dataframe_factors3}
+# Use as.factor on the columns you wish to specify as factors
+my_dataframe <- data.frame(charCol = ...(c('bacteria', 'virus', 'archaea')),
+                            numCol = c(1:3), 
+                            logCol = c(TRUE, FALSE, TRUE))
+
+str(my_dataframe)
+```
+
+------------------------------------------------------------------------
+
+If we look at the structure again, we still have 3 levels. This is because each unique character element has been encoded as a number. Recall that a column can be subset by index or by its name using the `'$'` operator.
+
+```{r}
+my_dataframe$charCol
+
+#equivalent to
+
+my_dataframe[ , 1]
+
+# Just make a vector of the levels
+...(my_dataframe$charCol)
+
+# How many levels are there?
+...(my_dataframe$charCol)
+```
+
+------------------------------------------------------------------------
+
+### 2.1.6 Factor levels are ordered alphabetically by default
+
+Note that the first character object in the dataframe is 'bacteria', however, the first factor level is archaea. R by default puts factor levels in ***alphabetical order***. This can cause problems if we aren't aware of it.
+
+**Always check to make sure your factor levels are what you expect.**
+
+With factors, we can deal with our character levels directly, or their numeric equivalents. Factors are extremely useful for performing group calculations as we will see later in the course.
+
+```{r dataframe_factors}
+# Convert our factors to a numeric representation
+...(my_dataframe$charCol)
+```
+
+------------------------------------------------------------------------
+
+### 2.1.7 You can specify the order of your factor levels using the `levels` parameter
+
+Look up the `factor()` function. We can use it to make 'bacteria' the first level, 'virus' the second level, and 'archaea' the third level for the dataframe `my_dataframe`. At the same time, we will make the position of the level numbers match by their order of first appearance (ie 1,2,3 instead of 2,3,1). Use functions from the lesson to make sure your answer is correct.
+
+```{r}
+# Set up my_dataframe again
+my_dataframe <- data.frame(charCol = c('bacteria', 'virus', 'archaea'), 
+                            numCol = c(1:3), 
+                            logCol = c(TRUE, FALSE, TRUE))
+
+# this is okay - specify your levels explicitly rather than allowing it to choose by default
+# this call will replace the 'charCol' column with a new vector of factors.
+my_dataframe$charCol <- factor(my_dataframe$charCol, 
+                                  ... = c('bacteria', 'virus', 'archaea'))
+
+# Note that you could define your factor inside the data.frame()
+
+str(my_dataframe)
+#archaea, bacteria, virus
+#2,3,1
+```
+
+::: {.alert .alert-block .alert-warning}
+**Warning:** By default, **factor()** will set your levels using all of the *unique* values in your vector. However, if you use the `levels` parameter any values that are excluded in your list will automatically be set to a value of **NA**. We'll talk more about what **NA** values are in a bit!
+:::
+
+```{r}
+# Here's an example of misspelling levels. What will happen?
+factor(c("bacteria", "virus", "archaea"), levels=c("bacteria", "virus", "archie"))
+```
+------------------------------------------------------------------------
+
+### 2.1.8 You can relabel your factor values with the `labels` parameter but be careful!
+
+Note that you can also label your factors when you make them. You need to be ***extremely*** careful with this. You may have good reasons to do this but remember that you are labeling the ***integer*** that is associated with the factor level after it has been converted. This is the equivalent of relabeling your data!
+
+Let's see what that means!
+
+```{r}
+# When labeling factors can go wrong
+# Run again my_dataframe
+my_dataframe <- data.frame(charCol = c('bacteria', 'virus', 'archaea'), 
+                            numCol = c(1:3), 
+                            logCol = c(TRUE, FALSE, TRUE))
+
+#factor() will decide the level order on it's OWN before applying the given labels!
+my_dataframe$charCol <- factor(my_dataframe$charCol, 
+                                  ... = c('label_a', 'label_b', 'label_v'))
+
+print(my_dataframe$charCol)
+str(my_dataframe)
+#bacteria, virus, archaea
+#BUT named levels above, therefore
+#bacteria = label_b, virus = label_v, archaea = label_a
+#2,3,1
+```
+
+------------------------------------------------------------------------
+
+### 2.1.8.1 The `factor()` function applies a default `level` behaviour *before* applying the `labels` parameter
+
+**What just happened to our factor levels?**
+
+When we called `factor(my_dataframe$charCol, labels = c('label_a', 'label_b', 'label_v'))` there was an order of operations that occurred.
+
+1.  `factor()` was used to cast the vector `c('bacteria', 'virus', 'archaea')` into a factor and the levels were assigned by ***alphabetical order***. In this case the default behaviour was equivalent to `levels = c('archaea', 'bacteria', 'virus')`. If we look back at the order of our vector that makes it (2,3,1).
+
+2.  Then we explicitly specify in our call to `factor()` to re-label those character values with labels based on the ***level order***: 1='label_a', 2='label_b', 3='label_v'.
+
+3.  This gives the final result that our variable "charCol" in `my_dataframe` is now renamed for output as c('label_b', 'label_v', 'label_a') which is based on the factor levels and not the original data.
+
+Imagine if we had used the code `labels = c('bacteria', 'virus', 'archaea')`? Would it relabel everything incorrectly? Give it a try yourself!
+
+Now we'll apply our labels *after* explicit leveling.
+
+```{r}
+# Labeling factors correctly
+# Run again my_dataframe
+my_dataframe <- data.frame(charCol = c('bacteria', 'virus', 'archaea'), 
+                            numCol = c(1:3), 
+                            logCol = c(TRUE, FALSE, TRUE))
+
+# You need to supply factor() with the levels and labels if you want them turn our how you envision it
+my_dataframe$charCol <- factor(my_dataframe$charCol, 
+                                ... = c('bacteria', 'virus', 'archaea'), # explicitly order your levels!
+                                ... = c('bacteria_label', 'virus_label', 'archaea_label')) # names the levels
+
+#bacteria, virus, archaea
+#1,2,3
+print(my_dataframe$character)
+str(my_dataframe)
+```
+
+------------------------------------------------------------------------
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/FactorsEverywhere.jpg?raw=true" width="800"/>
+:::
+
+For the most part, factors are important for various statistics involving categorical variables, as you'll see for things like data visualization and linear models. Love 'em or hate 'em, factors are integral to using R, so better learn to live with them.
+
+------------------------------------------------------------------------
+
+## 2.2.0 `NA` and `NaN` values represent missing data
+
+What happens when you come across data with missing values? There are any number of reasons that data may seem incomplete. If you imagine generating a series of measurements, sometimes an individual cannot be measured across all of your categories, or they create a value that is invalid. When importing your data (upcoming lectures) these could be coded as empty entries in a `CSV` file or blank cells in a `xlsx` file. Perhaps, as we'll see later it could be a specifically annotated entry like "No_Data". These are usually the result of missing data points from an experiment but could have origins in other reasons like low-threshold values depending on the source of your data.
+
+Missing values in R are handled as `NA` (Not Available) or `NULL`. These types of values can be considered *null values*. These two types of values, especially `NA`s, have special ways to be dealt with otherwise it may lead to errors in functions that we frequently use. For the purposes of our data, we'll focus on just `NA` values while we may often find variables are set to `NULL` as these are empty objects acting as placeholders waiting to be filled.
+
+In a similar but different vein, impossible values (like the results of dividing by zero) are represented by `NaN` (Not a Number). We won't see these for the moment but may come across them as we begin to analyse actual data.
+
+Let us begin by building an example containing `NA` values.
+
+```{r dataframe_NA}
+# Set up some vectors for a data.frame
+modern_domain <- c("Archaea", "Bacteria", "Eukarya", NA, NA)
+five_domains <- c("Arhcaea", "Bacteria", "Eukarya", "Virusobiota", "Prionobiota")
+six_kingdoms <- c(1, 1, 4, ...)
+
+# Put it all together with in a call to data.frame()
+NA_example <- data.frame(five_domains, modern_domain, six_kingdoms)
+
+# Look at our data frame
+NA_example
+```
+
+------------------------------------------------------------------------
+
+### 2.2.1 Some functions can be told to ignore or remove `NA` values
+
+R will not abide an `NA` value when completing a calculation. If it does encounter an `NA` then it will return an `NA`. Some mathematical functions, however, can ignore `NA` values by explicitly setting the logical parameter `na.rm = TRUE`. Under the hood, if the function recognizes this parameter, it will remove the `NA` values before proceeding to perform its mathematical operation.
+
+**IF** you fail to set this parameter correctly, then the function may consequently return an `NA` value.
+
+```{r}
+# Use the mean() function and see what happens with NA values
+...(six_kingdoms) # some functions need to be explicitly told what to do with NAs. No errors though!
+
+sum(six_kingdoms, ...) #Avoid using just "T" as an abbreviation for "TRUE"
+```
+
+### 2.2.2 Use the `is.na()` function to check your data
+
+How do we find out ahead of time that we are missing data? Knowing is half the battle and `is.na()` can help us determine this with some data structures. The `is.na()` function can search through data structures and return a **logical** data structure of the same dimensions. Note that it won't always be the same class of data structure that is returned, but rather one that is the most efficient representation.
+
+With a vector we can easily see how this function works.
+
+```{r}
+# Let's check out this vector that contains NA values
+na_vector <- c(5, 6, NA, 7, 7, NA)
+
+# This works on vectors...
+...(na_vector)
+
+# and data.frames too!
+...(NA_example)
+
+# What kind of data structure will we get back?
+
+```
+
+------------------------------------------------------------------------
+
+# 3.0.0 Mathematical operations on data structures
+
+Yes, you can treat vectors, matrices, and dataframes like objects where mathematical operations can be applied to individual elements or to entire columns or more! As long as you are working with the correct data type, you can perform not just mathematical operations but character-based ones as well. 
+
+Performing an operation on each individual element is also known as broadcasting!
+
+Let's take a look at 2 quick structures.
+
+```{r}
+# Remind ourselves what our numeric vector looks like
+numeric_vector
+
+# Perform some simple math on each element
+numeric_vector + ...
+
+numeric_vector * 2 + 1
+
+numeric_vector / 2 * 2
+```
+```{r}
+# Now let's examine a matrix
+my_matrix
+
+# Again we'll broadcast to each element in the matrix
+my_matrix - 3
+
+my_matrix ...
+```
+***
+
+### 3.0.1 Mathematical operations on `data.frames` are applied differently depending on data type
+
+Once you start importing your data, you'll want to generate analyses that may range from simple to more complex. Often, in a spreadsheet program like Excel, you might devise functions that implement formulas using values from different columns. You can do the exact same thing with your dataframes to replace or create new columns!
+
+First, let's take a look at our dataframe
+
+```{r}
+# Remind ourselves what the data frame looks like
+my_dataframe
+```
+
+------------------------------------------------------------------------
+
+
+Remember that dataframes contain columns that could be of ***different*** data types. Not all data types are math compatible! Here's a quick breakdown of what happens when applying math operators to specific data types or classes.
+
+-   numeric data: operations applied as expected
+-   non-numeric (i.e. characters): error will be thrown
+-   factors: warning message and NAs returned
+-   logical data (TRUE/FALSE): coercion to numeric before applying operations
+
+Takeaway lesson: be careful to specify your numeric data for mathematical operations.
+
+```{r}
+# Multiply the entire dataframe
+my_dataframe * ...
+
+# Multiple just a single column
+my_dataframe... * 4
+
+# Slice a column and multiply
+my_dataframe... * 4
+```
+
+------------------------------------------------------------------------
+
+## 3.1.0 Using the `apply()` function to perform actions across data structures
+
+The above are illustrative examples to see how our different data structures behave. In reality, you will want to do calculations across entire rows or on columns, and not on your entire matrix or dataframe.
+
+For example, we might have a count table where rows are genes (that's right you can name rows too!), columns are samples as shown below:
+
+|       | Site1 | Site2 | Site3 |
+|:------|:-----:|:-----:|:-----:|
+| geneA |   2   |  15   |  10   |
+| geneB |   4   |  18   |   7   |
+| geneC |  12   |  27   |  13   |
+| geneD |   8   |  28   |  15   |
+
+**Question:** How do we calculate the sum of all the counts for each gene?
+
+**Answer:** To do this, we can use the `apply()` function. `apply()` Takes an array, matrix (or something that can be coerced as such, like a numeric dataframe), and applies a function over rows *or* columns. The `apply()` function takes the following parameters:
+
+-   `X`: an array, matrix or something that can be coerced to these objects
+-   `MARGIN`: defines how to apply the function; `1` = by rows, `2` = by columns.
+-   `FUN`: the function to be applied. Supplied as a function name ***without*** the `()` suffix
+-   `...`: this notation means we can pass additional parameters to our function defined by `FUN`.
+
+The `apply()` function returns a vector, array or list depending on the nature of X.
+
+Let's practice by invoking the `sum` function after we create our theoretical dataframe.
+
+```{r}
+# Make a dataframe with 3 columns (Site1, Site2, Site3) and 4 rows (geneA, geneB, geneC, geneD)
+counts <- data.frame(Site1 = c(geneA = 2, geneB = 4, geneC = 12, geneD = 8),
+                     Site2 = c(geneA = 15, geneB = 18, geneC = 27, geneD = 28),
+                     Site3 = c(geneA = 10, geneB = 7, geneC = 13, geneD = 15))
+                     
+counts
+
+# Note this is just one way to create our dataframe.
+```
+
+```{r}
+#?apply
+
+# The parameter must be named correctly: X
+print("apply() with sum across rows (ie by gene)")
+apply(X = counts, MARGIN = ..., FUN = ...)
+
+print("apply() returns a named numeric vector")
+str(apply(counts, MARGIN = 1, sum))
+
+class(apply(counts, MARGIN = 1, sum))
+```
+
+Note that the output is no longer a dataframe. Since the resulting sums would have the dimensions of a 1x4 object, the results are instead coerced to a named numeric vector.
+
+------------------------------------------------------------------------
+
+## 3.2.0 The `apply()` function will recognize basic functions.
+
+Let's take a look at some additional functions that might be applied to such a table. We can apply some summary statistics to our dataframe by calculating the mean, standard deviation, median and quartile values.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: passing a function as an object:** Again you'll note above that we called upon the `sum()` function but only used `sum` when supplying it as a parameter to `apply()`. In this case, we are passing the `sum` function as a name for the kernel to search internally. It will look in its memory for reference to this function and pass that information along to be used on each element of our data `X`. Using `sum()` will cause an error since this is the syntax for running a function, which will evaluate and return a `0`, which does not exist in the kernel's memory list of R functions.
+:::
+
+```{r}
+# Using apply() across rows
+apply(counts, MARGIN = 1, ...)
+
+apply(counts, MARGIN = 1, ...)
+
+apply(counts, MARGIN = 1, median)
+
+apply(counts, MARGIN = 1, quantile)
+```
+
+------------------------------------------------------------------------
+
+When all data values are transformed, the output is a numeric matrix.
+
+### 3.2.1 Supply a custom function to `apply()`
+
+What if I want to know something less generic? We can create a custom function. The `sum` function we called previously, can also be written as a function taking in `x` (in this case the vector of values from our coerced dataframe row by row) and summing them. Other functions can be passed to `apply()` in this way.
+
+The key to defining our own temporary function is of course the keyword `function()` within which you can, in this case, define the single parameter that you wish to represent the object (either row or column) coming from the `X` parameter of `apply()`
+
+```{r}
+# Using apply and passing a generic function
+apply(X = counts, 
+      MARGIN = 1, 
+      FUN = sum)
+
+#equivalent to
+
+# Using apply and creating an explicit function
+apply(X = counts, 
+      MARGIN = 1, 
+      FUN = ...) 
+      # Notice the syntax used here for FUN? Our function code follows the function() declaration which you may learn later
+```
+
+You'll notice that the word `function()` is highlighted in blue as this is a part of the core R syntax. It signals to the R kernel that you wish to make a custom function. 
+
+::: {.alert .alert-block .alert-warning}
+**Why are we using X and x?** If you're following closely, you'll have noted that the `apply()` function has a parameter `X` which represents the ENTIRE object you want to pass along. However, I also mention that we'll use the a *lower-case* `x` to represent each row or column in the custom function we're building! In the case of `x`, we declare it as a parameter first in `function()` but this name is just a *placeholder* and could be more specifically named to a different letter or variable name.
+
+This kind of coding notation or style, however, ***will often be found in the code generated by others***, so be mindful!
+:::
+
+```{r}
+# To reduce confusion you should always clarify your function parameters!
+apply(X = counts, 
+      MARGIN = 1, 
+      FUN = function(...) ...)
+```
+
+------------------------------------------------------------------------
+
+Use the `apply()` function to multiply the counts for each gene by 3.
+
+```{r}
+apply(X = counts, 
+      MARGIN = 1, 
+      function(rowData) ...)
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 3.2.2 Comprehension Question:** Look at our final output from above. How does it compare to our original `counts` dataframe? How would you explain the **cause** for the differences between our input and output? **Hint:** read the help page for `apply()` carefully!
+:::
+
+------------------------------------------------------------------------
+
+## Section 3.2.2 comprehension answer:
+
+------------------------------------------------------------------------
+
+## 3.3.0 What happens when we try to use functions via `apply()` on data with NAs?
+
+Let's recreate the `counts` dataframe and add a few `NA`s. If I now use the `apply()` function to calculate the mean number of `counts` across each row (ie genes), I will get `NA` as an answer for the rows that had `NA`s.
+
+```{r}
+counts <- data.frame(Site1 = c(geneA = 2, geneB = 4, geneC = 12, geneD = 8),
+                     Site2 = c(geneA = 15, geneB = NA, geneC = 27, geneD = 28),
+                     Site3 = c(geneA = 10, geneB = 7, geneC = 13, geneD = NA))
+
+counts
+
+# Notice that we can only pass the function name "mean" and not any parameters
+apply(X = counts, MARGIN = 1, FUN = ...)
+```
+
+------------------------------------------------------------------------
+
+### 3.3.1 Pass additional parameters to `FUN` in the `apply()` method
+
+As we saw in section 2.2.1, we have the option of telling many functions that `na.rm=TRUE`. While this seems quite straightforward when *directly* using a function, how do we use this in the context of the `apply()` function? Remember when we set the parameter `FUN`, we **only** supply the **name** of the function - no parentheses included!
+
+If you take a closer look at the description of `apply()` you'll find one more parameter `...` which can be confusing to the novice. This is R's way of saying "I'll take any number of other arguments you want to toss this way". Consequently, when the function defined by `FUN` is run, these additional arguments are passed to whatever `FUN` is!
+
+For code readability and to avoid errors, you should follow the format `parameter = argument` when using this additional option.
+
+Let's look at that in action.
+
+```{r}
+# Pass parameters in our call
+apply(X = counts, MARGIN = 1, 
+      FUN = mean, ...)
+
+# Equivalent code - perhaps clearer but more verbose
+apply(X = counts, MARGIN = 1, 
+      FUN = function(x) mean(x, ...))
+```
+
+In later lectures we'll try to see the other functions in the `apply()` family - `lapply()`, `sapply()`, and `mapply()`.
+
+------------------------------------------------------------------------
+
+# 4.0.0 Class summary
+
+We've covered a lot in today's lecture with a focus on
+
+1.  Basic data types
+2.  Basic data structures
+3.  Dataframes
+4.  Special data types
+5.  Mathematical operations on dataframes
+
+Knowing all this will allow us to focus next lecture on working with dataframes and rearranging their data
+
+## 4.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). ***Don't forget to fill in your name and student number at the top of the notebook!*** To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280//RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 4.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*
+
+------------------------------------------------------------------------
+
+## 4.3.0 Reference and Resources
+
+-   ["Introduction to R"](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf)

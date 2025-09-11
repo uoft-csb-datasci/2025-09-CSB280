@@ -172,7 +172,7 @@ When we refer to the kind of value a variable might point to, we use the name "d
 
 ### 1.0.1 Atomic values - *"One is the loneliest data type"*
 
-Variables, as we've seen, can be assigned to one single value from any of the above atomic values. While it is the smallest possible "unit" of data within R, as we'll soon see, they are actually not stored as their own special data structure.
+Variables, as we've seen, can be assigned to one single value from any of the above atomic values. While it is the smallest possible "unit" of data within R, as we'll soon see, they are not actually stored as their own special data structure.
 
 In our next example, we'll also take the opportunity to use the `str()` function, which we spoke briefly about last lecture. The `str()` function, also referred to as the `structure` function allows us to view a summary of information from any variable/object. Depending on the complexity of the structure, it will show less or more information. At *minimum* the function will return the data type of object. We'll definitely see much more use of this function throughout the remainder of today's lecture and the course.
 

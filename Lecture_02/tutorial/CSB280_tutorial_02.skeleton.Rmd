@@ -1,0 +1,456 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+# Data Science for Cell and Systems Biology
+
+# Tutorial 02: Working with RStudio and learning the structure of file systems
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this tutorial
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this tutorial is a code-along style; it is 100% hands on! These tutorial sessions are meant to complement the materials discussed in class, taking some concepts a little further by applying them in some new ways. We may also discuss new material that is related to the content from recent lectures. **Future class lectures, quizzes and exams, could reference back to any of these topics so do your best to keep up!**
+
+A few hours prior to each tutorial, the materials for tutorial will be available through the nbgitpuller link used for class lectures. The tutorial materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the TAs. Complete versions (including code) for each weekly tutorial will be made available approximately one day prior to the next lecture date.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Tutorial Objectives
+
+This is the second in a series of eleven tutorials. At the end of this session you will be more familiar with the installation and initialization of packages, learning to subset dataframes, and working with more `apply()`-related functions. Today's topics are broken into:
+
+1.  Installing and importing packages.
+2.  Indexing or subsetting from dataframes.
+3.  Learning more about the `apply()` family of functions.
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this tutorial
+
+### 0.4.1 Weekly tutorial skeleton files
+
+Each week, new tutorial files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX/tutorial/`. You will find a partially coded `tutorial_skeleton.Rmd` file in this subdirectory as well as all of the data files necessary to run the week's tutorial.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+------------------------------------------------------------------------
+
+# 1.0.0 Installing and importing packages
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/I_made_this_package.png?raw=true" width="700"/>
+:::
+
+Packages are groups of related functions that serve a purpose. They can be a series of functions to help analyse specific data or they could be a group of functions used to simplify the process of formatting your data as we'll learn in later lectures.
+
+Depending on their structure they may also rely on other packages.
+
+## 1.1.0 Locating packages
+
+There are a few different places you can install packages from R. Listed in order of decreasing trustworthiness:
+
+**CRAN (The Comprehensive R Archive Network)**
+
+-   Guidelines for submission, reviewed. Where the majority of packages are.
+
+**Bioconductor (Bioinformatics/Genomics focus)**
+
+-   Guidelines for submission, reviewed, and must have a vignette.
+
+**GitHub**
+
+-   No formal review process, but peers can opens issues to highlight problems or suggest fixes.
+-   There is an increasing number of publication-related packages.
+-   Check to see the last time updates or comments were made to see if it is maintained by the developer.
+
+**Joe's website**
+
+-   No review process. Not sure I trust that guy.
+
+Regardless of where you download a package from, it's a good idea to document its installation, especially if you had to troubleshoot the installation (you'll eventually be there, I promise!)
+
+`devtools` is a package that is used for developers to make R packages, but it also helps us to install packages from `GitHub`. It is downloaded from `CRAN`.
+
+------------------------------------------------------------------------
+
+## 1.2.0 Installing packages for your RStudio (on JupyterHub)
+
+Installing packages through your RStudio instance is relatively straightforward but any packages you install only remain during your current instance (login) of the hub. Whenever you logout from the JupyterHub (or datatools.utoronto.ca), these installed libraries will essentially vaporize.
+
+The `install.packages()` command will work just as it should in a desktop version of RStudio.
+
+```{r}
+# Always keep installation commands commented out unless you plan to run it!
+
+# Install a fun little package that generates random quotes from the R community
+install.packages('...') 
+```
+
+------------------------------------------------------------------------
+
+### 1.2.1 Will it or won't it install? Check for dependencies!
+
+R may give you package installation warnings. Don't panic. In general, your package will either be installed and R will test if the installed package can be loaded, or R will give you a *non-zero exit status* - which means your package was not installed. If you read the entire error message, it will give you a hint as to why the package did not install.
+
+Some packages *depend* on previously developed packages and can only be installed after another package is installed in your library. Similarly, that previous package may depend on another package and so on. To solve this potential issue we use the `dependencies` logical parameter in our call.
+
+```{r}
+install.packages('fortunes', ...)
+
+# remove.packages("fortunes") # Uninstall any CRAN package
+```
+
+------------------------------------------------------------------------
+
+### 1.2.2 Use `library()` to load your packages after installation
+
+A package only has to be installed once. It is now in your ***library***. To use a package, you must *load* the package into memory. Unless this is one of the packages R loads automatically, you choose which packages to load every session.
+
+::: {.alert .alert-block .alert-warning}
+**Installing libraries on datatools.utoronto.ca:** Unlike on a personal installation of RStudio, we are running through an RStudio server which creates a fresh "instance" of an RStudio installation each time you log in. Some packages are pre-installed by system administrators but any packages outside of these essential ones, will need to be installed *every time* you restart your RStudio instance. Keep that in mind!
+:::
+
+`library()` Takes a single argument. `library()` will throw an *error* if you try to load a package that is not already installed. You may see `require()` on help pages, which also loads packages. It is usually used inside functions (it gives a *warning* instead of an error if a package is not installed).
+
+::: {.alert .alert-block .alert-warning}
+**Errors versus warnings:** So far we've seen that errors will stop code from running. Warnings allow code to run until an error is reached. An eventual error may not be the result of a warning but it certainly leaves your code vulnerable to errors down the road.
+:::
+
+```{r}
+# When we try to load this we will likely receive an error due to an older package being loaded
+# Restart the kernel! It will keep the installed libraries but will unload the offending package.
+library(...) 
+
+# Now we can access a random fortune!
+
+...
+```
+
+------------------------------------------------------------------------
+
+## 1.3.0 Loading packages from Bioconductor requires `BiocManager()`
+
+To install from Bioconductor you can use the package `BiocManager()` to help pull down and install other packages from the Bioconductor repository.
+
+```{r}
+# In order to work with bioconductor packages, you must install their own "installer"
+install.packages("BiocManager") 
+
+# If you run this, it could take a while
+# BiocManager::install("Biostrings")
+
+```
+
+------------------------------------------------------------------------
+
+## 1.4.0 Skip loading a library with `package::function()`
+
+One helpful package is `devtools`, which should already be installed on your RStudio instance. It is required to install packages from GitHub. However, we don't actually need to load the entire library for `devtools` if we are only going to use one function. We can select a function using this syntax `package::function()`.
+
+::: {.alert .alert-block .alert-info}
+**Directly accessing functions** Sometimes we load libraries that can contain the same function names! While these functions may behave completely differently, how does the R interpreter know which one we are referring to? By default, R will use the *most recent* version of a function loaded into memory. By using the **package::function()** syntax, we can let R know exactly which version of "conflicting" functions we wish to use!
+:::
+
+```{r}
+# We can install a github package directly without loading the devtools library!
+devtools::install_github("...")
+
+# Choose the update "All" option to properly install this package in RStudio
+```
+
+All packages are loaded the same regardless of their origin, using `library()`. The `ellmer` library lets you access various large language models (LLMs) through R! However, you will need to set up some additional credentials to make it work!
+
+```{r}
+# Load ellmer now from the library
+library(...)
+```
+
+------------------------------------------------------------------------
+
+# 2.0.0 Working with and subsetting dataframes
+
+In lecture 02, we briefly discussed how to index portions of a dataframe. Here we'll review in detail some of those methods and use some additional examples. Let's begin by initiating a dataframe into memory.
+
+```{r}
+# Make a dataframe with 3 columns (Site1, Site2, Site3) and 4 rows (geneA, geneB, geneC, geneD)
+counts <- data.frame(Site1 = c(geneA = 2, geneB = 4, geneC = 12, geneD = 8),
+                     Site2 = c(geneA = 15, geneB = 18, geneC = 27, geneD = 28),
+                     Site3 = c(geneA = 10, geneB = 7, geneC = 13, geneD = 15))
+                     
+counts
+```
+
+## 2.1.0 Subsetting dataframes with the indexing `[row, col]` notation
+
+In lecture 02, section 1.4.5 we briefly discussed how to subset our data with the `[ ]` notation to retrieve single rows or columns. When doing so, if we leave one side of the notations empty, such as `[rowNums, ]` or `[, colNums]`, then we automatically select ALL values for the "empty" side. This notations is known in some languages as "open" notation.
+
+```{r}
+# Retrieve the second row, second column of data
+counts...
+
+# Retrieve all of row 4
+counts...
+```
+
+### 2.1.1 Using a vector of values to select rows and columns
+
+Much like we can do with a vector to select specific values, we can perform similar manipulations with a `data.frame`. Remember, that with this, you can select the *same* row or column more than once! All you need to do is use the `c()` vector notation.
+
+```{r}
+# Select a specific order and number of rows and columns
+counts[c(2,4,1), c(2,1)]
+
+# Selecting specific portions but also repeating selections
+counts[c(2,4,1,...), c(1,3,...)]
+```
+
+### 2.1.2 Using the `:` to create a range of values
+
+Normally you would not choose to subset the same row more than once, otherwise you would create identical datasets. However, it may be necessary in certain circumstances! The more likely process of subsetting will involve taking a *range* of values such as the 2-10 rows and 3-5 columns. In fact, you could combine this for more complex groupings of columns, which we will touch on in class during Lecture 03.
+
+For now, recall that we can make a range of values using the `:` syntax as in Lecture 02, section 1.2.0.
+
+```{r}
+# Select portions of counts using the : notation
+counts[..., ]
+
+# Select portions of counts using the : notation
+counts[2:4,...]
+
+# Select portions of counts using the : notation
+counts[2:4, ...]
+```
+
+Just be careful not to select a value that doesn't exist. You may end up with an empty dataframe or one that includes with `NA` values!
+
+```{r}
+# What do we get with the 0 as our rows
+counts[..., 2:3]
+
+# What happens if we include a non-existent row?
+counts[..., 2:3]
+```
+
+### 2.1.3 Use the `$` to directly retrieve a single column from a `data.frame`
+
+The last quick and easy way to pull data from a `data.frame` is by isolating a single column using the `$` notation. In cases where a larger data frame exists or you can't count on a column being in the same position after various transformations, you can still rely on a column's name. By directly selecting on column name, it does not matter what *position* it is in as long as that particular column exists! Likewise, the same logic might apply where the same position will always hold the same kind of data, but the naming may vary slightly from dataset to dataset.
+
+Just remember, you can only select one column at a time. The result will alway return a vector of the correct datatype to you!
+
+```{r}
+# Pull some columns from the data frame
+counts...
+
+counts...
+```
+
+Of course you can also combine notation if you know what you're working with!
+
+```{r}
+# Retrieve a column and then an element from that resulting vector
+counts$Site1...
+```
+
+Often times in short segments of code or `data.frame`-specific instances, you will see use of this base-R notation. It was originally the only way to access portions of a dataframe in R. However, we'll learn about some other ways to subset our data in Lecture 03.
+
+------------------------------------------------------------------------
+
+# 3.0.0 The `apply()` family of functions
+
+In lecture 02 section 3.1.0, we discussed the `apply()` function which we used to apply a function along all rows or all columns of a dataframe. This can be a useful paradigm! There are two additional functions to introduce in this section: `lapply()` and `sapply()` which have similar but distinct use cases.
+
+## 3.1.0 Use `lapply()` on a list-like set of elements
+
+Sometimes you may have a list of values that you would like to perform an action or complex function. Note that both `vectors` and `lists` can be interpreted as list-like objects made of single elements. We'll look at two examples here to help understand just what we can accomplish with `lapply()`. Compare to `apply()`, there are, obviously, some slight differences.
+
+`lapply()`, instead, drops the `MARGIN` parameter and takes in a vector or a list as the input. Remember that lists are a single dimension and thus do not have a row/column configuration. Basic parameters we require are:
+
+-   `X`: A vector or list object
+-   `FUN`: The function you wish to apply to *each element* of `X`.
+-   `...`: An unspecified number of additional parameters that are passed on to `FUN` as arguments for ***its parameters***.
+
+Notably, the value that is returns is specifically a `list` where each element is the result of the output from `FUN`.
+
+In our first example, we'll work with a simple vector of numbers and take the square root of those numbers individually.
+
+```{r}
+# Create a vector
+values <- c(1,4,9,16,25,36)
+
+# Generate the square root values for each element
+result <- ...(X = values,
+                 FUN = sqrt)
+
+# What does our result look like?
+print(result)
+
+# What exactly is returned?
+str(result)
+```
+
+A quick note, if you ever wish to convert a simple list as we've just created with `result`, you can use the `unlist()` function, which will convert that list into a simple vector (if possible). We'll use that next to create our list of values for the next example.
+
+```{r}
+# Convert our list of values into a simple vector
+result <- ...
+
+result
+```
+
+```{r}
+# Create a list of vectors for analysis
+values_list <- list(result, result, result, result)
+
+# Now use the lapply() function
+lapply(...)
+```
+
+### 3.1.1 Generate a custom function in `lapply()`
+
+Much like the `apply()` function, you can supply a custom function to the `FUN` parameter as seen in Lecture 02 section 3.2.1.
+
+```{r}
+# Use the lapply() function with a custom function
+lapply(values_list, 
+       # Add the mean of the vector to the sum of the vector
+       FUN = function(listValue) ...(listValue) + ...(listValue)) 
+
+```
+
+------------------------------------------------------------------------
+
+## 3.2.0 Use `sapply()` to generate a simplified output
+
+Unlike the `lapply()` function which always returns a `list` object, the `sapply()` will attempt to ***s***implify its output where appropriate. If an output can take a simple vector form, for instance, then a vector will be returned. Other than that, the function is the same. Let's return to our first example and see what happens with `sapply()`.
+
+```{r}
+# Recall what our values look like 
+values
+
+# Will this also return a list?
+...(values, FUN = sqrt)
+
+# You can still use a custom function as well
+...(values, FUN = function(x) x + x)
+```
+
+If we were to continue using the result of our code, we would have no need to simplify it ourselves with the `unlist()` function! On the other hand, if you always wish to have a `list` object returned for your analysis purposes, then you should use `lapply()`.
+
+------------------------------------------------------------------------
+
+# 4.0.0 Tutorial summary
+
+At the end of this tutorial you've had a little more exposure to:
+
+1.  Installing and loading packages into memory.
+2.  Working with subsetting dataframes using basic R syntax.
+3.  Using the `apply()` family of functions to iterate through list-like objects.
+
+------------------------------------------------------------------------
+
+## 4.1.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*

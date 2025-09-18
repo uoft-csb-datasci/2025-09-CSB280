@@ -204,7 +204,7 @@ Briefly, the data here was generated from the infection of various wild isolate 
 ::: {align="center"}
 <img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec03_microsporidiaCycle.png?raw=true" width="900"/>
 
-A sample microscopy image of *C. elegans* infected by microsporidia at 72-hours post infection.
+A diagram of the nematode microsporidia life cycle in the host *C. elegans*.
 :::
 
 Experimental observations in this data measure the health of host animals at a specific timepoint (usually 72 hours post-infection), when changes to the number of embryos produced by the host can be measured. Specialized fluorescent in situ hybridization (FISH, red) probes can be used to detect the presence of meronts while an additional stain known as DY96 (green) can be used stain the chitinous exterior of both microsporidia spores and *C. elegans* embryos. These 3 observations can be captured for each individual worm and combined as a population to assess the overall effects of infection.

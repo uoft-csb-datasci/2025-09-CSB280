@@ -1,0 +1,1483 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 03: Cleaning and Formatting your Data AKA Data Wrangling
+
+# Student Name:
+
+# Student ID:
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this course
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this course is a code-along style; it is 100% hands on! A few hours prior to each lecture, links to the materials will be available for download at [QUERCUS](https://q.utoronto.ca/). The teaching materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the instructor. Other course resources include tutorials with additional R Markdown notebooks that will cover additional materials and practice concepts from class lecture. Complete versions (including code) for each weekly lecture will eventually be made available the day prior to the next lecture date.
+
+As we go along, there will be some in-class comprehension questions for you to solve either individually. These may require you to complete code cells and/or provide a few sentences to answer the question. Please use the spaced provided in the notebook to supply your answers.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Class Objectives
+
+This is the third in a series of twelve lectures. At the end of this session you will be familiar with working and altering datasets in preparation for exploratory data analysis.
+
+Today's topics are broken into:
+
+1.  Importing tabular data.
+2.  Inspecting data for errors or potential problems.
+3.  Manipulating dataframes to move data.
+4.  Reformatting from wide-format into long-format datasets.
+
+All of these concepts apply broadly to working with experimental measurement data and are necessary before performing exploratory data analysis and visualization.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also used for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX`. You will find a partially coded `skeleton.Rmd` file as well as all of the data files necessary to run the week's lecture.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the lecture code released as an HTML file under the Modules section of Quercus. These will be available on the following Monday morning after each lecture. Lecture slides (if any) will be made available as a PDF soon after each lecture.
+
+------------------------------------------------------------------------
+
+### 0.4.3 Data Set Description
+
+The following datasets used in this week's class come from a published manuscript on PLoS Pathogens entitled "High-throughput phenotyping of infection by diverse microsporidia species reveals a wild *C. elegans* strain with opposing resistance and susceptibility traits" by [Mok et al., 2023](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1011225). These datasets focus on the an analysis of infection in wild isolate strains of the nematode *C. elegans* by environmental pathogens known as microsporidia. The authors collected embryo counts from individual animals in the population after population-wide infection by microsporidia and we'll spend our next few classes working with the dataset to learn how to format and manipulate it.
+
+### 0.4.3.1 Dataset 1: /data/infection_meta.csv
+
+This is a comma-separated version of the metadata data from our measurements. This dataset tracks information for each experimental condition measured including experimental dates, reagent versions, and sample locations. We'll use this file to ease our way into importing, manipulating, and exporting in today's class.
+
+------------------------------------------------------------------------
+
+## 0.5.0 Packages used in this lecture
+
+The following packages are used in this lecture:
+
+-   `tidyverse` (tidyverse installs several packages for you, like `dplyr`, `readr`, `readxl`, `tibble`, and `ggplot2`)
+
+```{r}
+#--------- Install packages to for today's session ----------#
+#install.packages("tidyverse", dependencies = TRUE) # This package should already be installed on Jupyter Hub
+
+#--------- Load packages to for today's session ----------#
+library(tidyverse)
+```
+
+------------------------------------------------------------------------
+
+# 1.0.0 Reading files in R
+
+::: {align="center"}
+<img src="https://github.com/camok/CSB_Course_Materials/blob/main/IntroR/taken_readr.png?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+The most important thing when starting to work with your data is to know how to load it *into* the memory of the R kernel. Last week, we created some simple Dataframes to hold data but these were just some toy examples. This week, we'll be working with real-world data collected from experimental measurements that span hundreds of observations. There are a number of ways to read in files and each is suited to dealing with specific file types, file sizes or may perform better depending on how you wish to read/store the file (all at once, or a line at a time, or somewhere in between!)
+
+::: {.alert .alert-block .alert-info}
+**New Concept: there are many file formats** you may come across in your journey but the most common will be **CSV** (comma-separated values), **TSV** (tab-separated values), **FASTQ/FASTA** (usually used for storing biological sequences), or some archived (**ZIP, GZ, TGZ**) version of these. R is even able to open these archived versions in their native format! We may interchangeably use the word ***parsing*** to describe the action of reading/importing formatted data files.
+:::
+
+### 1.0.1 How was today's data generated?
+
+Today's data is a specially-formatted version of the raw data coming from this [Mok et al., 2023](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1011225) manuscript. The raw data has been altered into a form that will best-showcase many of the functions we'll use in today's lecture. However, our data was collected from real laboratory experiments conducted here at the University of Toronto!
+
+Briefly, the data here was generated from the infection of various wild isolate strains of *Caenorhabditis elegans* with wild-isolate versions of microsporidia pathogens. These unique fungus-like pathogens are usually ingested by their hosts, at which point they use specialized structures to inject a package of infectious materials which will aid in hijacking the host's own replication machinery. New copies of the microsporidia first form as "meronts" before maturing into spores which will exist the host cells, into the intestinal tract before being excreted and consumed by other unsuspecting individuals.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec03_microsporidiaCycle.png?raw=true" width="900"/>
+
+A sample microscopy image of *C. elegans* infected by microsporidia at 72-hours post infection.
+:::
+
+Experimental observations in this data measure the health of host animals at a specific timepoint (usually 72 hours post-infection), when changes to the number of embryos produced by the host can be measured. Specialized fluorescent in situ hybridization (FISH, red) probes can be used to detect the presence of meronts while an additional stain known as DY96 (green) can be used stain the chitinous exterior of both microsporidia spores and *C. elegans* embryos. These 3 observations can be captured for each individual worm and combined as a population to assess the overall effects of infection.
+
+Each combination of worm strain and microsporidia strain infection is usually repeated in 3 or more biological replicates to ensure that the effects observed are consistent. While protocols can vary between fields, biological replicates and sometimes technical replicates are a staple of scientific experimentation. These measurements will be stored as a sheet in "infection_data_all.xlsx" named "embryo_data_wide" or just as a CSV file named "embryo_data_wide.csv".
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Lec03_elegansInfection.png?raw=true" width="900"/>
+
+A sample microscopy image of *C. elegans* infected by microsporidia at 72-hours post infection.
+:::
+
+## 1.0.2 What will today's data look like?
+
+The first set of data we'll examine, however, is a set of ***metadata***. Remember from lecture 01, that metadata isn't exactly measurement data but rather information about our observations which provides context to our analysis. In this case, our metadata includes things like *C. elegans* strain information and experimental parameters like the batch of microsporidia used for infections, how long infection lasted before measurements, etc. Often times, this information can be used to determine if small variations to experimental conditions strongly influenced the observations, or even if samples may have been switched by accident.
+
+Our metadata will look a little bit like this:
+
+| experiment | experimenter | description | ... | Slide number | Slide Box | Imaging Date |
+|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|
+| 190426_VC20019_LUAm1_0M_72hpi | CM | Wild isolate phenoMIP retest | ... | 1 | 2 | 190516 |
+| 190426_VC20019_LUAm1_10M_72hpi | CM | Wild isolate phenoMIP retest | ... | 2 | 2 | 190516 |
+| ... | ... | ... | ... | ... | ... | ... |
+
+------------------------------------------------------------------------
+
+## 1.0.3 Visualizing the `tidyverse`
+
+The tidyverse is the universe of packages created by Hadley Wickham for data analysis. There are packages to help import, tidy, transform, model and visualize data. His packages are pretty popular, so he made a package to load all of his packages at once. This wrapper package is `tidyverse`. In this lecture we'll introduce `readr` for importing our files and `dplyr` (think like data pliers) for rearranging and working with our data. Next lecture we'll dig deeper with `tidyr` to help prepare our data for analysis and visualization.
+
+::: {align="center"}
+<img src="https://github.com/camok/CSB_Course_Materials/blob/main/IntroR/tidyverse1.png?raw=true" width="600"/><img src="https://github.com/camok/CSB_Course_Materials/blob/main/IntroR/HadleyObama2.png?raw=true" width="250"/>
+
+Hadley has a large fan-base. Someone even made a plot of Hadley using his own package, `ggplot2`.
+:::
+
+## 1.1.0 Import data to a `tibble` with `read_csv()`
+
+The `tidyverse` package has its own function for reading in text files because the `tibble` structure was first developed as part of the `dplyr` package! We'll spend some time learning more about the differences between the `tibble` and `data.frame` objects in section **1.3.2**. Since we'll be spending our time working with the `tidyverse`, then we may as well use their commands for importing files! If you want to learn how to do this with the base R `utils` package, check out the Appendix section for details.
+
+Let's look quickly at the `read_csv()` function which is a specific version of the `read_delim()` function from the `readr` package. The parameters we are interested in are:
+
+-   `file`: The path to the file you want to import
+-   `col_names`: `TRUE` (there is a header), `FALSE` (import without column names), or supply a character vector of custom names you want to use for your data columns.
+-   `col_types`: `NULL` (default) and decides on column types itself, or a `cols()` specification of the data type for each column. Find more information in the `?read_csv` details.
+-   `na`: a character vector of strings to interpret as `NA` values. Very handy when you have values you want to identify and convert at import.
+
+From this point on, we'll pretty much use the terms `tibble` and `data.frame` interchangeably.
+
+```{r}
+# ?read_csv
+
+# Import our infection_meta.csv file from the data folder
+infection_meta.tbl <- read_csv(file = ..., 
+                               col_names = ..., 
+                               col_types = cols()  
+                               # Producing a blank cols() specification suppresses any read_csv() output
+                              )
+
+# Check out the structure of our table
+str(infection_meta.tbl)
+```
+
+------------------------------------------------------------------------
+
+As you can see, it's a pretty smooth process to parse simple text files. We've imported our CSV file and can see it has 276 rows (observations) and 29 columns (variables). From the output, you can also quickly see what kind of data types were chosen for each column - mainly either numeric or character in this case.
+
+### 1.2.0 A `tibble` is essentially a `data.frame`
+
+Notice that the object type of our imported data isn't *exactly* a `data.frame`. Rather it is a `tibble` which is an extended version of the `data.frame`. Overall a `tibble` replicates the same behaviours as a `data.frame` except when printing/displaying (only outputs the first 10 rows vs. all in the console) and in how we subset a single column. As long as you use methods from within the `tidyverse`, this construct will work just fine.
+
+::: {.alert .alert-block .alert-warning}
+**Warning: subsetting a tibble** using the index notation **[, 1]** returns a ***tibble*** object containing the first column of your data. In a **data.frame**, this same notation would return a **vector** object. This can sometimes cause type-errors when working with older functions or packages outside the *tidyverse*. If you want to retrieve a column vector from a tibble object, you can use the **\$** indexing notation or the **dplyr::pull()** function.
+:::
+
+If you'd like to exclusively work with a `data.frame`, you can cast it using the `as.data.frame()` command.
+
+```{r}
+# Pull a single column from our tibble
+print("Indexing a column from a tibble is still a tibble")
+str(infection_meta.tbl...)
+
+# Index a column with the $ notation but you need to know the name of your column
+cat("\n") # print a blank line
+print("Indexing a column into a vector with $")
+str(infection_meta.tbl...)
+
+# Index a column with the pull() function if you know it's position or name
+cat("\n")
+print("Indexing the first column into a vector with pull()")
+str(...(infection_meta.tbl, 1))
+
+# Cast the tibble to a data.frame and then pull a single column
+cat("\n")
+print("Indexing a column from a data.frame becomes a vector")
+str(data.frame(infection_meta.tbl)...)
+```
+
+------------------------------------------------------------------------
+
+### 1.2.1 Casting our `tibble` to a `data.frame`
+
+At this point, we would like to just use our imported metadata as a normal `data.frame` in R. We'll assign it to a new variable `infection_meta.df` using the `as.data.frame()` function.
+
+```{r}
+# Let's cast our first tibble to a dataframe
+infection_meta.df <- ...(infection_meta.tbl)
+
+str(infection_meta.df)
+```
+
+::: {.alert .alert-block .alert-warning}
+**Warning: what's the difference between data.frame() and as.data.frame()?** Without getting bogged down in the details there is a distinction when using the **data.frame()** and **as.data.frame()** functions. The former can be used to create a `data.frame` from scratch. As we saw in **Lecture 02**, you can provide one or more vectors of the same length to produce a data.frame object. On the other hand, if you want to convert a data.frame-like object (ie a matrix, tibble or array) to a data.frame, you *could* use **data.frame()** BUT it is slightly slower than **as.data.frame()** which is specifically designed to accept a single argument to be converted into a data.frame.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Comprehension question 1.0.0:** Using the following code cell, show 3 ways to access the 3rd column of data from the object `infection_meta.tbl` being sure that the returned output is a **`vector` only**.
+:::
+
+```{r}
+# Comprehension answer code 1.0.0
+
+str(...)
+
+str(...)
+
+str(...)
+
+```
+
+------------------------------------------------------------------------
+
+# 2.0.0 Inspecting your data
+
+::: {align="center"}
+<img src="https://imgs.xkcd.com/comics/data_pipeline.png"/>
+
+Image courtesy of xkcd at <https://xkcd.com/2054/>
+:::
+
+We'll often make assumptions about our datasets, like all of the values for a variable are within a certain range, or all positive. We also usually assume that all of the entries in our data are complete - no missing values or incorrect categories. This can be a bit of a trap - especially in large datasets where we cannot view it all by eye. Here we'll discuss some helpful tools for inspecting your data ***before*** you start using more complex code for it.
+
+------------------------------------------------------------------------
+
+## 2.1.0 Helpful commands for inspecting your data
+
+When first importing data (especially from outside sources) it is best to inspect it for problems like missing values, inconsistent formatting, special characters, etc. Here, we'll inspect our metadata, store it in a variable, and check out the structure by reviewing some helpful commands:
+
+1.  `class()` to quickly determine the object type. You see this information in the `str()` command too.
+2.  `head()` to quickly view just the ***first*** `n` rows of your data.
+3.  `tail()` to quickly view just the ***last*** `n` rows of your data.
+4.  `unique()` to quickly view the unique values in a vector or similar data structure.
+5.  `glimpse()` and `View()` (in RStudio) to take a peek at your data structures.
+
+### 2.1.1 Use `head()` to view the first portion of your data
+
+You can take a look at the first few rows (6 by default) of your data.frame using the `head()` function. In fact you can play with the parameters to pull a specific number of rows or lines from the start of your `data.frame` or other object.
+
+```{r}
+# Re-import our infection_meta.csv file from the data folder if you need to
+# infection_meta.tbl <- read_csv(file = "data/infection_meta.csv", col_names = TRUE, col_types = cols)
+
+# Use default head() parameters
+...(infection_meta.tbl)
+
+# Pull just the first 3 rows
+...(infection_meta.tbl, ...)
+```
+
+------------------------------------------------------------------------
+
+### 2.1.2 Use `tail()` to view the latter portion of your data
+
+Likewise, to inspect the last rows, you can use the `tail()` function. Again, you can decide on how many rows from the end of your object that you'd like to see. Note that this still displays in the original order of the data frame rather than in reverse.
+
+```{r}
+# Let's pull up the last 10 rows to look at!
+...(infection_meta.tbl, 10)
+```
+
+------------------------------------------------------------------------
+
+### 2.1.3 Use `unique()` to retrieve a list of the unique elements within an object
+
+You may be interested in knowing more about the data set you're working with such as "How many *C. elegans* strains or microsporidia strains are we working with across these experiments?" Recall that we have columns labeled `Worm_strain` and `Spore Strain` within our data set. Note that, we'll try to learn more about simplifying our column names later!
+
+You could extract the whole column and scan through it or look at just a portion of it.
+
+```{r}
+# Recall: Use the $ sign to access named columns within your data.frame!
+
+infection_meta.tbl...
+```
+
+------------------------------------------------------------------------
+
+As you may have noticed, this method printed the entire `Worm_strain` column. While it may be useful information for certain aspects, it doesn't answer our main question of how many *different* nematode strains were used across our experiments.
+
+The function `unique()` can help us answer this question by removing duplicated entries, thus living up to its name. It can take in a number of different objects but usually returns an object of the same type that it was given as input.
+
+Let's take a look at using it on our question.
+
+```{r}
+# Retrieve a list of unique genera from our data set
+...(infection_meta.tbl$Worm_strain)
+```
+
+------------------------------------------------------------------------
+
+Note from above that we have only one entry per strain, but how many strains are there in total? Depending on your screen size, you can read the notation in the output to identify the position of the first entry in that row. We can use this to determine just how many entries are in our vector. Using `unique()` we are therefore returned a character vector containing 21 *C. elegans* strains.
+
+### 2.1.4 Review: use `length()` or `str()` to retrieve the size of some objects
+
+Recall from **Lecture 02** we used the `length()` function which does just as it implies by returning the length of a vector, list, or factor. You can also use it to *set* the length of those objects but it's not something we have reason to do.
+
+On the other hand `str()` always gives us the same kind of information plus a little more. Later on, we'll see that more isn't always better and that using `length()` has its advantages.
+
+```{r}
+# Two ways to see how many unique entries we have
+# ?length
+...unique(infection_meta.tbl$Worm_strain)
+
+# or
+
+str(unique(infection_meta.tbl$Worm_strain))
+```
+
+------------------------------------------------------------------------
+
+### 2.1.5 `glimpse()` and `View()` show us our data
+
+Suppose we want to see more of our data frame. There are a couple of choices that can be used inside of **RStudio**. In this IDE, you have access to your **Environment** pane which can give you a quick idea of values for variables in your environment, including a bit of what your `tibble` or `data.frame` looks like.
+
+Clicking on a data object like `infection_meta.tbl` will generate a new tab that shows your entire `tibble` in a human-readable format similar to an Excel spreadsheet. The same result can be accomplished by using the view command `View(infection_meta.tbl)`.
+
+The `glimpse()` command comes from the `dplyr` package and brings up a comprehensive summary of your object that looks very similar to the information provided in the Environment pane. You'll find it looks very much like the `str()` command but is formatted in a more human-readable way. It tries to provide as much information as possible in a small amount of space.
+
+Let's view how `View()` works on our data.
+
+```{r}
+# Only works in RStudio
+...
+```
+
+First let's review how `str()` outputs information about `infection_meta.tbl`.
+
+```{r}
+# Let's compare str() to glimpse()
+str(infection_meta.tbl)
+```
+
+Now let's take a glimpse at `glimpse()`.
+
+```{r}
+# glimpse gives us less information overall but is also less redundant
+...(infection_meta.tbl)
+```
+
+------------------------------------------------------------------------
+
+So the information provided by `glimpse()` is more concise, the formatting is a little tighter and we don't have to see the extra column information as with `str()`, which can save a lot of vertical space. On the other hand, the command takes longer to type but that's a personal choice.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: how does dplyr handle column names with spaces?** Look at the output from glimpse() above versus our use of str(). The use of glimpse() gives us another peek under the hood by showing us the the true names of the columns. Recall we emphasized that whitespace helps the R interpreter to recognize certain code switches.
+
+In order to access column names through methods like the **\$** indexing method, we can't normally accept spaces in names. To get around these limitations, the tibble actually uses the grave accent **(\`)** diacritical (AKA a back-tick) on both sides of the column name (when necessary). This key is located just to the left of the "1" key along with the "\~" symbol.
+
+So if we wanted to access a column like "Fixing Date" we would actually need to use **\$\`Fixing Date\`** instead! The same idea will apply later when we start working with functions from the **dplyr** package.
+:::
+
+## 2.2.0 Dealing with `NA` values in your data
+
+Last lecture we discussed the special data type `NA`. Recall that we discussed how sometimes, imported data may have gaps present in the data. This can be for any number of reasons including values that couldn't be collected at the time, or if the experimental parameters changes so that particular observation is not relevant. Sometimes these are just empty cells in a table. However, R cannot abide an empty space and must put something there, such as the `NA` value as a placeholder.
+
+We learned that the `is.na()` function can be used to identify NA values in most kinds of data structures. Let's see what it looks like when used on our metadata.
+
+```{r}
+...(infection_meta.tbl)
+```
+
+That's a lot of output! How are you supposed to go through each entry looking for the word `TRUE`? Moreover, the output is truncated so we can't even see the last 242 rows! The simpler question to start with might by if there are ***any*** `NA` values in our dataset?
+
+***
+
+### 2.2.1 The `any()` function evaluates logical vectors
+
+In the case of large data frames, as you can see there are just too many entries to identify. Sometimes we are just interested in knowing if at least one of our logical values matches to `TRUE`. That is accomplished using the `any()` function which can evaluate multiple vectors (or `data.frames`), answering which of those has ***at least*** one `TRUE` value.
+
+We can use it to quickly ask if our `infection_meta.tbl` data frame has any `NA` values.
+
+```{r}
+# Before we dig too deep, can we check if there are ANY NA values in our data.frame?
+...(is.na(infection_meta.tbl)) # logical (TRUE or FALSE).
+```
+::: {.alert .alert-block .alert-info}
+**New Concept: use the any() function** to identify if *any* values (ie at least one) in a logical vector or expression evaluates to true! This function also returns a single logical value. This can be a very handy tool when you're concerned more with ***completeness*** rather than individual values.
+:::
+
+------------------------------------------------------------------------
+
+Now we've confirmed that there is at least a single `NA` value in our data. Given that there are 276 rows with 29 columns (8004 total entries), we need to find a way to identify which rows contain `NA` values and conversely those without `NA` values. Let's start with simple structures.
+
+### 2.2.2 Find what you're looking for with the `which()` function
+
+Using `is.na()` we were returned a size-matched logical structure of whether or not a value was `NA`. There are some ways we can apply this information through different functions but a useful method applicable to a vector of *logicals* is to ask `which()` positional indices return TRUE.
+
+In our case, we use `which()` after checking for `NA` values in our object. Let's start with a simplified case.
+
+```{r}
+# Let's check out this vector that contains NA values
+na_vector <- c(5, 6, NA, 7, 7, ...)
+
+# Take a look at na_vector before you start manipulating it
+na_vector 
+```
+
+```{r}
+# wrap which() around our is.na() call
+...(is.na(na_vector))
+
+# indices where NAs are present in na_vector
+na_values <- ...
+```
+
+------------------------------------------------------------------------
+
+From above, we see that our `NA` values are located at indices 3 and 6!
+
+### 2.2.3 Apply the results of `which()` to filter your data!
+
+Now that we have the results from our `which()` call, we know exactly which indices have `NA` values. We can apply this directly to our original `na_vector` object to retrieve the non-`NA` values using the `-` (exclusion) syntax.
+
+```{r}
+# cut out the na_values indices
+removed_na_vector_1 <- na_vector[...]
+
+# Check out the result
+removed_na_vector_1
+```
+
+------------------------------------------------------------------------
+
+### 2.2.3.1 Use the logical not, `!`, to invert your logical vectors
+
+Something we haven't yet discussed in great detail is boolean logic. We'll see more in today's lecture but one very helpful symbol is `!` which is also known as the **logical NOT**. In essence this will take in a logical value or group of logical values and switch them from `TRUE` to `FALSE` and *vice versa*.
+
+As we mentioned in **Lecture 02** you can index your data structures with a series of logicals `TRUE` for select, `FALSE` for exclude. We also know that `is.na()` produces a vector of logical values matching the indices of your input object. We can take this to the next level by combining the **logical NOT** with our `is.na()` results. This has the added bonus of avoiding the creation of an extra variable!
+
+Let's revisit this idea with our `na_vector`.
+
+```{r}
+# Which values are NA?
+is.na(na_vector)
+
+# Flip the logical result
+...is.na(na_vector)
+
+# Apply this in our code for conditional indexing
+na_vector[...]
+```
+
+::: {.alert .alert-block .alert-info}
+**New Concept: logical indexing your data structures** That's right! We just used logical indexing in the above section to remove **NA** values from our **na_vector**. A data structure of logicals (`TRUE` and `FALSE`) can be used to select elements from within another data structure, as long as the relevant dimensions match! This becomes extremely relevant when we begin to *filter* our data frames based on specific criteria.
+:::
+
+------------------------------------------------------------------------
+
+### 2.2.4 Where are `NA` values within our `tibble` or `data.frame`?
+
+We've been using a lot of examples with simple and small data structures but the `infection_meta.tbl` as we saw in section **2.2.0** was much harder to view. That's where the proper use of `which()` can come in quite handy. Let's see how it works in direct usage.
+
+```{r}
+# Which values in infection_meta.tbl are NA? Recall we have 276 rows of data!
+which(is.na(...))
+```
+
+**What do these values really mean?** These are the elemental positions of the values in our dataframe, however, they are positioned based going from the top to the bottom of a column, starting with the first through the last columns. It makes it very hard to locate at which row/column position our `NA` values are stored.
+
+------------------------------------------------------------------------
+
+### 2.2.5 Use `complete.cases()` to query larger objects
+
+We have verified in many ways that we have at least one `NA` value in counts. Often we may wish to drop incomplete observations where one or more variables is lacking data. Using the `which()` function would be helpful but, as we can see from our above example, it only returns the ***element order*** for the *entire* data.frame. Instead, we want to look for ***rows*** that have ***any*** `NA` values. If you were only concerned with `NA` values in a specific column of your dataframe, `which()` would be a good way to accomplish your task.
+
+In the case of removing any incomplete rows, the function `complete.cases()` looks ***by row*** to see whether a row contains an NA and returns a logical vector with each entry representing a row within the dataframe. You can then subset out the rows containing any NAs using ***logical indexing***.
+
+```{r}
+# ?complete.cases
+
+# Outputs a logical vector specifying which observations/rows have no missing values across the entire sequence.
+head(..., 20)
+
+# Use it wisely to keep complete rows. Pop quiz [x,y] will we index by x or by y?
+str(infection_meta.tbl[...])
+```
+
+------------------------------------------------------------------------
+
+### 2.2.6 Combine `which()` with `apply()` to find where data might be missing
+
+Hold up! We just removed our incomplete cases and went from 276 observations to a measly 57! Before we lose **over 200 rows** of our data, maybe we can take a quick look at ***where*** our `NA` values are located. Sometimes it could exist in just a small number of columns that don't really have much importance.
+
+Now that we have a few tools under our belt, let's figure out `which()` columns have `any()` values which are `NA` in our dataset. To do this, we'll rope in the `apply()` function to help us loop through each column individually as well.
+
+```{r}
+# Use the apply function to find columns with NA and then determine which columns return TRUE
+which(apply(infection_meta.tbl, 
+            MARGIN = 2,                  # Use the columns
+            FUN = ...)    # Here's our function to examine each column for NA values 
+            ) # end apply
+     ) # end which
+```
+
+------------------------------------------------------------------------
+
+We can see from the results of our code, that we really just have NA values in 3 metadata columns: `Time plated`, `Time Incubated`, and `Location`. What do you think the integer values in the resulting vector represent?
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: use the combined anyNA() function** to shortcut the use of the two functions **any()** and **is.na()**. You can use the **anyNA()** function to ask the same question as two! You can play with the code above to replace the functions used in `apply()` with the `anyNA()` function.
+:::
+
+------------------------------------------------------------------------
+
+### 2.2.7 Consider just replacing the `NA`s with something useful
+
+Depending on your data or situation, you may want to include rows (observations) even though some aspects may be incomplete. Instead, consider replacing `NA`s in your data set. This could be replacement with a sample average, or the mode of the data, or a value that is below a threshold.
+
+```{r}
+# Replace the NA values in our table under the "Location" column.
+# Note that this will permanently change our tibble!
+infection_meta.tbl[is.na(infection_meta.tbl$Location), ]...
+
+# Check which columns have NA values now
+which(apply(infection_meta.tbl, MARGIN = 2, 
+            FUN = function(x) anyNA(x))) # Notice our use of the anyNA() function this time?
+```
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: more about NA values:** To learn about a few more functions that you can use to identify and remove **NA** values from your data structure, check out the **Appendix** at the end of this lecture.
+:::
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Comprehension Question 2.0.0:** Replace the NA values in **Time plated** and **Time Incubated** with the values 1300 and 1600 respectively. You can do this by completing the skeleton code below where we'll make a copy of the tibble to work on called **"comprehension_meta.tbl"**. Check for NA values afterwards!
+:::
+
+```{r, error = TRUE}
+# comprehension answer code 3.0.0
+
+# Copy our table over to new version
+comprehension_meta.tbl <- infection_meta.tbl
+
+# Fix the Time plated column
+comprehension_meta.tbl[...), ]$... <- 1300
+
+# Fix the Time Incubated column
+comprehension_meta.tbl[...), ]$... <- 1600
+
+# Will we have any NA values left?
+any(is.na(comprehension_meta.tbl))
+```
+
+------------------------------------------------------------------------
+
+# 3.0.0 A quick introduction to the `dplyr` (DEE ply er) package
+
+Now that we've inspected our data for various pitfalls, we can move on to filtering and sorting. Before we answer any questions with our data, we need the ability to select and filter parts of our data. This can be accomplished with base functions in R, but the `dplyr` package provides a more human-readable syntax.
+
+::: {align="center"}
+<img src="https://imgs.xkcd.com/comics/making_progress.png"/>
+
+Image courtesy of xkcd at <https://xkcd.com/1906/>
+:::
+
+The `dplyr` package was made by Hadley Wickham to help make dataframe manipulation easier. There are 5 major types of functions that we are concerned with in today's lecture:
+
+1.  `filter()` - subsets your `data.frame` by row
+2.  `select()` - subsets your `data.frame` by columns
+3.  `arrange()` - orders your `data.frame` alphabetically or numerically by ascending or descending variables
+4.  `mutate(), transmute()` - create a new column of data
+5.  `summarize()` or `summarise()` - reduces data to summary values (for example using `mean()`, `sd()`, `min()`, `quantile()`, etc)
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: there's always more to explore (in dplyr)!** Although we are focused on just a handful of **dplyr** functions, we will end up exploring some more as time goes by. The tidyverse packages actually have a very comprehensive set of web pages full of descriptions and examples for most of the functions in each tidyverse package. You can find the [**dplyr** function page here](https://dplyr.tidyverse.org/reference/index.html).
+:::
+
+------------------------------------------------------------------------
+
+## 3.1.0 Use conditionals to specify subsets of your data based on criteria
+
+It is often extremely useful to subset your data by some logical condition. We've seen some examples above where we used functions and code to identify and keep specific rows using **conditional indexing**. Let's dig deeper into that topic.
+
+Conditionals ask a question about one or more values and return a logical (`TRUE` or `FALSE`) result. Here's a quick table breaking down the uses of basic conditional statements. We saw some of these back in
+
+| Logical operator | Meaning                         | Example          | Result |
+|:----------------:|:------------------|:-----------------|:-----------------|
+|       `==`       | value equivalence (ie equal to) | "this" == "that" | FALSE  |
+|       `!=`       | not equal to                    | 4 != 5           | TRUE   |
+|       `>`        | greater than                    | 4 \> 5           | FALSE  |
+|       `>=`       | greater than or equal to        | 4 \>= 5          | FALSE  |
+|       `<`        | less than                       | 4 \< 5           | TRUE   |
+|       `<=`       | less than or equal to           | 4 \<= 5          | TRUE   |
+
+**Cautionary Note**: `==` may also return `TRUE` for `NA` values in your comparison
+
+Mastering the meaning and use of these logical operators will go a long way to helping you in your data science journey!
+
+```{r}
+# Compare numbers
+4 ... 20
+
+# Compare strings (only for equivalence or non-equivalence)
+"this" ... "that"
+
+# Compare logical values - remember these can be coerced!
+TRUE ... FALSE
+```
+
+------------------------------------------------------------------------
+
+### 3.1.1 Use the match operator, `%in%`, to compare sets
+
+Sometimes the simplest kind of conditional can be thought of as comparing two sets of data. Which values in set `A` exist in set `B`? As an example from our current dataset, `infection_meta.tbl` we may want to keep all rows that have either **N2** *OR* **JU1400** in the `Worm_strain` column.
+
+To accomplish this using basic functions in R, we turn to the match binary operator, `%in%`, which can ask for us "does `x` contain any elements present in `y`" using the syntax `x %in% y`. This operator usually returns a logical vector matching the size of `x`, with TRUE values if the element from `x` is in `y`. Note that the size of `x` and `y` need not be identical!
+
+Let's see what that looks like in the context of our above question.
+
+```{r}
+# Find out more about the match operator by using double quotes
+# ?"%in%"
+
+# What does %in% return?
+str(...)
+```
+
+### 3.1.2 Use the results of `%in%` to subset your dataframe
+
+We've briefly mentioned when learning about indexing with `[]` in both class and tutorial, that we can also use a logical vector to pull specific values (ie observations) from our dataframe. Recall that indexing requires a `[row, col]` specification, but leaving one or the other blank will results in all of that dimension being returned.
+
+With the `%in%` operator, we can search the column of a dataframe, for a specific set of values, and return **only rows of our dataframe** that match those criteria. This action can be referred to as subsetting or filtering your data. You can also subset your data randomly with the right functions!
+
+```{r}
+# You can filter your data using basic R commands
+# Use the conditional result to index our data.frame
+head(infection_meta.tbl[infection_meta.tbl$Worm_strain %in% c("N2", "JU1400"),])
+
+# how many rows (entries) do we find with our query?
+...(infection_meta.tbl[infection_meta.tbl$Worm_strain %in% c("N2", "JU1400"),])
+```
+
+***
+## 3.2.0 Use the `filter()` function to replicate `%in%` and more!
+
+From our query above we already know we were asking R to search through our data frame under the `Worm_strain` column for any matches to **N2** *OR* **JU1400**. The notation, however, can be a little long and perhaps confusing. On the other hand, the `filter()` function can accomplish the same task in a more human-readable syntax.
+
+Using the `filter()` function we can evaluate, row-by-row, with our criteria to determine which rows should be kept. Our first argument will be our `data.frame`, followed by the information for the rows we want to subset by. Parameters we are interested in are:
+
+-   `.data`: A data frame or data frame extension (e.g. a tibble)
+-   `...`: Expressions that can return a logical value based on the variables within `.data`. When using multiple expressions, separate each by a `,` which will mean that *each* expression must return `TRUE` for that row.
+
+Notably, `filter()` drops any `NA` rows/values that might result from our comparisons, returning only specific matches to our criteria.
+
+How do we go about constructing expressions for this function? Let's give it a try!
+
+```{r}
+# But the syntax using filter is much more human readable
+filter(.data = infection_meta.tbl, 
+       ... == "N2" & ... == "JU1400")
+```
+
+------------------------------------------------------------------------
+
+### 3.2.1 Slicing and filtering your data requires the proper use of logical operators
+
+Uh oh! Our code produced an empty tibble because we used the logical operator `&` (AND). For us it makes sense to want only N2 **AND** JU1400, but to R it won't make sense because a worm strain can't be both N2 **AND** JU1400 at the same time. That's why we need to use the `|` (OR) operator to select everything that is N2 **OR** JU1400. Here's a handy summary about the remaining logical operators.
+
+| Operator | Description | Use or Result |
+|:----------------:|:-----------------|:-----------------------------------|
+| ! | Logical NOT | Converts logical results into their opposite |
+| & | Element-wise logical AND | Perform element-wise AND; the result length matches that of the longer operand |
+| && | Logical AND | Examines only the **first** element of the operands resulting in a single length logical vector \*\* |
+| \| | Element-wise logical OR | Perform element-wise OR; the result length matches that of the longer operand |
+| \|\| | Logical OR | Examines only the **first** element of the operands resulting into a single length logical vector \*\* |
+
+\*\* As of R 4.3.0, this will only compare logical values of length 1.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: logical operators:** To summarize for **"&"** it will return **TRUE** if ***all*** elements in that single comparison are **TRUE** while **"\|"** will return **TRUE** if ***any*** elements in that single comparison are **TRUE**. This logic is applied between index-matched elements and can be combined into more complex statements!
+
+When we use the `filter()` command with multiple expressions, it is the equivalent of writing `expression_1 & expression_2 & ... & expression_n`. This is why our previous description requires each expression to return `TRUE` to keep a row during the `filter()` call.
+:::
+
+| Logical statement                          | Evaluation |
+|:-------------------------------------------|:----------:|
+| TRUE & TRUE                                |    TRUE    |
+| TRUE & FALSE, FALSE & TRUE, FALSE & FALSE  |   FALSE    |
+| TRUE & TRUE & FALSE                        |   FALSE    |
+| TRUE \| TRUE, TRUE \| FALSE, FALSE \| TRUE |    TRUE    |
+| FALSE \| FALSE                             |   FALSE    |
+| TRUE                                       |    TRUE    |
+
+Now, let's try that `filter()` command again.
+
+```{r}
+# Filter infection_meta.tbl using the proper logical operator
+nrow(filter(infection_meta.tbl, 
+            Worm_strain == "N2" ... Worm_strain == "JU1400"))
+```
+
+------------------------------------------------------------------------
+
+### 3.2.2 When filtering against a long list of criteria, use the match operator, `%in%`, instead of `==`
+
+Imagine we had more worm strains we were interested in keeping? What if it was just 5? That would require us to use 5 additional expressions in our `filter()` command. Instead, we should work smarter instead of harder! We already learned that the match operator `%in%` will allow us to check one group of values against an entire *set* of other values to see which ones are present or overlapping.
+
+We saw how this can be used to do conditional indexing so why not use it to `filter()` as well?
+
+```{r}
+# Use the correct operator to get the job done when filtering with vectors
+nrow(filter(infection_meta.tbl, 
+            Worm_strain ... c("N2", "JU1400")))
+```
+
+------------------------------------------------------------------------
+
+### 3.2.3 Use `filter()` to identify matching candidates with criteria across *multiple* variables
+
+We just filtered for multiple worm strains (multiple rows based on the identity of values in a single column). However, you can also filter for rows based on values in ***multiple*** columns. We can do this from basic principles too but this is where the `filter()` function really shines as it keeps the query language quite clear for us and others to read and interpret.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: operator precedence:** Before we jump in there, we should quickly note that there is an **order** or **precedence** for groups of logical operators. The more "mathematical" operators will be evaluated before logical operators that compare by combining logical values (ie & and \|). You can use parentheses () to separate or control the order of lower precedence operations. Find out more in the [R manual](https://stat.ethz.ch/R-manual/R-devel/library/base/html/Syntax.html).
+:::
+
+For example, you can use the following filtering combinations:
+
+```{r}
+# Query for samples of either Worm strain N2 OR Spore Strain ERTm5 
+
+head(filter(infection_meta.tbl, 
+            Worm_strain == "N2" | ...))
+```
+
+```{r}
+# == means "is exactly". 
+# Query for rows with Plate Size of 6 and Spores(M)/cm2 values of 0
+str(filter(infection_meta.tbl,
+           `Plate Size` ... 6 & `Spores(M)/cm2` == 0), 
+    give.attr = FALSE)
+
+# equivalently, the ',' represents an implicit &
+str(filter(infection_meta.tbl,
+           `Plate Size` == 6, 
+           `Spores(M)/cm2` == 0),
+    give.attr = FALSE)
+```
+
+```{r}
+# != means "is not"
+# Query for experiments on plate size not equal to 6 and Spore density not equal to 0
+str(filter(infection_meta.tbl,
+           `Plate Size` ... 6,
+           `Spores(M)/cm2` ... 0),
+    give.attr = FALSE)
+```
+
+```{r}
+# >= means "greater than or equal to"
+# Query for experiments completed on plate size < 10cm and with more than or equal to 0.2 Spores(M)/cm2
+str(filter(infection_meta.tbl,
+           `Plate Size` < 10,
+           `Spores(M)/cm2` ... 0.2),
+    give.attr = FALSE)
+```
+
+```{r}
+# <= means "lesser than or equal too"
+# Query for experiments where the Spores(M)/cm2 ratio is above 0 and <= 0.5
+str(filter(infection_meta.tbl,
+           `Spores(M)/cm2` > 0,
+           `Spores(M)/cm2` <= 0.5), 
+    give.attr = FALSE)
+```
+
+```{r}
+# Further filter the information by only using data from worm strains N2 and JU1400
+str(filter(infection_meta.tbl,
+           `Spores(M)/cm2` > 0,
+           `Spores(M)/cm2` <= 0.5,
+           Worm_strain %in% c("N2", "JU1400")),
+    give.attr = FALSE)
+```
+
+```{r}
+# What if we wanted to view strains that are NOT N2 or JU1400?
+str(filter(infection_meta.tbl,
+           `Spores(M)/cm2` > 0,
+           `Spores(M)/cm2` <= 0.5,
+           ...Worm_strain %in% c("N2", "JU1400")), 
+    give.attr = FALSE)
+```
+
+```{r}
+# Be careful how you filter your data! If none of the rows meet your criteria, it can return an empty tibble!
+# Query experiments for any instances of Spores(M)/cm2 < 0.
+str(filter(infection_meta.tbl,
+           `Spores(M)/cm2` < 0),
+    give.attr = FALSE)
+```
+
+------------------------------------------------------------------------
+
+## 3.3.0 Use `select()` to subset and order columns in your data frame
+
+Often times we don't want all of the columns in our dataframe. You can subset or remove columns by using the `select()` function. You can also reorder columns using this function. Essentially this is a great way to move columns around your dataframe or as a way to `select()` for the data columns you want in your dataframe.
+
+The `select()` function takes the format of `select(data, ...)` where
+
+-   `data` is your `data.frame` or `tibble` object.
+-   `...` is a comma-separated list of column names from `data` based on a concise mini-language used in the tidyverse.
+
+While there are [many ways to select your columns in this function](https://dplyr.tidyverse.org/reference/select.html), we'll cover a handful of the more common ways.
+
+Suppose I want to look only at some of the experimental information, including the various infection/fixing/imaging dates as well as the worm and spore strain information.
+
+```{r}
+# We just want to know information related to strain names, spore info and dates
+
+head(select(infection_meta.tbl, 
+            experiment, Worm_strain, 
+            ..., ..., `Total Spores (M)`, 
+            `Infection Date`, `Fixing Date`, `Imaging Date` ))
+```
+
+------------------------------------------------------------------------
+
+### 3.3.1 Use `starts_with()` and `ends_with()` helper functions to specify elements from a vector
+
+`dplyr` also includes some helper functions that allow you to select variables (columns) based on their names. For example, we have both `Spore Strain` and `Spore Lot` columns. We can shortcut both of those using the `starts_with()` helper function. Likewise we can select all of our "X Date" columns using the `ends_with()` function.
+
+```{r}
+# Select for columns starting with the word "Spore" or ending with "Date"
+
+head(select(infection_meta.tbl, 
+            # Note the substitution of position for experiment and Worm_strain!
+            1,6,
+            ...("Spore", ignore.case = TRUE), `Total Spores (M)`, 
+            ...("Date", ignore.case = TRUE)))
+```
+
+As you can see from above, by using these helper verbs, we were able to pick up some extra columns that we'd "forgotten" about that would have some helpful information. We also reduced the amount of coding we had to generate and reduced our chances of errors due to spelling or typos!
+
+------------------------------------------------------------------------
+
+### 3.3.2 Use the `contains()` helper function to select text within column names!
+
+Now that we can base our column selection on the start or end of column names, we can also use the occurrence of words or patterns within as well. Let's do one last example and simplify how we select column names like `Spore Strain` and `Total Spores (M)`. This time around we'll save our subset or **trimmed** dataframe in a new variable named `meta_trimmed.tbl`.
+
+::: {.alert .alert-block .alert-warning}
+**Warning: A note about helper functions!** The only caveat to mention in our quest to simplify selecting columns, we don't have as much control over the specific selection order. Within these helper functions, the resulting selections are ordered based on their ***relative placement*** within the data frame or tibble.
+:::
+
+```{r}
+# Simplify our previous column selections using the contains() helper
+# Save the result as meta_trimmed.tbl
+
+... <- select(infection_meta.tbl, 
+                           experiment, Worm_strain, 
+                           contains("Spore", ignore.case = TRUE),
+                           ends_with("Date", ignore.case = TRUE))
+
+# Take a look at the resulting table
+head(meta_trimmed.tbl)
+```
+
+------------------------------------------------------------------------
+
+## 3.4.0 Sort your data with `arrange()`
+
+The `arrange(data, ...)` function helps you to sort your data. The default behaviour is to order results from smallest to largest (or a-z for character data).
+
+We'll start with a simple sorting of `meta_trimmed.tbl` that we've created in previous steps. We will sort on a single variable to see how things work.
+
+```{r}
+# Sort our data on Total Spores (M)
+arrange(.data = meta_trimmed.tbl,
+        ...)
+```
+
+
+### 3.4.1 Use the `desc()` helper to sort descending or reverse order
+
+If you want to sort in reverse order (both numerically and alphabetically), you can switch the order by partnering with `desc()` (descending) as shown below. 
+
+Let's sort the `meta_trimmed.tbl` again but in reverse order. The result of our sorted daraframe will be saved into the variable `desc_totalSpores`.
+
+```{r}
+# Arrange the trimmed metadata in descending order of Total Spores
+desc_totalSpores <- arrange(meta_trimmed.tbl, 
+                            ...(`Total Spores (M)`))
+
+# Take a look at the sorted data
+head(desc_totalSpores)
+```
+
+### 3.4.2 `arrange()` along multiple variables using commas to separate
+
+Don't forget that you can sort your data at multiple levels, rather than just along a single one. You can think of this like sorting in Excel by giving precedence to multiple columns using a `,` to separate each. Rows will be ordered based on the order of each column name submitted.
+
+Let's do one last example showing that we can sort our data along *multiple variables*
+
+```{r}
+# Sort our data long Worm_strain and then Spore Strain
+arrange(meta_trimmed.tbl,
+        ..., ...)
+
+```
+
+
+------------------------------------------------------------------------
+
+## 3.5.0 Multiple steps can begin to pile up!
+
+Suppose we want to look at the sorted data above looking such that the fit all these criteria:
+
+1.  Infection experiments with **\> 0M spores**
+2.  In samples using only **N2 and JU1400 worms**
+3.  infected by **LUAm1 and ERTm5** microsporidia.
+4.  Arranged by infection date in ascending order.
+
+How would you do it? How many experimental conditions are there that meet our criteria?
+
+```{r}
+# Filter the data by Total spores, worm strains, and microsporidia strains
+# Extra var 1
+desc_totalSpores_filtered <- filter(desc_totalSpores,
+                                    `Total Spores (M)` > 0,
+                                    Worm_strain %in% c("N2", "JU1400"),
+                                    `Spore Strain` %in% c("LUAm1", "ERTm5")) 
+
+# Sort the data by Infection Date
+# Extra var 2
+desc_totalSpores_filtered_asc <- arrange (desc_totalSpores_filtered, `Infection Date`) 
+
+# Retrieve the experiment names
+# Extra var 3
+select_experiments <- select(desc_totalSpores_filtered_asc, experiment) 
+
+# How many observations (rows) are there?
+nrow(select_experiments)
+```
+
+------------------------------------------------------------------------
+
+### 3.5.1 Pass along function output to new functions using the piping symbol `%>%`
+
+While the above code answered the question, it also created a series of **intermediate variables** that we aren't interested in. These 'intermediate variables' were used to store data that was passed as input to the next function. You'll notice that we didn't need them for anything else in the code! If we aren't careful this will quickly clutter our global environment (and memory!) - which kind of keeps track of these things for the kernel. Instead, we can consider using a more "natural flow" of data to produce our code.
+
+The `dplyr` package, and some other common packages for dataframe manipulation in the `tidyverse` allow the use of the pipe function, `%>%`. This is equivalent to `|` for any Linux aficionados. **Piping** allows the output of one function to be passed along to the next function ***without*** creating intermediate variables.
+
+Piping can save typing, make your code more readable, and reduce clutter in your global environment from variables you don't need. The keyboard shortcut for `%>%` is `CTRL+SHIFT+M`. In essence the `%>%` pipe takes **output** from the *left-hand side* and passes it as **input** to the *right-hand side*.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: replacing variables as an alternative to piping** Instead of using the piping paradigm, you could also choose to just replace the *same variable* many times. While this does work, when compared to piping, it still produces more "code" in your workflow. If, however, you were to make a coding error then you would irrevocably lose the original data you were working with.
+
+Using the `%>%` symbol, on the other hand, usually allows our code to be *modular* which makes for increased readability, simpler debugging, and simpler code-swapping as well!
+:::
+
+As an example we'll look at how pipes work in conjunction with the `filter()` function, and then see the benefits to simplifying the code that we just wrote.
+
+```{r}
+# Remember the R evaluates () from the inner to outer
+...(...(meta_trimmed.tbl, `Total Spores (M)` > 0))
+```
+
+```{r}
+# Break the nested functions into their order of execution
+meta_trimmed.tbl ... filter(`Total Spores (M)` > 0) ... head()
+```
+
+```{r}
+# You can separate one or more functions in the pipeline
+meta_trimmed.tbl %>%
+    # Notice the "." in the first position of filter - this is where data normally is assigned as a parameter
+    filter(., `Total Spores (M)` > 0) %>% 
+    # Pass the filtered data to the head() function
+    ...
+
+# Notice we don't even have to save it into a variable to see the output?
+```
+
+------------------------------------------------------------------------
+
+### 3.5.2 Using `.` with `%>%` denotes the object produced by the last called function
+
+You'll notice that when piping, we are not explicitly writing the first argument (our data frame) to `filter()`, but rather passing the first argument to filter using `%>%`. The dot `.` is sometimes used to fill in the first, or a later argument as a placeholder. This notation is useful for nested functions (functions inside functions) within our piping, which we may come across a bit later.
+
+What would working with pipes look like for our more complex example? Recall we want to filter for infection experiments with **\> 0M spores** in samples using only **N2 and JU1400 worms** infected by **LUAm1 and ERTm5** microsporidia. Arrange these by infection date in ascending order and display the first 20 entries.
+
+```{r}
+# 1. Filter the data
+# 2. Arrange the result
+# 3. Grab the experiment column
+# 4. Print the first 20 entries
+meta_trimmed.tbl %>%
+  filter(`Total Spores (M)` > 0,  Worm_strain %in% c("N2", "JU1400"), `Spore Strain` %in% c("LUAm1", "ERTm5")) %>% 
+  arrange(`Infection Date`) %>% 
+  select(experiment) %>% 
+  head(20)  
+```
+
+------------------------------------------------------------------------
+
+### 3.5.3 Use spacing and new lines to keep track of your directing
+
+When using more than 2 pipes `%>%` it gets hard to follow for a reader (or yourself). Starting a new line after each pipe, allows a reader to easily see which function is operating and makes it easier to follow your logic. Using pipes also has the benefit that extra intermediate variables do not need to be created, freeing up your global environment for objects you are interested in keeping.
+
+For this example we've tab-indented subsequent commands and parameters in the pipeline to additionally separate things visually.
+
+```{r}
+# Pass our data.frame 
+meta_trimmed.tbl %>% 
+
+  # 1. Filter the data
+  filter(`Total Spores (M)` > 0,                       # > 0 spores per infection
+         Worm_strain %in% c("N2", "JU1400"),           # Only N2 and JU1400 animals
+         `Spore Strain` %in% c("LUAm1", "ERTm5")) %>%  # Only LUAm1 and ERTm5 infections
+  
+  # 2. Arrange the result
+  arrange(`Infection Date`) %>% 
+  
+  # 3. Grab the experiment column
+  select(experiment) %>% 
+  
+  # 4. Print the first 20 entries
+  head(20)  
+```
+
+------------------------------------------------------------------------
+
+## 3.6.0 Retrieve quick summaries of your data with `summarise()`
+
+We can use `summarise(data, ...)` to define and retrieve summarised information about our dataset in a simplified way. This essentially creates a new `data.frame` object summarizing our observations based on the functions supplied. Multiple functions and their results can be placed into new columns we name. This is essentially the same as running the `apply()` function except you can choose the specific columns you want to use and how they are analysed!
+
+Let's generate some values based on the `Total Spores (M)` column of `meta_trimmed.tbl`.
+
+```{r}
+# Summarise the spores used across all experiments as a total, mean and standard deviation of all rows combined
+summarise(meta_trimmed.tbl, 
+          totalSpores_sum = ...(`Total Spores (M)`),
+          totalSpores_mean = ...(`Total Spores (M)`),
+          totalSpores_sd = ...(`Total Spores (M)`))
+```
+
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-warning}
+**Warning: don't forget about NA values!** Remember that a number of functions can be told to ignore **NA** values when calculating their products. You'll have to check their parameter information to be sure. For instance using **?mean** to check if it can ignore **NA** values.
+:::
+
+------------------------------------------------------------------------
+
+## 3.7.0 Use `group_by()` to reorder data based on variable categories
+
+Does the summary from above really make sense? Not exactly. We are looking at `Total Spores (M)` but there are many different microsporidia strains being tested across different conditions (ie worm strains). We should take more variables into consideration. First, let's summarise by `Spore Strain` using `group_by()` along with `summarise()`.
+
+The function `group_by()` produces a **grouped data.frame** object which behaves *mostly* like a standard data.frame but also has meta information about the grouping you've specified. You can group by a single variable (column) or multiple ones to produce multi-layered groupings. This underlying meta grouping can be recognized by other `dplyr` methods such as `summarise()`!
+
+```{r}
+# Pass along trimmed data
+meta_trimmed.tbl %>% 
+
+  # group by Spore strain
+  ... %>% 
+  
+  # Look at the structure of our grouped data frame
+  str()
+```
+Looking at the structure of our grouped data.frame, it looks very much like a regular data frame. All of the column names and information is tehre. However, you can see an additional `attr*()` section which actually tracks the possible groups in our data. It lists out the variables (ie `Spore Strain`) and their values but additionally we can see how big each group is, and which rows correspond to that group. If you wanted to see this information in a `data.frame` format, you could also use the function `attr(grouped_df_var, "groups")`. 
+
+```{r}
+# Pass along trimmed data
+meta_trimmed.tbl %>% 
+
+  # group by Spore strain
+  group_by(., `Spore Strain`) %>% 
+  
+  # Look at the attributes
+  ...
+```
+
+------------------------------------------------------------------------
+
+Notice that the data frame looks the same when we view it. The order of rows hasn't changed, no additional columns have been added but we know that additional grouping data is being stored in the background. What if we try to `summarise()` with a grouped data frame?
+
+
+```{r}
+# Pass along trimmed data
+meta_trimmed.tbl %>% 
+  
+  # group by Spore strain
+  group_by(., `Spore Strain`) %>% 
+  
+  # Summarise the data as we did before!
+  ...(., 
+            totalSpores_sum = sum(`Total Spores (M)`),
+            totalSpores_mean = mean(`Total Spores (M)`),
+            totalSpores_sd = sd(`Total Spores (M)`))
+```
+
+------------------------------------------------------------------------
+
+Now we can see that the `summarise()` created a new `tibble` with the columns `totalSpores_sum`, `totalSpores_mean` and `totalSpores_sd`. You can actually name these columns whatever you want as you generate the code. However, instead of a single row as in **section 3.6.0** we have 10 rows, representing the 10 groups based on `Spore Strain`. 
+
+We also see the column, `Spore Strain` that we used in `group_by()` command. Any columns used in that command will be included since they are the foundation of the `summarise()` call.
+
+```{r}
+# Here's the equivalent code without piping
+summarise(group_by(meta_trimmed.tbl, `Spore Strain`), 
+          totalSpores_sum = sum(`Total Spores (M)`),
+          totalSpores_mean = mean(`Total Spores (M)`),
+          totalSpores_sd = sd(`Total Spores (M)`))
+```
+
+Which option looks more "readable" to you? Piping or nesting functions?
+
+------------------------------------------------------------------------
+
+## 3.8.0 Use `mutate()` to create new columns in your data frame
+
+Speaking about creating columns, let's explore the `mutate()` function. `mutate()` is a function to create ***new columns***, most often the product of a calculation or concatenation (ie combination) of information. For example, let's concatenate names from some of the columns by putting `Spore Strain` and `Spore Lot` columns together with the `paste()` function. We can keep the result in a new column, `spore_strain_lot`.
+
+```{r}
+# Start with our tibble
+meta_trimmed.tbl %>% 
+
+  # Use the mutate command to paste two set of column information together
+  mutate(... = paste(`Spore Strain`, `Spore Lot`, sep = "_")) %>% 
+  
+  # Peek at the result.
+  head()
+```
+
+------------------------------------------------------------------------
+
+### 3.8.0.1 Piping will not automatically save your output but `$` will!
+
+Up to this point we've been doing a lot of piping with `%>%` and we can see the results in the output of our code but we have **NOT** been saving the results to a variable. This has two consequences:
+
+1.  We can query, alter, and summarise our data without accidentally changing our original data.
+2.  Any data structures we make are not permanent and do not exist in memory after we are done.
+
+If you want to save your data - perhaps after figuring out the series of steps you want to implement - you need to assign it to a variable or at least pipe it to a `write*()` function to save on disk.
+
+Unlike the `mutate()` command, we can also ***directly and permanently*** alter our data structure by altering or adding in new columns. New columns can be easily created using the `$col_name` syntax. If the column does not already exist, it will be created. Otherwise its data will be overwritten for the existing column.
+
+```{r}
+# adding columns can also be done using "base R" code:
+# This will permanently change meta_trimmed.tbl
+meta_trimmed.tbl... <- paste(meta_trimmed.tbl$`Spore Strain`, 
+                                           meta_trimmed.tbl$`Spore Lot`, 
+                                           sep = "_")
+
+head(meta_trimmed.tbl)
+```
+
+------------------------------------------------------------------------
+
+### 3.8.1 Use `select()` to *remove* columns
+
+We previously saw how to use `select()` to get a subgroup of columns we want, but we can also use it to "remove" columns. Note how our last call made a permanent change to `meta_trimmed.tbl`. To exclude the variable `spore_strain_lot` from `meta_trimmed.tbl`, we can use `select()`, and then overwrite meta_trimmed.tbl. Simply add a `-` (minus) in front of `spore_strain_lot`. You should recognize this kind of syntx from indexing other data structures with the `[]` operators.
+
+```{r}
+# Check the column names before and after removing `compound_salinity`
+colnames(meta_trimmed.tbl)
+
+meta_trimmed.tbl <- select(meta_trimmed.tbl, ...) # remove column spore_strain_lot
+
+head(meta_trimmed.tbl)
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Comprehension Question 3.0.0:** Using our table **meta_trimmed.tbl** determine how many different combinations of *C. elegans* and microsporidia strains were tested (regardless of dosage or other factors). What are the top 10 most common combinations? Hint: use the `group_by() %\>% summarise()` paradigm and check out the `n()` function.
+:::
+
+```{r, error = TRUE}
+# comprehension answer code 4.0.0
+meta_trimmed.tbl %>% 
+... %>% 
+... %>% 
+... %>% 
+...
+```
+
+------------------------------------------------------------------------
+
+# 4.0.0 Writing data files
+
+You've gone through all that trouble of learning how to import, filter, slice, and sort our datasets. Now comes the time to make sure that work doesn't go to waste. During larger scripts, there may be intermediate files you want to save just in case an error occurs further along. It can also give you a sense of how things are progressing. Whether it is an intermediate or final dataset that you would like to keep, it's time to learn how to save your files.
+
+## 4.1.0 Save your data frame to file with `write_csv()`
+
+We're ready to write `meta_trimmed.tbl` or any other data frame for that matter. In this case we won't overwrite our old data set but rather just create a second version of it.
+
+Note that there are many ways to write data frames to files, including writing back to excel files! For class, we'll keep it simple and within the `tidyverse` with `write_csv()` which is a derivative of the `write_delim()` function. The `write_csv()` function includes some of the following parameters:
+
+-   `x`: the data structure you'd like to write to file - preferably a `tibble` or `data.frame`.
+-   `file`: the file path where you are sending the output.
+-   `na`: a character string used for `NA` values - defaults to "NA".
+-   `append`: logical argument with `FALSE` as default (overwrites an existing file) or `TRUE` will append to an existing file. If the file doesn't exist in either case, it writes to a new file.
+-   `col_names`: logical argument to include the column names as part of the file. If unspecified, it will take the ***opposite*** value of `append`.
+
+```{r}
+getwd()
+
+# Write our data to file
+write_csv(x = ...,
+          file = "data/infection_metadata_trimmed.csv",
+          col_names=...)
+```
+
+------------------------------------------------------------------------
+
+### 4.1.1 Use `%>%` to direct your output to `write_csv()`
+
+That's right, you can pipe your data from filtering etc., over to `write_csv()`. While you may think this is usually the ***last*** step in your pipeline, it will actually write the data to file and then pass the input forward through the next pipe.
+
+This has two implications:
+
+1.  Yes you can use piping and still save your data ***mid-analysis***.
+2.  You can assign the final output of your piping to a variable.
+
+Let's revisit our last summarizing pipeline.
+
+```{r}
+... <-
+    # Pass along trimmed data
+    meta_trimmed.tbl %>% 
+    
+    # group by Spore strain
+    group_by(., `Spore Strain`) %>% 
+    
+    # Summarise the data now
+    summarise(., 
+              totalSpores_sum = sum(`Total Spores (M)`),
+              totalSpores_mean = mean(`Total Spores (M)`),
+              totalSpores_sd = sd(`Total Spores (M)`)) %>% 
+    
+    # write your file to output
+    write_csv(x = ., file="data/infection_metadata_summary.csv", col_names=TRUE)
+
+# Take a look at the result of the pipeline
+write_result
+```
+
+------------------------------------------------------------------------
+
+# 5.0.0 Class summary
+
+Today's lecture we really focused on working with dataframes. specifically, we learned how to:
+
+1.  Import tabular data (csv, tsv).
+2.  Inspect dataframes for initial analysis and removal of `NA` data.
+3.  Use the `dplyr` package to manipulate datasets.
+4.  Use the `%>%` symbol to pipe output into subsequent dplyr steps.
+5.  Export data files out of R for later analysis.
+
+## 5.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 5.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*
+
+------------------------------------------------------------------------
+
+## 5.3.0 Reference and Resources
+
+-   ["Introduction to R"](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf)
+-   ["tidyverse and dplyr manual"](https://dplyr.tidyverse.org/)
+
+------------------------------------------------------------------------
+
+# 6.0.0 Appendix I: Reading files in R using the base package
+
+You may find for one reason or another that you prefer to use the base commands of R to import data. Here's you'll find a quick primer on using the `read.csv()` function.
+
+## 6.1.0 tsv/csv files can be read by `read.csv()`
+
+Let's read our `infection_meta.csv` data file into R. While we do these exercises, we are going to become friends with the `help()` function. Let's start by using the `read.csv()` function which is actually a simplified version of the function `read.table()`. Both of these functions are part of the base `utils` package in R, which is imported ***automatically***. The `read.csv()` function has but is not limited to the following parameters:
+
+-   `file`: the file name we want to import
+-   `header`: logical parameter noting if your imported table has a header or not. Uses `TRUE` as the default value.
+-   `sep`: character parameter denoting how your fields are separated. Uses `,` as the default value.
+
+```{r}
+library(tidyverse)
+
+# Remember the head() function? We'll import our file but just look at the first 6 rows of it
+head(read.csv("data/infection_meta.csv"))
+```
+
+```{r}
+# Note that unlike read_csv() the result here is strictly a dataframe
+str(read.csv("data/infection_meta.csv"))
+```
+
+***
+
+# 7.0.0 Appendix I: Working with `NA` values
+
+In addition to the functions we discussed in class there are some additional methods for dealing with `NA` values that can be helpful, depending on the structure of your data.
+
+```{r}
+# Set up our data structures again
+na_vector <- c(5, 6, NA, 7, 7, NA)
+
+na_vector
+
+# A data.frame with NA values
+counts <- data.frame(Site1 = c(geneA = 2, geneB = 4, geneC = 12, geneD = 8),
+                     Site2 = c(geneA = 15, geneB = NA, geneC = 27, geneD = 28),
+                     Site3 = c(geneA = 10, geneB = 7, geneC = 13, geneD = NA))
+
+counts
+```
+
+## 7.1.0 The `na.omit()` function will remove `NA` entries
+
+In addition to our combination of functions from class, the `na.omit()` function can return an object where the `NA` values have been deleted in a ***listwise*** manner. This means incomplete cases (ie rows in a data.frame) will be removed instead. Keeping this in mind, you can also use this on a vector.
+
+```{r}
+# equivalentish to our previous code our more complex code using is.na() and which() in combination
+na.omit(na_vector)
+```
+
+```{r}
+# But under the hood it is doing something slightly different
+# see how it works on data.frames?
+na.omit(counts)
+```
+
+
+------------------------------------------------------------------------
+
+## 7.2.0 There are similar functions to handle other types of null values
+
+You can similarly deal with `NaN`'s in R. `NaN`'s (not a number) are `NA`s (not available), but `NA`s are not `NaN`'s. `NaN`'s appear for imaginary or complex numbers or unusual numeric values. Some packages may output NAs, NaN's, or Inf/-Inf (can be found with `is.finite()`).
+
+```{r}
+na_vector <- c(5, 6, NA, 7, 7, NA)
+nan_vector <- c(5, 6, NaN, 7, 7, 0/0)
+
+# Let's look at the difference between is.na()
+is.na(na_vector)
+is.na(nan_vector)
+
+# vs is.nan()
+is.nan(na_vector)
+is.nan(nan_vector) 
+
+# These type of operations are very useful when working with conditional statements (if else, while, etc.).
+```

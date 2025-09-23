@@ -1,0 +1,411 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Tutorial 03: Working with data frames
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this tutorial
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this tutorial is a code-along style; it is 100% hands on! These tutorial sessions are meant to complement the materials discussed in class, taking some concepts a little further by applying them in some new ways. We may also discuss new material that is related to the content from recent lectures. **Future class lectures, quizzes and exams, could reference back to any of these topics so do your best to keep up!**
+
+A few hours prior to each tutorial, the materials for tutorial will be available through the nbgitpuller link used for class lectures. The tutorial materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the TAs. Complete versions (including code) for each weekly tutorial will be made available approximately one day prior to the next lecture date.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Tutorial Objectives
+
+This is the third in a series of eleven tutorials. At the end of this session you will be familiar with importing and exporting Microsoft excel spreadsheets as data frames in R. Today's topics are broken into:
+
+1.  Importing excel spreadsheets
+2.  Exporting excel spreadsheets
+
+These concepts will allow you to work and deal with a greater variety of file types in your data science journey
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX/tutorial/`. You will find a partially coded `tutorial_skeleton.Rmd` file in this subdirectory as well as all of the data files necessary to run the week's tutorial.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the tutorial code released as an HTML file under the Modules section of Quercus. These will be available on the following Thursday morning before the next lecture. Tutorial slides (if any) will be made available as a PDF soon after each tutorial.
+
+------------------------------------------------------------------------
+
+### 0.4.3 Data Set Description
+
+The following datasets used in this week's class come from a published manuscript on PLoS Pathogens entitled "High-throughput phenotyping of infection by diverse microsporidia species reveals a wild *C. elegans* strain with opposing resistance and susceptibility traits" by [Mok et al., 2023](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1011225). These datasets focus on the an analysis of infection in wild isolate strains of the nematode *C. elegans* by environmental pathogens known as microsporidia. The authors collected embryo counts from individual animals in the population after population-wide infection by microsporidia and we'll spend our next few classes working with the dataset to learn how to format and manipulate it.
+
+### 0.4.3.1 Dataset 1: /data/infection_data_all.xlsx
+
+This is a series of amalgamated datasets that we will use to show how we can import even entire Excel books into R. This file contains two sheets containing experimental measurements as well as the experimental metadata from Dataset 1.
+
+------------------------------------------------------------------------
+
+## 0.5.0 Packages used in this lecture
+
+The following packages are used in this lecture:
+
+-   `tidyverse` (tidyverse installs several packages for you, like `dplyr`, `readr`, `readxl`, `tibble`, and `ggplot2`)
+-   `writexl` used for writing multiple datasets to excel files
+
+```{r}
+#--------- Install packages to for today's session ----------#
+#install.packages("tidyverse", dependencies = TRUE) # This package should already be installed on Jupyter Hub
+
+# This package should NOT already be installed on the RStudio server
+if(!require("writexl")) install.packages("writexl", dependencies = TRUE)
+
+#--------- Load packages to for today's session ----------#
+library(tidyverse)
+
+# readxl, used for reading xlsx files, is installed with tidyverse but is not a core component when loading tidyverse
+library(readxl) 
+
+# writexl will allows to EXPORT our data when we are done with it
+library(writexl)
+```
+
+***
+
+------------------------------------------------------------------------
+
+# 1.0.0 Read excel spreadsheets with `readxl` package
+
+What happens if we have an excel file? The `readxl()` package, which is ***installed*** as part of the `tidyverse` package, will recognize both `xls` and `xlsx` files. It expects tabular data, which is what these file types hold.
+
+Note that back in section **0.5.0**, we loaded the `tidyverse` package and explicitly load `readxl` so we can use the `read_excel()` function to accomplish our task. Some parameters we are interested in are:
+
+-   `path`: The path to the file you want to import.
+-   `sheet`: The sheet you want to read either as a string (ie "sheet name") or integer (position).
+-   `col_names`: `TRUE` (there is a header), `FALSE` (import as is), or supply a character vector of custom names you want to use for your data columns.
+-   `col_types`: `NULL` (default) and decides on column types itself, or a character vector containing the column types listed as "blank", "numeric", "date", or "text".
+-   `na`: a character vector of strings to interpret as `NA` values. Very handy when you have values you want to identify and convert at import.
+-   `range`: a way to specify a rectangular area to take data from your excel file.
+
+First, however, let's try to open our excel file with `read_csv()`.
+
+```{r}
+# read_csv() doesn't work for excel files
+head(read_csv("data/infection_data_all.xlsx"))
+```
+
+------------------------------------------------------------------------
+
+Looks like it didn't work... There is a lot of file metadata that exists with the actual data. If you could open this as a regular text file you would see all that extra information as we see some of it now. Therefore the xlsx file cannot be imported correctly with this function.
+
+Now let's try `read_excel()`.
+
+```{r}
+# The readxl package is not a core component of the tidyverse so we need to load it
+# library(readxl) # Note that we've already loaded it in section 0.5.0
+
+# let's take a peek at what happens when we import without any extra arguments
+head(...("data/infection_data_all.xlsx"))
+```
+
+------------------------------------------------------------------------
+
+### 1.1.0 Retrieve excel sheet names with `excel_sheets()`
+
+Why doesn't our output look like a workbook with multiple sheets? The `read_excel()` function defaults to reading in the ***first*** worksheet. You can specify which sheet you want to read in by position or name with the `sheet` parameter.
+
+How will you know what the sheet names are for your workbook? You can see the name of your sheets using the `excel_sheets()` function which returns a character vector of names as output.
+
+```{r}
+# grab the excel sheet names 
+...("data/infection_data_all.xlsx")
+```
+
+```{r}
+# Now you can specify the sheet you'd like to import
+head(read_excel("data/infection_data_all.xlsx",
+                sheet = ...))
+
+# Equivalently just use the sheet position
+head(read_excel("data/infection_data_all.xlsx",
+                sheet = 3))
+```
+
+### 1.2.0 Subset sheet and range within the `read_excel()` function
+
+If we want to get fancy, it is possible to subset from a sheet by specifying cell numbers or ranges. Here we are grabbing sheet 1 (`infection_metadata`), and subsetting cells over a range defined by two cells - `A3:D9`.
+
+For our purposes, the `read_excel()` function takes the default form of `read_excel(path, sheet = NULL, range = NULL)` but there are additional parameters we can supply to the function. See `?read_excel` for more information.
+
+```{r}
+# read in a specific sheet and range with read_excel()
+read_excel(path = "data/infection_data_all.xlsx", 
+           sheet = 1, 
+           range = "...", )
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-warning}
+**Caution:** Note from our above example that we no longer have proper column headings! Rather the column names have been derived from the data existing in row **A3**. Normally, if you had your column names in the first row, but wanted to jump to a specific row for importing the data, you might include the `skip` parameter. If you had a complex header of metadata where your true table begins at a later point, then the `range` parameter is more appropriate. If you simply wanted a subset of the data, you might be better off importing *most* of what you want and subsetting it from the dataframe after the columns are named. There are many additional ways to subset your data but it really depends on the level of complexity you wish to achieve with your subsetting. Always try to choose the path of least resistance.
+:::
+
+We could alternatively specify the sheet by name. Here we will also look at how you would simply grab specific **rows** of data using the `cell_rows()` helper function.
+
+That's right we can supply a function's output as an argument to a parameter!
+
+```{r}
+# read in an excel files by a specific row range
+
+read_excel("data/infection_data_all.xlsx", 
+           sheet = "infection_metadata", 
+           range = ...(1:9))
+```
+
+------------------------------------------------------------------------
+
+Note that if your first row is the header, excluding this row will result in data filling in the header unless you include the parameter `col_names = FALSE`.
+
+Likewise, how you would subset just **columns** from the same sheet? We can use the `cell_cols()` helper function for that.
+
+```{r}
+# read in an excel files by a specific column range
+
+head(read_excel(path = "data/infection_data_all.xlsx", 
+                sheet = "infection_metadata", 
+                range = ...("B:D")))
+```
+
+::: {.alert .alert-block .alert-success}
+**Using the *range* parameter:** to learn more about the *range* parameter and using it with a series of helper functions, you can visit the [readxl section on the tidyverse page](https://readxl.tidyverse.org/reference/cell-specification.html).
+:::
+
+
+------------------------------------------------------------------------
+
+## 1.3.0 Applying `lapply()` to reading in multiple sheets
+
+How would we read in all of the sheets at once? In one solution you can also use `lapply()`, a version of the `apply()` function that we learned about in Lecture 02 (section **3.1.0**), to read in all sheets at once. You will recall we used `lapply()` in Tutorial 02 and it uses as **input** the vector or list `X` and ***returns*** a list object of the same length as `X`. Each element of the returned list is the result of applying `FUN` to the corresponding element of `X`. Note that the elements of the returned list could be any kind of object!
+
+For our examples, we can use `lapply()` so that each sheet from an xlsx file will be stored as a `tibble` inside of a `list` object. Recall that `lapply()` drops the `MARGIN` parameter from `apply()` and takes in a vector or a list as the input. Remember that lists are a single dimension and thus do not have a row/column configuration. Basic parameters we require are:
+
+-   `X`: A vector or list object
+-   `FUN`: The function you wish to apply to *each element* of `X`.
+-   `...`: An unspecified number of additional parameters that are passed on to `FUN` as arguments for ***its parameters***.
+
+So far we have been accustomed to functions finding our variables globally (in the global environment), `lapply()` is looking locally (within the function) and so we need to explicitly provide our path.
+
+```{r}
+#?lapply
+
+# Use lapply and provide a list of excel sheet names, then apply a function to each element (Sheet name) of the list!
+excel_sheets_list <- lapply(X = excel_sheets("data/infection_data_all.xlsx"), # this will set X to a character vector
+                            FUN = read_excel, # Note the lack of parentheses!
+                            ... = "data/infection_data_all.xlsx" # This is an argument for read_excel()
+                           ) 
+
+# What is the structure of our sheets_list?
+str(excel_sheets_list)
+```
+
+------------------------------------------------------------------------
+
+It's a lot of output but if we look carefully we can see an unnamed `list` of 3 elements with each being a `tibble` object.
+
+### 1.3.1 The finer details of `lapply()`
+
+Remember the starting parameters of
+
+```         
+`read_excel(path, sheet = NULL, range = NULL)`
+```
+
+Notice that the **second** position parameter is `sheet`. In our `lapply()` function assignment we didn't specifically name that parameter! Recall we used:
+
+`lapply(X= excel_sheets("data/miscellaneous.xlsx"), FUN = read_excel, path = "data/miscellaneous.xlsx")`
+
+and thus explicitly named our first parameter `path`. The next available parameter by default order was `sheet` to which the elements of `X` were automatically applied. We now have a list object with each worksheet being one item in the list.
+
+If we wanted to explicitly name our sheets in our function definition we would need to explicitly define our function in the `FUN` parameter. While we won't get into the details of defining functions, you should be familiar with this idea from **lecture 02 (section 3.2.1)**. In this case, you could use the following code:
+
+```{r}
+# You can define your function directly with FUN = function(x)
+infectionData.list <- lapply(X = excel_sheets("data/infection_data_all.xlsx"), # this will set X to a character vector
+                             FUN = function(x) read_excel(path = "data/infection_data_all.xlsx", 
+                                                          sheet = ...) 
+                            ) # End of lapply
+
+str(infectionData.list)
+```
+
+Remember, that with the list that we generate, you can index the `tibble` you would like to work with using the syntax `list[[x]]` and store it as a variable using leftward assignment.
+
+::: {.alert .alert-block .alert-success}
+**Extra Information: Working with lists of data.frames (or tibbles):** can be cumbersome but applying multiple procedures to these objects can be made easier with the [purr package](https://purrr.tidyverse.org/) which extends the abilities of R to associate and run functions on elements from a list.
+:::
+
+------------------------------------------------------------------------
+
+# 2.0.0 Save your data frame to an excel file with `write_xlsx()`
+
+Sometimes you may want to write multiple data frames to a single file like a `xlsx` format with sheets. This can be a convenient way to keep data together rather than making multiple `write_csv()` commands.
+
+The `writexl` package contains the `write_xlsx()` function which can write the contents of a named list of data frames to multiple sheets. This function includes the following parameters:
+
+-   `x`: a `data.frame`, `tibble`, or a **named** `list` of data frames
+-   `path`: the path to write the .xlsx file to
+-   `col_names`: logical parameter for whether or not to write column names at the top of each sheet
+
+Recall that we have a list of tibbles in our `infectionData.list` variable but they are not named. We can either name them before trying to write our data or name it on the fly. Let's do it with some quick piping
+
+Let's give it a try to wrap up today's tutorial!
+
+```{r}
+# install.packages("writexl", dependencies = TRUE)
+# library(writexl)
+
+infectionData.list %>% setNames(c("infection_metadata", 
+                                  "embryo_data_wide", 
+                                  "microsporidia_info")) %>% 
+
+  # Write a list to a single xlsx file
+  write_xlsx(x = .,
+             path = "data/infectionDataExport.xlsx",
+             col_names = TRUE
+            )
+```
+
+
+------------------------------------------------------------------------
+
+# 3.0.0 Tutorial summary
+
+At the end of this tutorial you've had a little more exposure to:
+
+1.  Importing excel files...
+2.  And exporting excel files.
+
+Given the popularity of this file type, knowing how to import and work with these files can be extremely helpful!
+------------------------------------------------------------------------
+
+## 3.1.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*
+
+------------------------------------------------------------------------
+
+## 3.2.0 Reference and Resources
+
+-   ["Read excel sheets with tidyverse"](https://readxl.tidyverse.org/)
+-   ["Write excel sheets without needing Java!"](https://cran.r-project.org/web/packages/writexl/writexl.pdf)

@@ -174,6 +174,10 @@ This is a comma-separated set of metadata with label information regarding spore
 
 This is a tab-separated version of microsporidia metadata. This small table holds information specific to each microsporidia strain such as species names, where it was first identified, where it is observed to infect. You'll use this in one of our comprehension question sections.
 
+### 0.4.4.5 Dataset 5: /data/gapminder_wide.txt
+
+The gapminder dataset is a popular example dataset in R. It contains socio-economic statistics across 60 years of data for countries around the world. This dataset include life expectancy, population size, and GDP per capita information. It is meant to highlight the potential disparity in wealth distribution across the world.
+
 ------------------------------------------------------------------------
 
 ## 0.5.0 Packages used in this lecture
@@ -1639,7 +1643,7 @@ gapminder_wide %>%
 
 ------------------------------------------------------------------------
 
-### 3.4.5 Use `select()` to rearrange your columns!
+### 4.3.5 Use `select()` to rearrange your columns!
 
 We now have 1/3 as many observations (rows) in our data frame because that data has been pivoted into 3 new columns! Just what we wanted. Nearly there! Let's review what we want as a final data table.
 
@@ -1686,7 +1690,7 @@ head(gapminder_long)
 str(gapminder_long)
 ```
 
-In the end, our wrangled dataset has 1704 combinations of country and year data across our 3 variables of life expectancy, population, and gdp per capita!
+In the end, our wrangled dataset has 1704 combinations of country and year data across our 3 variables of life expectancy, population, and GDP per capita!
 
 Let's finish the example by saving our wrangled data to a CSV file.
 
@@ -1728,9 +1732,9 @@ Don't get trapped on Mount Stupid of the Dunning-Kruger curve! We're aiming for 
 
 Student's t-test is a statistical test to determine whether the difference between the means (averages) of two populations is statistically significant. In lay terms, you could say that we are testing if the observations from two groups (A and B) are indistinguishable from each other. In most cases, we are comparing the means between these two groups.
 
-Sometimes those means may only be very different, and in some cases only slightly. The Student's t-test and it's variants help us to determine if the differences between means that we see, are more or less likely a result of random chance.
+Sometimes those means may be very different, and in some cases only slightly. The Student's t-test and its variants help us to determine if the differences we see between means, are more or less likely a result of random chance.
 
-The classical Student's t-test is rooted in the idea that the values you are measuring are come from a normal or Gaussian distribution. This is the typical bell-curve that you see when talking about population data and it really means that the values you are measuring all center around the mean of the population. When examining the spread of your observations, we typically expect to see the majority of values to fall close to the mean, increasing in rarity for values that deviate far from the mean. From a probability perspective, that translates into the probability of values occurring closer to the mean being much higher, while values much farther from the mean will have a low probability of occurring.
+The classical Student's t-test is rooted in the idea that the values you are measuring come from a normal or Gaussian distribution. This is the typical bell-curve that you see when talking about population data and it really means that the values you are measuring all center around the mean of the population. When examining the spread of your observations, we typically expect to see the majority of values to fall close to the mean, increasing in rarity for values that deviate far from the mean. From a probability perspective, that translates into the probability of values occurring closer to the mean being much higher, while values much farther from the mean will have a low probability of occurring.
 
 When comparing our 2 populations, we therefore form a basic premise (Null Hypothesis or H~0~) that the true difference between the group means is 0. On the other hand we have our competing theory (aka Alternative Hypothesis) that the groups means are different.
 
@@ -1749,15 +1753,15 @@ The requirements for a Student's t-test are:
 
 The first two assumptions have more to do with the nature of values/measurements you are making. For instance, if your measurements are qualitative like "short, average, and tall" then you cannot properly compare your populations with a Student's t-test. Furthermore, your samples should be independent from one another (as much as possible). Don't measure the same person multiple times. Measuring the height of an entire family may skew the results if you are mixing those in with other unrelated samples.
 
-The third and fourth requirements have more to do with the *shape* of your data. Are your both your sample populations from that bell-curve shaped distribution (Normality) AND are they both about the same width and height (homoscedastic). While we won't go too far in-depth into the theory of these requirements, we'll certainly learn a few tools on how to test for them.
+The third and fourth requirements have more to do with the *shape* of your data. Are both your sample populations from that bell-curve shaped distribution (Normality) AND are they both about the same width and height (homoscedastic). While we won't go too far in-depth into the theory of these requirements, we'll certainly learn a few tools on how to test for them.
 
 ------------------------------------------------------------------------
 
 ### 5.0.4 Understanding the meaning of a *p-value*
 
-When discussing statistical tests and null hypotheses as we did in **5.0.1**, we must take a moment to understand the meaning of p-values. These are usually the metric returned when performing most statistical tests. In most cases, we are determining the probability of observing a population **as extreme, or more extreme than** the one calculated from the data. However, this is under the assumption that our null hypothesis is true.
+When discussing statistical tests and null hypotheses as we did in **5.0.1**, we must take a moment to understand the meaning of p-values. These are usually the metric returned when performing most statistical tests. In most cases, we are determining the probability of observing a population **as extreme, or more extreme than** the one calculated from the data made under the assumption that our null hypothesis is true.
 
-In other words, going back to the Student's t-test, if we were to imagine the situation of our null hypothesis is true - that populations A and B were the same. Then our p-value is the probability that we could recreate the mean observed in population B from the theoretical distribution of population A. If the means of A and B are *close* then the probability of a chance recreation of population B would be higher. As the means move further apart, that probability decreases.
+In other words, going back to the Student's t-test, if we were to imagine the situation of our null hypothesis is true - that populations A and B were the same. Then our p-value is the probability that we could recreate the mean observed in population B by sampling from the theoretical distribution of population A. If the means of A and B are *close* then the probability of a chance recreation of population B would be higher. As the means move further apart, that probability decreases.
 
 Therefore, when we see a **low p-value** we can reject the null hypothesis. On the other hand, a **high p-value** is not a rejection of our *alternate hypothesis* but simply a **failure to reject the null hypothesis**. Your alternate hypothesis could be right but you simply lack statistical power to prove it. Rethink your experiment - do you have enough samples? Are you measuring your effect correctly or accurately?
 

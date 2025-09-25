@@ -12,6 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Lecture 04: Converting wide-format data to long-format
 
+# Student Name:
+
+# Student ID:
+
 ::: {align="center"}
 <img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
 :::

@@ -1981,7 +1981,7 @@ Looking at the results of our t-test we can discern the following information fr
 
 Taken altogether, we can see that the mean embryo value in our populations differs by 7.44 and that they are statistically significantly different. The probability of recreating a population as extreme as those for JU1400 based on the distribution of the N2 population through random chance is extremely low!
 
-The **confidence interval** is the interval that will cover the true parameter x% of the time. In this case, we are calculating the *difference* between the means which we have already calculate at 7.44. If we were **resample our populations multiple times**, thereby regenerating a new confidence interval, our expectation is that the true difference in population means would fall within 95% of these intervals! More importantly, we see that our confidence interval **does not overlap with 0**. We can thus reject our null hypothesis that the true difference between the means is 0!
+The **confidence interval** is the interval that will cover the true parameter x% of the time. In this case, we are calculating the *difference* between the means which we have already calculated at 7.44. If we were to **resample our populations multiple times**, thereby regenerating a new confidence interval, our expectation is that the true difference in population means would fall within 95% of these intervals! More importantly, we see that our confidence interval **does not overlap with 0**. We can thus reject our null hypothesis that the true difference between the means is 0!
 
 ------------------------------------------------------------------------
 

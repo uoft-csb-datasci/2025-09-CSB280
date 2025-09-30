@@ -1,0 +1,517 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Tutorial 04: The analysis of variance
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/R_for_data_science.png?raw=true" width="600"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this tutorial
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this tutorial is a code-along style; it is 100% hands on! These tutorial sessions are meant to complement the materials discussed in class, taking some concepts a little further by applying them in some new ways. We may also discuss new material that is related to the content from recent lectures. **Future class lectures, quizzes and exams, could reference back to any of these topics so do your best to keep up!**
+
+A few hours prior to each tutorial, the materials for tutorial will be available through the nbgitpuller link used for class lectures. The tutorial materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the TAs. Complete versions (including code) for each weekly tutorial will be made available approximately one day prior to the next lecture date.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Tutorial Objectives
+
+This is the fourth in a series of eleven tutorials. This past lecture, we discussed the proper conversion of wide format to long format data while learning some exploratory data analysis and basic statistical analyses. We'll extend that topic today to look at the Analysis of Variance aka ANOVA. Today's topics are broken into:
+
+1.  Reviewing the requirements for ANOVA.
+2.  Generating an ANOVA test.
+3.  Following up an omibus test with post-hoc testing.
+
+As you begin to analyse population-based you will encounter the use of ANOVA in small/manageable datasets.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX/tutorial/`. You will find a partially coded `tutorial_skeleton.Rmd` file in this subdirectory as well as all of the data files necessary to run the week's tutorial.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the tutorial code released as an HTML file under the Modules section of Quercus. These will be available on the following Thursday morning before the next lecture. Tutorial slides (if any) will be made available as a PDF soon after each tutorial.
+
+------------------------------------------------------------------------
+
+### 0.4.3 Microsporidia infection data set description
+
+The following datasets used in this week's class come from a published manuscript on PLoS Pathogens entitled "High-throughput phenotyping of infection by diverse microsporidia species reveals a wild *C. elegans* strain with opposing resistance and susceptibility traits" by [Mok et al., 2023](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1011225). These datasets focus on the an analysis of infection in wild isolate strains of the nematode *C. elegans* by environmental pathogens known as microsporidia. The authors collected embryo counts from individual animals in the population after population-wide infection by microsporidia and we'll spend our next few classes working with the dataset to learn how to format and manipulate it.
+
+### 0.4.3.1 Dataset 1: data/embryo_data_long_merged.csv
+
+This is a result of our efforts (mostly) from last lecture. After transforming a wide-format version of our measurement data, we merged it with some metadata regarding our experiments and now it is ready to be analysed!
+
+------------------------------------------------------------------------
+
+## 0.5.0 Packages used in this lecture
+
+The following packages are used in this lecture:
+
+-   `tidyverse` (tidyverse installs several packages for you, like `dplyr`, `readr`, `readxl`, `tibble`, and `ggplot2`)
+-   `writexl` used for writing multiple datasets to excel files
+
+```{r}
+#--------- Install packages to for today's session ----------#
+#install.packages("tidyverse", dependencies = TRUE) # This package should already be installed on Jupyter Hub
+
+#--------- Load packages to for today's session ----------#
+library(tidyverse)
+```
+
+------------------------------------------------------------------------
+
+# 1.0.0 A brief statistical analyses of your data
+
+The two most likely statistical tests you will encounter in your undergraduate studies are the Student's T test and the Analysis of Variance (ANOVA) omnibus test. In fact, the Student's t-test can be considered a special case of ANOVA. Both tests are essentially answering the question "Are the means (aka averages) of these populations the same, or significantly different?" ANOVA, however, covers the comparison of 3 or more groups, while a t-test is a direct comparison between 2 groups. Without getting too far into the weeds, we'll discuss the more likely of the two tests that you'll come across - Student's t-test.
+
+In order to use this test, there are a number of prerequisites that must be met regarding the *nature* of the data. First, however, some basic information.
+
+------------------------------------------------------------------------
+
+### 1.0.1 A little stats is a dangerous thing: an important aside about this section
+
+**This is not a statistics course**. That being said, we cannot discuss the functions to perform statistical tests without first preparing you.
+
+I am not a statistician and likely have just enough knowledge to realize that I mostly know nothing about statistics. The tools and methods we discuss today are to familiarize you with the concept of creating a simple analysis. You should **always** think deeply about your data and approach it with the right statistical toolset.
+
+Before embarking on your journey, ask if your data meets all the criteria for this type of analysis. Read papers on similar subjects and see what the consensus is!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/dunning-kruger-effect-curve.png?raw=true" width="700"/>
+
+Don't get trapped on Mount Stupid of the Dunning-Kruger curve! We're aiming for the Valley! To despair... and beyond!
+:::
+
+------------------------------------------------------------------------
+
+### 1.0.2 What is a Student's t-test?
+
+Student's t-test is a statistical test to determine whether the **difference between the means** (averages) of two populations is statistically significant. In lay terms, you could say that we are testing if the observations from two groups (A and B) are indistinguishable from each other. In most cases, we are comparing the means between these two groups.
+
+Sometimes those means may be very different, and in some cases only slightly. The Student's t-test and its variants help us to determine if the differences we see between means, are more or less likely a result of random chance.
+
+The classical Student's t-test is rooted in the idea that the values you are measuring come from a normal or Gaussian distribution. This is the typical bell-curve that you see when talking about population data and it really means that the values you are measuring all center around the mean of the population. When examining the spread of your observations, we typically expect to see the majority of values to fall close to the mean, increasing in rarity for values that deviate far from the mean. From a probability perspective, that translates into the probability of values occurring closer to the mean being much higher, while values much farther from the mean will have a low probability of occurring. We also call tests based on the shape of normal distributions **parametric tests**.
+
+When comparing our 2 populations, we therefore form a basic premise (Null Hypothesis or H~0~) that the true difference between the group means is 0. On the other hand we have our competing theory (aka Alternative Hypothesis) that the groups means are different.
+
+------------------------------------------------------------------------
+
+### 1.0.3 Satisfying the requirements for a Student's t-test
+
+Before we can begin to even explore those two hypotheses, there are some technical considerations or assumptions about your data that must be satisfied to trust the results of the Student's t-test. When one or more of these assumptions fail the result cannot be trusted. There are, however, more robust (aka less picky) versions of the t-test like the Welch's t-test or the Mann-Whitney U test.
+
+The assumptions for a Student's t-test are:
+
+-   Continuous/ordered scale
+-   Randomness: samples were taken randomly from the population and and are independent from each other
+-   Normality: the population where the sample came from follows a normal distribution (bell-shape) \*\*
+-   Homoscedasticity (variance homogeneity): the variance of samples are finite and approximately equal \*\* \*\* Not necessarily a strict requirement
+
+The first two assumptions have more to do with the nature of values/measurements you are making. For instance, if your measurements are qualitative like "short, average, and tall" then you cannot properly compare your populations with a Student's t-test. Furthermore, your samples should be independent from one another (as much as possible). Don't measure the same person multiple times. Measuring the height of an entire family may skew the results if you are mixing those in with other unrelated samples.
+
+The third and fourth assumptions have more to do with the *shape* of your data and in many cases are considered flexible.
+
+------------------------------------------------------------------------
+
+### 1.0.4 Is normality a necessary requirement?
+
+The third assumption, the requirement for normality, depends on your sample size and our friend the Central Limit Theorem.
+
+Let's begin with the case of large sample sizes. If both of your populations are sufficiently large, ie n \> 30, where n is the number of samples in each group, then the Central Limit Theorem likely applies. The Central Limit Theorem suggests that even if the original sample doesn't appear to be normal, a *sufficiently large* sampling distribution of the mean will *approximate a normal distribution*. That means if we were to take multiple large sets of samples from the original population, the **mean of the sampling sets** would converge on a normal distribution - despite the shape of the original data! Thus, even if your original data wasn't normally distributed, you will with standard sampling rules meet the normality assumption of a parametric t-test.
+
+Now, in the case of small sample sizes (less than 30 observations also denoted as n \< 30) you should consider testing for normality. However, when your sample size is \< 10, a standard test for normality such as Shapiro-Wilk, cannot reliably determine this property. Thus, if your sample size is too small, you cannot even begin to assess normality. For samples of n, where 10 \<= n \< 30, you could theoretically use a Shapiro-Wilk to confirm normality but you may find the results hard to interpret!
+
+The key concern for this assumption is that our collected data accurately represents the mean of our population. When sample size is small, the observations may not properly reveal that your data is heavily skewed, or perhaps multimodal. Thus in the case of small sample sizes, it may be in your best interests to use a non-parametric t-test such as the Mann-Whitney U test instead.
+
+Also, if you have **low confidence in whether or not your sampling is representative of the true population**, you can use a non-parametric test like the [Mann-Whitney U test](https://www.researchgate.net/publication/49619432_The_Mann-Whitney_U_A_Test_for_Assessing_Whether_Two_Independent_Samples_Come_from_the_Same_Distribution), which doesn't care about the specific distribution shape of your data as long as they are similarly shaped.
+
+------------------------------------------------------------------------
+
+### 1.0.5 Homoscedasticity means equal variances
+
+The fourth assumption of homoscedasticity or equal variance is concerned with the idea that distributions for comparison are the same shape (width and height) so we can compare apples to apples and not apples to oranges. If we assume that both your groups are sufficiently large and thus have a normal distribution anyways, then the Student's t-test relies on equal variance.
+
+Again, this is a murky area in that as *n* increases for your sample size, by the CLT, the distribution begins to narrow! So unequal sample sizes can lead to unequal variances! Under ideal conditions you would collect the same number of observations per group but this just isn't always possible in the wilds of scientific study.
+
+If that equality is in question, you can get around this by using a different parametric t-test called the Welch's t-test which will account for this kind of variation. Thus the fourth assumption can also be circumvented by using a variant of the t-test.
+
+------------------------------------------------------------------------
+
+### 1.0.6 Understanding the meaning of a *p-value*
+
+When discussing statistical tests and null hypotheses as we did in **5.0.1**, we must take a moment to understand the meaning of p-values. These are usually the metric returned when performing most statistical tests. In most cases, we are determining the probability of observing a population **as extreme, or more extreme than** the one calculated from the data made under the assumption that our null hypothesis is true.
+
+In other words, going back to the Student's t-test, if we were to imagine the situation of our null hypothesis is true - that populations A and B were the same. Then our p-value is the probability that we could recreate the mean observed in population B by sampling from the theoretical distribution of population A. If the means of A and B are *close* then the probability of a chance recreation of population B would be higher. As the means move further apart, that probability decreases.
+
+Therefore, when we see a **low p-value** we can reject the null hypothesis. On the other hand, a **high p-value** is not a rejection of our *alternate hypothesis* but simply a **failure to reject the null hypothesis**. Your alternate hypothesis could be right but you simply lack statistical power to prove it. Rethink your experiment - do you have enough samples? Are you measuring your effect correctly or accurately?
+
+Also remember that in setting our **p-value threshold** (also known as the alpha level), we set our tolerance for accepting a possibly random chance rejection of the null hypothesis. While we don't talk about it, testing and retesting can be fraught with complications leading to Type I (false positive) errors!
+
+------------------------------------------------------------------------
+
+## 1.1.0 Is there a difference between N2 and JU1400 at baseline?
+
+In order to work with our statistical tools, we first need a question. In this case, we'll try to answer the above question to see if there is or is not a difference between N2 and JU1400 at baseline. Recall there are a number of strains in our data set that have been infected and their embryo productivity has been measured. However, for each strain, we have also generated a baseline (no infection) control.
+
+In order to accomplish our goal we should break the problems down into steps/smaller questions:
+
+1.  Which strains are we interested in comparing?
+2.  How do we isolate baseline samples from the data?
+3.  How do we compare these specific groups in our data?
+
+Steps 1-3 can really be accomplished with a filtering step! To simplify, I've selected a specific fixing date for analysis so that we can compare populations that are as identical as possible in terms of their growth conditions. These separate fixing date "versions" of the same experiment would be considered biological replicates.
+
+::: {.alert .alert-block .alert-info}
+**What is a replicate?** In our scientific studies, it is always necessary to replicate (repeat) your experiments to ensure that random variation from a single experimental run does not lead us into a false conclusion. By replicating your experiments you can account for things like day-to-day variation that can arise from temperature fluctuations, human error, etc. Depending on the *kind* of replicate, you may be producing a *technical* replicate which measures the exact same samples, versus a **biological** replicate which looks at different sets/subgroups of the same population.
+:::
+
+```{r}
+# Import the data for analysis
+embryo_long.df <- 
+  # Import the data
+  read_csv("...") %>% 
+  
+  # Fix some of the variable types
+  mutate(fixingDate = as.integer(fixingDate),
+         wormStrain = ...,
+         sporeStrain = ...,
+         spores = as.logical(spores),
+         meronts = as.logical(meronts)
+        )
+
+# Check the structure 
+str(embryo_long.df)
+
+```
+
+```{r}
+# Isolate our two populations for analysis
+embryo_long.df %>% 
+  filter(... c("N2", "JU1400"),     # 1. Isolate the two strains
+         sporeDose == 0                         # 2. Specify the infection experiment you want
+  ) %>% 
+  
+  # Take a look at how big our groups are in the dataset
+  group_by(...) %>% 
+  summarise(groupSize = n(),
+            numReps = ...) # Use n_distinct() to count the number of unique values in a set!
+```
+
+From our brief exploration, we see that our filter has generated \~1900 observations, which are split relatively evenly across the two worm strains. We also see a similar number of replicates or experiments of this type have been collected within the dataset. For now, let's go ahead and isolate a set of data from a specific `fixingDate`. This will allow us to compare individuals that were raised under near-identical conditions.
+
+Before moving on, we'll filter the data again and save it to a single tibble called `embryoComparison.df`
+
+```{r}
+# Isolate our two populations for analysis
+embryoComparison.df <-
+  split_embryo_long.df %>% 
+  filter(wormStrain %in% c("N2", "JU1400"),     # 1. Isolate the two strains
+         sporeDose == 0,                        # 2. Specify the infection experiment you want
+         fixingDate == ...                   # 3. Specify a replicate date
+  ) 
+
+str(embryoComparison.df)
+```
+
+------------------------------------------------------------------------
+
+## 1.2.0 Do our populations meet the requirements for a t-test?
+
+-   **Continuous/ordered scale?** Yes, we are looking at embryo values in animals
+-   **Randomness?** Yes, our values are measured from unique *C. elegans* individuals of 2 populations.
+
+Again, these assumptions we can determine from the layout/workflow of our experiment. Our remaining two assumptions, we can briefly address
+
+### 1.2.1 Make a quick histogram to visualize your data
+
+Given the sample sizes of our dataset are 50 observations each, we will defer to the Central Limit Theorem for our data. However, if you were to encounter the need to test for normality you could use a test like the Shapiro-Wilk.
+
+Instead, since we have a sufficiently large sample, we can quickly visualize our data as a histogram with the `hist()` function by simply providing a vector of values as an argument.
+
+```{r}
+hist(embryoComparison.df$embryos[...])
+```
+
+------------------------------------------------------------------------
+
+### 1.2.3 Set your `hist()` bin size with the `breaks` parameters
+
+By default the histogram function will try to determine the size and width of the bins in your data based on a number of factors like sample size and range. However, you can also specify these properties with the `breaks` parameter either by supplying the **number of bins** (aka bars) you want as an integer, or by providing a numeric vector of breakpoints for the data.
+
+When providing the number of breaks in your data, the `hist()` function will attempt to make a "pretty" histogram with a similar number of bins. This could be more or less depending on your data, so keep that in mind.
+
+To provide a series of values that follow a pattern (like 2,4,6 or 0, 5, 10) we can use the `seq()` function to create a sequence. The seq function uses the following parameters:
+
+-   `from`: your start value
+-   `to`: your end value
+-   `by`: the steps between values
+
+```{r}
+# Quick example of making sequences:
+
+seq(from = ..., to = ..., by = ...)
+
+seq(from = ..., to = ..., by = ...)
+```
+
+Let's go ahead and remake our histogram from **1.2.1** with a few more breaks
+
+```{r}
+# Define your total bins
+# Try to make just 10 bins but you could end up with more!
+hist(embryoComparison.df$embryos[embryoComparison.df$wormStrain == "N2"],
+     breaks = ...)
+```
+
+------------------------------------------------------------------------
+
+For added control in how your bins are divided, supply your own set of breakpoints!
+
+```{r}
+# BUild histograms of our data by defining breakpoints
+# Define your break points
+hist(embryoComparison.df$embryos[embryoComparison.df$wormStrain == ...],
+     breaks = seq(...))
+
+# Define your break points
+hist(embryoComparison.df$embryos[embryoComparison.df$wormStrain == ...],
+     breaks = seq(...))
+```
+
+So both of our datasets have a somewhat normal looking distribution when we set our bins to about size 3. While not a strictly necessary step, it does give us some idea on what our data looks like.
+
+We can already tell a few things from these histograms such as the mean between the two appears shifted, but that the shapes are slightly different, suggesting that we will not have equal variances in our population.
+
+------------------------------------------------------------------------
+
+## 1.3.0 Use the `t.test()` function to compare population means
+
+All is not lost.
+
+Yes we are unsure that our data meet all the criteria for Student's t-test. However, we can still use the `t.test()` function to perform a more robust t-test known as the Welch's t-test which ***does not assume equal variances*** between our populations! In fact, we'll often find that nature creates all kinds of normal distributions of different variances!
+
+In order to perform a simple t-test, we really just need the two groups we would like to compare. There are some additional considerations/parameters as the `t.test()` includes:
+
+```         
+t.test(
+  x,
+  y,
+  alternative,
+  mu,
+  paired,
+  var.equal,
+  formula,
+  data
+)
+```
+
+The parameters we are most interested in using are:
+
+1.  `x`: a non-empty numeric vector (ie first population)
+2.  `y`: a non-empty numeric vector (ie second population)
+3.  `paired`: a logical indicating if your individual observations are paired (default = `FALSE`)
+4.  `var.equal`: a logical indicating if your two populations have equal variances (default = `FALSE`)
+5.  `formula`: an optional parameter to use a formula to describe the subsets within the `data` argument
+6.  `data`: an optional dataframe that contains variables used in the `formula` parameter.
+
+We'll start by isolating and providing the specific values for `x` and `y` of the `t.test()` function.
+
+```{r}
+# Perform a t-test with non-equal variances
+t.test(x = embryoComparison.df$embryos[embryoComparison.df$wormStrain == "N2"],
+       y = ...)
+```
+
+------------------------------------------------------------------------
+
+### 1.3.1 Create a formula to subgroup your t-test data
+
+Before we take a look at the results, you may have noticed that the code for creating this t-test result required an intermediate variable to hold our data subset before passing those along individually to the `t.test()` function.
+
+Alternatively, we can provide a formula that desribes the relationship between our dependent and independent variables. It looks like `dependent ~ independent`. Which means, base our set of dependent variable values on the groupings from within our the independent variable.
+
+Therefore we can repeat our analysis using a formula `embryos ~ wormStrain`.
+
+::: {.alert .alert-block .alert-info}
+**Independent vs dependent variables** When we discuss our experiments in terms of collecting measurements, the independent variables are ones manipulated by us, the researchers. In the case of our embryo measurements, the worm strains, pathogen strains, and much of our metadata could be considered a form of independent variable. On the other hand, our dependent variable is usually measured or observed and expected to change based on changes or manipulations to the independent variables!
+:::
+
+```{r}
+embryoComparison.df %>% 
+  # For consistency, turn wormStrain into a factor, with N2 being first
+  ...(wormStrain = factor(wormStrain, 
+                             levels = c("N2", "JU1400"))) %>% 
+  t.test(formula = ...,
+         data = .)
+```
+
+Looking at the results of our t-test we can discern the following information from the output:
+
+1.  The mean number of embryos for our two groups is 20.88 (N2 reference) and 13.44 (JU1400).
+2.  The p-value for accepting our Null Hypothesis is 9.539x10^-14^.
+3.  The t-score is 8.7941 and our gaussian distribution will be based on 89.599 degrees of freedom. These are combined to identify the resulting p-value.
+4.  The 95% confidence interval is 5.75 to 9.12
+
+------------------------------------------------------------------------
+
+## 1.4.0 Interpreting our output
+
+Taken altogether, we can see that the mean embryo value in our populations differs by 7.44 and that they are statistically significantly different. The probability of recreating a population as extreme as those for JU1400 based on the distribution of the N2 population through random chance is extremely low!
+
+The **confidence interval** is the interval that will cover the true parameter x% of the time. In this case, we are calculating the *difference* between the means which we have already calculated at 7.44. If we were to **resample our populations multiple times**, thereby regenerating a new confidence interval, our expectation is that the true difference in population means would fall within 95% of these intervals! More importantly, we see that our confidence interval **does not overlap with 0**. We can thus reject our null hypothesis that the true difference between the means is 0!
+
+------------------------------------------------------------------------
+
+## 1.5.0 Using a non-parametric test of our populations
+
+Let's suppose we had chosen, instead, to use a non-parametric test for our datasets. These test do not rely on any requirement for normality, can be more robust against Type I errors, even on smaller datasets. The Mann-Whitney U test also known as the Mann-Whitney-Wilcoxon test, for example, uses the rank order of your datasets to determine if they share the same distribution! Specifically, the H~0~ is that the two populations have the same distribution or their central tendencies are equal.
+
+How does this work? If we were to treat the values from each group, as a single one and order/rank the sorted (usually ascending) values from lowest to highest, then we get one of two outcomes: 1. If the two groups are drawn from the same distribution, we would expect that values from the two groups would be closely interspersed with each other. If we sum their ranks by group, then the sums would be close to each other. 2. If the two groups do not have closely overlapping distributions, then the ranks will diverge with one group dominating the lower range of ranks, and the other perhaps dominating the upper range of ranks. The possible arrangements can differ from this description but the ***sum of the ranks*** will reveal if there truly is a difference. 3. Based on the size of the larger group, an estimation on p-value will be made either by permuting all possible rank combinations OR by referencing a normal approximation (that's right, still using a normal distribution!)
+
+Let's compare the results of our t-test against this non-parametric one. To perform this test, we use the `wilcox.test()` function, which like the `t.test()` can use a formula to define the groups for testing. We'll include an additional `conf.int = TRUE` to generate a confidence interval from the test as well.
+
+```{r}
+embryoComparison.df %>% 
+  # For consistency, turn wormStrain into a factor, with N2 being first
+  mutate(wormStrain = factor(wormStrain, 
+                             levels = c("N2", "JU1400"))) %>% 
+  ...(formula = ...,
+         data = .,
+         conf.int = TRUE)
+```
+
+Looking at the output we can immediately see some small differences between `wilcox.test()` and `t.test()`.
+
+1.  While we still have a p-value, the result of `wilcox.test()` produces a slightly higher (but still statistically significant!) value.
+2.  There are no confidence intervals, means for the populations, t-scores or degrees of freedom. This test does not look at the means, per-say but rather the difference in ranking between values!
+3.  We get a value W which represents the **sum of ranks from one of the groups**
+4.  We also get a 95% confidence interval of 6-9. This is the confidence interval for the difference in the ***medians*** of our groups. This ends up being quite similar to our t-test because our data does have a somewhat normal distribution to begin with!
+
+------------------------------------------------------------------------
+
+# 2.0.0 Class summary
+
+Today you've discussed the implication of some basic theory in statistical analysis between two groups of data. You have learned:
+
+1.  The t-test and assumptions/considerations.
+2.  Visualizing the shape of your data as a histogram.
+3.  Alternative non-parametric tests like the Mann-Whitney-Wilcoxon test
+
+## 2.1.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*

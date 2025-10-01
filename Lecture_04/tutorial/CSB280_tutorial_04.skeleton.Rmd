@@ -319,7 +319,7 @@ Before moving on, we'll filter the data again and save it to a single tibble cal
 ```{r}
 # Isolate our two populations for analysis
 embryoComparison.df <-
-  split_embryo_long.df %>% 
+  embryo_long.df %>% 
   filter(wormStrain %in% c("N2", "JU1400"),     # 1. Isolate the two strains
          sporeDose == 0,                        # 2. Specify the infection experiment you want
          fixingDate == ...                   # 3. Specify a replicate date

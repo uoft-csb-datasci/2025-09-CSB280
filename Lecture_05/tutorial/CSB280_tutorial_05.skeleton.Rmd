@@ -1,0 +1,414 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Tutorial 05: plotting with ggplot2
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this tutorial
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this tutorial is a code-along style; it is 100% hands on! These tutorial sessions are meant to complement the materials discussed in class, taking some concepts a little further by applying them in some new ways. We may also discuss new material that is related to the content from recent lectures. **Future class lectures, quizzes and exams, could reference back to any of these topics so do your best to keep up!**
+
+A few hours prior to each tutorial, the materials for tutorial will be available through the nbgitpuller link used for class lectures. The tutorial materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the TAs. Complete versions (including code) for each weekly tutorial will be made available approximately one day prior to the next lecture date.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Tutorial Objectives
+
+This is the fifth in a series of eleven tutorials. This past lecture, we delved into building plots based on the layered grammar of graphics concepts using the `ggplot2` package. We explored some basic plots like scatter (aka biplot) and barplot as well as those that can convey the distribution of populations like the kernel density estimate and boxplot. We'll take a further look at some additional plots and packages. Today's topics are broken into:
+
+1.  Violin plots - the best of both KDEs and boxplots
+2.  Sorting your data for visualizations
+
+As you continue to work with data, you'll want to explore more ways to visualize your data to convey it to your audience.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX/tutorial/`. You will find a partially coded `tutorial_skeleton.Rmd` file in this subdirectory as well as all of the data files necessary to run the week's tutorial.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the tutorial code released as an HTML file under the Modules section of Quercus. These will be available on the following Thursday morning before the next lecture. Tutorial slides (if any) will be made available as a PDF soon after each tutorial.
+
+***
+
+### 0.4.3 Microsporidia infection data set description
+
+The following datasets used in this week's class come from a published manuscript on PLoS Pathogens entitled "High-throughput phenotyping of infection by diverse microsporidia species reveals a wild *C. elegans* strain with opposing resistance and susceptibility traits" by [Mok et al., 2023](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1011225). These datasets focus on the an analysis of infection in wild isolate strains of the nematode *C. elegans* by environmental pathogens known as microsporidia. The authors collected embryo counts from individual animals in the population after population-wide infection by microsporidia and we'll spend our next few classes working with the dataset to learn how to format and manipulate it.
+
+### 0.4.3.1 Dataset 1: data/embryo_data_long_merged.csv
+
+This is a result of our efforts (mostly) from lecture 04. After transforming a wide-format version of our measurement data, we merged it with some metadata regarding our experiments and now it is ready to be analysed!
+
+------------------------------------------------------------------------
+
+## 0.5.0 Packages used in this lecture
+
+The following packages are used in this lecture:
+
+-   `tidyverse` (tidyverse installs several packages for you, like `dplyr`, `readr`, `readxl`, `tibble`, and `ggplot2`)
+-   `ggbeeswarm` used for adding multiple points to strip plots
+
+```{r, eval = FALSE}
+#--------- Step 1: Install remaining packages to for today's session ----------#
+# None of these packages are already available on JupyterHub
+install.packages("ggbeeswarm", dependencies = TRUE)
+```
+
+```{r}
+#--------- Install packages to for today's session ----------#
+#install.packages("tidyverse", dependencies = TRUE) # This package should already be installed on Jupyter Hub
+
+#--------- Load packages to for today's session ----------#
+library(tidyverse)
+library(ggbeeswarm)
+```
+
+------------------------------------------------------------------------
+
+# 1.0.0 Generating additional plot types
+
+### 1.0.1 Import data for analysis
+
+Begin by reviewing the `embryo_data_long_merged.csv` dataset after loading it into memory as the variable `embryo_long.df`.
+
+We'll use the `col_types` parameter again to let us define the variable types of the data as we import it.
+
+```{r}
+# Load the tidyverse package
+# library(tidyverse)
+
+embryo_long.df <- read_csv("data/embryo_data_long_merged.csv",
+                           # Here we are explicitly specifying our column types
+                           col_types = 'cnfffnnfllnnfnnffff')     
+
+# Take a look at the  metadata structure
+str(embryo_long.df, give.attr = FALSE)
+```
+***
+
+## 1.1.0 Violin plot - the lovechild of density and boxplots
+
+As the title says, the violin plot is a mixture of both the boxplot and kernel density plot. It's a miniaturized KDE that is mirrored across its axis. It encompasses the summary information of the boxplot but in a pear or violin-shaped distribution. To generate a `geom_violin()` in `ggplot`, a minimum of three values are required. To justify using a violin, I would suggest sticking to a similar rule of thumb of a minimum \~30 samples/observations to ensure an accurate representation of the distribution.
+
+The nuanced visualization of a violin plot gives much more information than the boxplot itself and most boxplots can be replaced with a violin plot. Despite the gateway to more detailed distribution information, this format remains less popular/familiar to scientists. Therefore its immediate accessibility to your audience can be limited.
+
+An important parameter of this geom is `scale`: this sets how big each violin is in comparison to each other. It accepts the following values:
+
+-   `area`: default value so all violins will have the same area.
+
+-   `count`: scale areas proportionately to observations.
+
+-   `width`: all violins have the same maximum width. Total area is not the same for each.
+
+::: {.alert .alert-block .alert-warning}
+**Outliers and violins:** Much like a KDE, the theoretical distribution of a violin plot can generate some impossible values - especially at the tails. Remember that this is a theoretical distribution based on the data supplied. Depending on how much variation is in your data, and how many outliers it has, it can really affect the shape of your violin.
+:::
+
+```{r, fig.width=14, fig.height=7}
+
+embryo_long.df %>% 
+  
+  # Filter the data for just one replicate date and only animals that were "Mock" infected
+  filter(`Infection Date` == "190423", doseLevel == "Mock") %>% 
+  
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=wormStrain, y = embryos, fill=...) + # Plot by infection date and colour by doseLevel
+  
+    # 4. Geoms
+    # set a lower alpha in preparation for adding data points
+    ...        
+
+```
+
+***
+
+### 1.1.1 Combine your violin plot with a beeswarm plot
+
+Let's revisit our `geom_quasirandom()` layer from lecture. We had previously add it to a boxplot to note how the shape of our datapoints compares to the summary provided by the boxplot. This time we'll compare our violin plot with the same kind of beeswarm layer.
+
+```{r, fig.width=14, fig.height=7}
+
+embryo_long.df %>% 
+  
+  # Filter the data for just one replicate date and only animals that were "Mock" infected
+  filter(`Infection Date` == "190423", 
+         doseLevel == "Mock") %>% 
+  
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=wormStrain, y = embryos, fill=wormStrain) + # Plot by infection date and colour by doseLevel
+
+    # 4. Geoms
+    # set a lower alpha in preparation for adding data points
+    geom_violin(alpha = 0.3) +
+  
+    ### 1.1.1 Add datapoints as a quasirandom beeswarm
+    ...(dodge.width = 0.85,     # How far apart to set our groups
+                     width = 0.2,          # How wide to make each beeswarm
+                     alpha = 0.2)          # Set the opacity very low since we expect a lot of points!
+
+```
+
+***
+
+Notice how our datapoints closely match the shape of our violin plots? They both use similar algorithms to generate their shape!
+
+### 1.1.2 Combine your violin with a miniboxplot
+
+Another frequently used combination with violin plots is to quickly summarize the median portion of your data with a boxplot. While the violin plot does give you a good idea of your data distribution, the boxplot is still a nice addition to quickly identify where the *median* of your data is. This way you get an idea of what your entire population looks like, but can also quickly assess if there is a possible statistically significant difference between your populations!
+
+In this case, we'll get rid of our beeswarm layer since the violin plot already conveys that idea pretty closely.
+
+```{r, fig.width=14, fig.height=7}
+
+embryo_long.df %>% 
+  
+  # Filter the data for just one replicate date and only animals that were "Mock" infected
+  filter(`Infection Date` == "190423", 
+         doseLevel == "Mock") %>% 
+  
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=wormStrain, y = embryos, fill=wormStrain) + # Plot by infection date and colour by doseLevel
+
+    # 4. Geoms
+    # set a lower alpha in preparation for adding data points
+    geom_violin(alpha = 0.3) +
+  
+    ### 1.1.2 Add a boxplot to our figure
+    ...
+    
+```
+
+***
+
+### 1.1.3 Polish your figure using `theme()` adjusting `geom` parameters
+
+Our figure is nearly there! We should fix it up with a few final touches:
+
+1.  Fix the x- and y-axis labels and add a title using the `labs()` layer.
+2.  Adjust our boxplots to be much thinner so they sit inside the violin plot using the `geom_boxplot(width)` parameter. While we're at it, drop the ouliers.
+3.  Add `theme_minimal()` to clean things up.
+4.  Remove our legend since it is redundant with our axis labels.
+
+```{r, fig.width=14, fig.height=7}
+
+embryo_long.df %>% 
+  
+  # Filter the data for just one replicate date and only animals that were "Mock" infected
+  filter(`Infection Date` == "190423", 
+         doseLevel == "Mock") %>% 
+  
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=wormStrain, y = embryos, fill=wormStrain) + # Plot by infection date and colour by doseLevel
+    
+    ### 1.1.3-3 Add a minimal theme
+    theme_minimal() +
+  
+    ### 1.1.3-1 add our axis and titles
+    labs(x = "worm strain",
+         y = "embryos per animal",
+         title = "Violin and boxplot of embryos in uninfected strains of C. elegans") +
+    
+    ### 1.1.3-4 remove the legend
+    guides(fill = "none") +
+  
+    # 4. Geoms
+    # set a lower alpha in preparation for adding data points
+    geom_violin(alpha = 0.3) +
+  
+    ### 1.1.3-2 Add a boxplot to our figure
+    geom_boxplot(width = 0.1,
+                 ...) 
+    
+```
+
+***
+
+### 1.1.4 Sort your data with `fct_reorder()`
+
+As you may have noticed and recalled from lecture, the x-axis is of our figures is currently ordered by the levels in our factor for `wormStrain` within the dataframe. However, you can choose to reorder factor levels quickly with the `forcats` package and the `fct_reorder()` function which takes the parameters:
+
+-   `.f`: the factor you want to relevel
+-   `.x`: the variable of values that you will use to help relevel
+-   `.fun`: the function you want to use on `.x` to determine how you sort your levels. The default is `median`.
+-   `.desc`: a logical parameter to determine ascending vs descending order of sorting for your function.
+
+Let's remake the above figure but put the violins in descending order by the median embryo value!
+
+```{r, fig.width=14, fig.height=7}
+
+embryo_long.df %>% 
+  
+  # Filter the data for just one replicate date and only animals that were "Mock" infected
+  filter(`Infection Date` == "190423", 
+         doseLevel == "Mock") %>% 
+  
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=fct_reorder(.f = ..., 
+                      .x = ...,
+                      .desc = ...), 
+        y = embryos, 
+        fill=wormStrain) + # Plot by infection date and colour by doseLevel
+    
+    ### 1.1.3-3 Add a minimal theme
+    theme_minimal() +
+  
+    ### 1.1.3-1 add our axis and titles
+    labs(x = "worm strain",
+         y = "embryos per animal",
+         title = "Violin and boxplot of embryos in uninfected strains of C. elegans") +
+    
+    ### 1.1.3-4 remove the legend
+    guides(fill = "none") +
+  
+    # 4. Geoms
+    # set a lower alpha in preparation for adding data points
+    geom_violin(alpha = 0.3) +
+  
+    ### 1.1.3-2 Add a boxplot to our figure
+    geom_boxplot(width = 0.1,
+                 outliers = FALSE) 
+    
+```
+
+Sometimes your audience prefers to see your data organized in this fashion. It makes it much easier to find certain trends rather than having to scan across the figure yourself to identify the max or min groups. It can also help you to figure out where a group you're interested in, sits relative to other groups within the dataset.
+
+***
+
+# 2.0.0 Class summary
+
+Today you've explored a little bit more about plotting with my favourite plot! You have learned:
+
+1.  Violin plots
+2.  Mixing violin plots with other plots
+3.  Sorting your data on the fly
+
+## 2.1.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*
+

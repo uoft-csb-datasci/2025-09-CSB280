@@ -1,0 +1,1824 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 06: Plotting data with ggplot2
+
+# Student Name:
+
+# Student ID:
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this course
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this course is a code-along style; it is 100% hands on! A few hours prior to each lecture, links to the materials will be available for download at [QUERCUS](https://q.utoronto.ca/). The teaching materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the instructor. Other course resources include tutorials with additional R Markdown notebooks that will cover additional materials and practice concepts from class lecture. Complete versions (including code) for each weekly lecture will eventually be made available the day prior to the next lecture date.
+
+As we go along, there will be some in-class comprehension questions for you to solve either individually. These may require you to complete code cells and/or provide a few sentences to answer the question. Please use the spaced provided in the notebook to supply your answers.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Class Objectives
+
+This is the sixth in a series of twelve lectures. At the end of this session you will be familiar fine-tuning your plots and working with much larger datasets. Today's topics are broken into:
+
+1.  Fine-tuning themes and colours in ggplot2
+2.  Saving ggplot objects
+3.  Importing, trimming, and plotting RNAseq data
+4.  Dimensionality Reduction and plotting the output
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX`. You will find a partially coded `skeleton.Rmd` file as well as all of the data files necessary to run the week's lecture.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the lecture code released as an HTML file under the Modules section of Quercus. These will be available on the following Monday morning after each lecture. Lecture slides (if any) will be made available as a PDF soon after each lecture.
+
+------------------------------------------------------------------------
+
+### 0.4.3 Microsporidia infection data set description
+
+The following datasets used in this week's class come from a published manuscript on PLoS Pathogens entitled "High-throughput phenotyping of infection by diverse microsporidia species reveals a wild *C. elegans* strain with opposing resistance and susceptibility traits" by [Mok et al., 2023](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1011225). These datasets focus on the an analysis of infection in wild isolate strains of the nematode *C. elegans* by environmental pathogens known as microsporidia. The authors collected embryo counts from individual animals in the population after population-wide infection by microsporidia and we'll spend our next few classes working with the dataset to learn how to format and manipulate it.
+
+### 0.4.3.1 Dataset 1: data/embryo_data_long_merged.csv
+
+This is a result of our efforts (mostly) from last lecture. After transforming a wide-format version of our measurement data, we merged it with some metadata regarding our experiments and now it is ready to be visualized!
+
+### 0.4.3.2 Dataset 2: data/GSE122597_filtered.tsv
+
+This is a filtered RNAseq dataset from the [Immunological Genome Project Consortium](https://www.immgen.org/ImmGenData.html) which houses a [large database of immunological data](https://rstats.immgen.org/DataPage/). Today's dataset focuses on a series of deeply sequenced immunocyte populations in high replicate numbers. Low-expressing genes from these mouse immune cell populations may be identified as a result of their deep sequencing and more details about this set can be [found here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE122597).
+
+The dataset we use today is normalized read count data that has been filtered down from \~55K genes to \~4K genes.
+
+------------------------------------------------------------------------
+
+## 0.5.0 Packages used in this lesson
+
+The following packages are used in this lesson:
+
+-   `tidyverse` (tidyverse installs several packages for you, like `dplyr`, `readr`, `readxl`, `tibble`, and `ggplot2`)
+
+-   `RColorBrewer` contains a series of different colour palettes
+
+-   `viridis` contains alternative colour-blind friendly colour palettes
+
+-   `ggbeeswarm` a package to help visualized grouped datapoints in a sensible way
+
+-   `ggthemes` a source for alternative plot themes
+
+-   `ComplexHeatmap` a package dedicated to the production of heatmap-style plots
+
+-   `FactorMineR` and `factoextra` packages used in principal component analysis and associated visualizations
+
+This week we'll have to install some of our packages so please run the code cells carefully.
+
+```{r, eval = FALSE}
+#--------- Step 1: Install remaining packages to for today's session ----------#
+# None of these packages are already available on JupyterHub
+install.packages("ggbeeswarm", dependencies = TRUE)
+install.packages("ggthemes", dependencies = TRUE)
+BiocManager::install("ComplexHeatmap")
+
+install.packages("FactoMineR", dependencies = TRUE)
+install.packages("factoextra", dependencies = TRUE)
+```
+
+### 0.5.1 You may need to restart the kernel after initially installing the above packages
+
+```{r}
+#--------- Load packages to for today's session ----------#
+library(tidyverse)
+
+# ggplot-related packages
+library(ggbeeswarm)
+library(RColorBrewer)
+library(viridis)
+library(ggthemes)
+
+# A package for generating heatmaps
+library(ComplexHeatmap)
+
+# Useful for PCA and PCA visualization
+library(FactoMineR)
+library(factoextra)
+```
+
+------------------------------------------------------------------------
+
+# 1.0.0 Plots are possible because of long-format data
+
+Last week we spent our lecture going over a series of basic visualizations that we can create with our long-format data. While not exhaustive, we were able to get a sense for the basic use of layers to create our visualizations like histograms, barplots, density plots and boxplots. We'll return to a version of our boxplot now to take a deeper look at fine-tuning aspects of our plots.
+
+Let's begin by importing our long-format data again.
+
+```{r}
+# Load the tidyverse package
+# library(tidyverse)
+
+embryo_long.df <- read_csv("data/embryo_data_long_merged.csv",
+                           # Here we are explicitly specifying our column types
+                           col_types = 'cnfffnnfllnnfnnffff')     
+
+# Take a look at the  metadata structure
+str(embryo_long.df, give.attr = FALSE)
+```
+
+------------------------------------------------------------------------
+
+## 1.1.0 Attributes Related to Your Data
+
+In last lecture, we discussed some of the ways to alter plots in ways to best visualize the given data by dabbling with `colour`, `fill`, `shape`, and `position`. This was accomplished mostly through the `aes()` attribute. Depending on the nature of the layers or elements you add, you can alter their characteristics individually to customize how those layers are displayed.
+
+Plot elements relating to your data include things like axis labels, titles, colour or shapes that represent subsets of your data, scaling that is data-dependent, legends, and other data-driven parameters.
+
+For customizing your data, it is possible to change:
+
+-   `colour()`
+-   `fill()`
+-   `shape()`
+-   `size()`
+-   `alpha()`
+
+Titles and axis labels can be added using:
+
+-   `ggtitle()`
+-   `xlab()`
+-   `ylab()`
+
+We saw in last lecture's examples that colour can be applied to discrete or continuous variables. We can also use colour (shape, etc.) to represent outliers. In this dataset, outliers beyond the whiskers (above or below 1.5\*IQR) can be coloured red.
+
+Let's recreate a base boxplot where we'll make a new variable combining `Infection Date`, `sporeStrain`, and `doseLevel` to plot across the x-axis. We'll also add colour to the boxplots based on our new variable:
+
+```{r, fig.width=14, fig.height=7}
+# Update our plot to push our text to align with the x-axis
+
+embryo_long.df %>% 
+  ### 2.5.3 Filter for infections by LUAm1 over specific dates
+  filter(wormStrain %in% c("N2", "JU1400"), 
+         expTimepoint == 72,
+         # Drop these 3 replicate dates
+         !`Infection Date` %in% c("200912", "200915", "190423"),
+         (sporeStrain == "LUAm1" | doseLevel == "Mock")) %>% 
+  
+  # Filter just for Mock or Medium infection
+  filter(doseLevel %in% c("Mock", "Medium")) %>% 
+
+  # We're going to make a new variable here that combines just Infection date, sporeStrain, and doseLevel
+  unite(col = expKey, `Infection Date`, sporeStrain, doseLevel, sep = "_", remove = FALSE) %>%
+
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=expKey, y = embryos, 
+        ... = expKey) + ### 1.1.0 Update the fill colour using the experiment variable
+    
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +  
+  
+    # 4. Geoms
+    geom_boxplot() +
+  
+    # 6. Facets
+    facet_wrap(~wormStrain) # Facet our data by worm strain
+```
+
+------------------------------------------------------------------------
+
+## 1.2.0 Adding a title and axis labels
+
+Let's start off by sprucing up our plot with
+
+-   `ggtitle()` to add a title to the plot.
+-   `ylab()` to rename and capitalize our variable name.
+-   `xlab()` to remove the "expKey" label from the plot. Note that I remove the x-axis label by using the keyword `NULL`.
+-   `guides()` to remove the legend from the right-hand side.
+
+We'll also update the boxplot outlier colour from black to red using the `outlier.colour` parameter in `geom_boxplot()`.
+
+```{r, fig.width=14, fig.height=7}
+# Update our plot to push our text to align with the x-axis
+
+embryo_long.df %>% 
+  ### 2.5.3 Filter for infections by LUAm1 over specific dates
+  filter(wormStrain %in% c("N2", "JU1400"), 
+         expTimepoint == 72,
+         # Drop these 3 replicate dates
+         !`Infection Date` %in% c("200912", "200915", "190423"),
+         (sporeStrain == "LUAm1" | doseLevel == "Mock")) %>% 
+  
+  # Filter just for Mock or Medium infection
+  filter(doseLevel %in% c("Mock", "Medium")) %>% 
+
+  # We're going to make a new variable here that combines just Infection date, sporeStrain, and doseLevel
+  unite(col = expKey, `Infection Date`, sporeStrain, doseLevel, sep = "_") %>%
+
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=expKey, y = embryos, 
+        fill = expKey) + ### 1.1.0 Update the fill colour using the experiment variable
+    
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +  
+
+    ### 1.2.0 Update our titles and remove the legend
+    ...("Reproductive capability after infection") +
+    ...(NULL) +
+    ...("Embryos") + 
+    guides(fill=...) +
+
+    # 4. Geoms
+    geom_boxplot(outlier.colour = "red") + # Specify the colour of outliers  
+    
+    # 6. Facets
+    facet_wrap(~wormStrain) # Facet our data by worm strain
+```
+
+------------------------------------------------------------------------
+
+### 1.2.1 Use the `labs()` command to add multiple labels
+
+Using individual commands to alter the x-, y-axis titles and the title of your plot can give you control over aspects of each individual element like font, size, and colour. If you want them to all have a uniform aesthetic (ie unaltered), you can simply use the `labs()` command to produce the text for each title. This layer can include legend titles too!
+
+```{r, fig.width=14, fig.height=7}
+# Update the various titles on our plot with labs()
+
+embryo_long.df %>% 
+  ### 2.5.3 Filter for infections by LUAm1 over specific dates
+  filter(wormStrain %in% c("N2", "JU1400"), 
+         expTimepoint == 72,
+         # Drop these 3 replicate dates
+         !`Infection Date` %in% c("200912", "200915", "190423"),
+         (sporeStrain == "LUAm1" | doseLevel == "Mock")) %>% 
+  
+  # Filter just for Mock or Medium infection
+  filter(doseLevel %in% c("Mock", "Medium")) %>% 
+
+  # We're going to make a new variable here that combines just Infection date, sporeStrain, and doseLevel
+  unite(col = expKey, `Infection Date`, sporeStrain, doseLevel, sep = "_") %>%
+  
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=expKey, y = embryos, 
+        fill = expKey) + ### 1.1.0 Update the fill colour using the experiment variable
+    
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +  
+
+    # Update our titles and remove the legend
+    ### 1.2.1 Use the labs() command to set all of your labels
+    ...(title = "Reproductive capability after infection",
+         x = NULL,
+         y = "Embryos") +
+    guides(fill="none") +
+
+    # 4. Geoms
+    geom_boxplot(outlier.colour = "red") + # Specify the colour of outliers
+  
+    # 6. Facets
+    facet_wrap(~wormStrain) # Facet our data by worm strain
+```
+
+------------------------------------------------------------------------
+
+### 1.2.2 Assigning or altering labels on your plot
+
+Looking at our strain labels for each facet, they are noticeably small and not necessarily self-explanatory. Let's update the strain label values on these titles so they are more informative and update their themes to be more visible. This can be done in a couple of ways.
+
+One way would be to change the values in the dataset using string manipulation. A second way, would be using the `labeller()` function. I can make a vector of the updated names to replace **'N2'** and **'JU1400'**. The data is split by worm strain in the `facet_grid()` and this is where we pass our labels to `labeller()`, which will output the names on the strip label. At the same time, we'll increase the font size and bold it as well using the `theme()` layer.
+
+I am now going to save this plot in a *ggplot object*, since we are going to use this as our base plot for the next section.
+
+```{r, fig.width=14, fig.height=7}
+
+# Make a named character vector for our labels
+wormStrain_labels <- c(N2 = "N2 lab reference", JU1400 = "JU1400 wild isolate")
+
+# Assign our plot to an object for alteration later on
+my_plot <-
+
+  embryo_long.df %>% 
+  ### 2.5.3 Filter for infections by LUAm1 over specific dates
+  filter(wormStrain %in% c("N2", "JU1400"), 
+         expTimepoint == 72,
+         # Drop these 3 replicate dates
+         !`Infection Date` %in% c("200912", "200915", "190423"),
+         (sporeStrain == "LUAm1" | doseLevel == "Mock")) %>% 
+  
+  # Filter just for Mock or Medium infection
+  filter(doseLevel %in% c("Mock", "Medium")) %>% 
+
+  # We're going to make a new variable here that combines just Infection date, sporeStrain, and doseLevel
+  unite(col = expKey, `Infection Date`, sporeStrain, doseLevel, sep = "_") %>%
+   
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=expKey, y = embryos, 
+        fill = expKey) + ### 1.1.0 Update the fill colour using the experiment variable
+    
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),   
+          ### 3.1.2 Update the facet title font
+          strip.text.x = element_text(face = "bold", size = 12)                            
+         ) +  
+
+    # Update our titles and remove the legend
+    # Use the labs() command to set all of your labels
+    labs(title = "Reproductive capability after infection",
+         x = NULL,
+         y = "Embryos") +
+    guides(fill="none") +
+
+    # 4. Geoms
+    geom_boxplot(outlier.colour = "red") + # Specify the colour of outliers
+  
+    # 6. Facets
+    facet_wrap(~wormStrain, labeller = labeller(wormStrain = ...)) ### 1.2.2 rename the worm strains
+  
+# display our plot
+my_plot
+```
+
+------------------------------------------------------------------------
+
+## 1.3.0 Colour palettes!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/colour_visualizations.jpg?raw=true" width="700"/>
+:::
+
+A common custom modification is to change colours from `ggplot2`'s default rainbow palette. There are many reasons to change a colour palette including
+
+-   making it easier on the reader's eye.
+-   making it colour-blind friendly.
+-   plots with continuous data should use good colour spectra for accurate representation.
+
+Let's create our own colour palette for each `experiment` in our boxplot.
+
+### 1.3.1 A note on colour palettes
+
+There are 3 main types of colour palettes in the `RColorBrewer` package: sequential, diverging and qualitative. We'll take a few moments to explore each to discern its purpose.
+
+### 1.3.1.1 Use sequential colour palettes to display low to high values
+
+*Sequential*
+
+-   Implies an order to your data
+
+-   Light to dark implies low values to high values for instance.
+
+-   Think about using these for purposes such as heatmaps when you would like to see a spectrum of distinguishable shades that also suggest some kind of ordinality.
+
+```{r}
+# Load the RColorBrewer library
+library(RColorBrewer)
+
+# display the sequential colour palettes
+display.brewer.all(type = "seq")
+```
+
+------------------------------------------------------------------------
+
+### 1.3.1.2 Use diverging colour palettes to highlight the middle and extremes of a distribution
+
+*Diverging*
+
+-   Low and high values are extremes, and the middle values are still important to distinguish
+
+-   Still goes from light to dark, but 3 colours mainly used.
+
+-   This can also be useful for certain heatmaps if middle values also have an important meaning - such as a kind of inflection point between positive and negative values.
+
+A good example is RNAseq expression data where fold-change might be in the positive or negative direction. Values in the middle range suggest little to no change from control samples and help to distinguish from genes with more interesting changes.
+
+```{r}
+# Display the diverging colour palettes
+display.brewer.all(type = "div")
+```
+
+------------------------------------------------------------------------
+
+### 1.3.1.3 Use qualitative colour palettes for categorical data
+
+*Qualitative*
+
+-   There is no quantitative relationship between colours.
+
+-   This is usually used for categorical data to clearly differentiate between unrelated groups.
+
+-   The lack of relationship between colours helps to highlight the distinction between categorical groups.
+
+```{r}
+display.brewer.all(type = "qual")
+```
+
+------------------------------------------------------------------------
+
+### 1.3.2 Add a colour palette to a plot like a layer
+
+Let's test one of the `RColorBrewer` palettes out on our data. We'll add it as a layer to `my_plot` using `scale_fill_brewer()` to override the fill mappings defined in the `aes()` layer of the plot.
+
+```{r, fig.width=14, fig.height=7}
+my_plot + scale_fill_brewer(palette = "Spectral")
+```
+
+------------------------------------------------------------------------
+
+### 1.3.2.1 Colour palettes are not vector recycled when plotting in `ggplot`
+
+Notice the warning we received: **"n too large..."**? Note that we have **12** different experimental categories along the x-axis but the `Spectral` palette only has **11** colours. Unlike when we saw vector recycling in previous lectures, this does not occur when supplying a colour palette with the `scale_fill_brewer()` layer to our plot. In generating our plot, we only colour the first **11** colours in each facet.
+
+------------------------------------------------------------------------
+
+### 1.3.3 `RColorBrewer` colour palettes can be created with `brewer.pal()`
+
+`RColorBrewer` has options for these 3 types of palettes, which you can see with `display.brewer.all()`. With a smaller dataset, we could make a call in `ggplot` directly to `scale_fill_brewer()`, which just requires choosing one of `RColorBrewer`'s palettes, such as "Spectral". However, we have 22 categories and these palettes have 8-12 colours, so we have to get creative.
+
+Using the `brewer.pal()` function, we can pull different colours from palettes of our choosing. In our case, I have simply taken the 2 qualitative palettes that each have a length of 12, put them into one palette, and made sure the resulting vector of colour values were unique.
+
+We can then pass this *combined* colour palette to `ggplot` via a "native" layer, `scale_fill_manual()`.
+
+```{r, fig.height=9}
+display.brewer.all()
+```
+
+------------------------------------------------------------------------
+
+Looks like we can use the `Paired` and `Set3` palettes since they both have 12 colours that seem distinct enough. There may be some close colours though.
+
+```{r}
+# Generate 2 palettes from the longest ones
+palette1 <- brewer.pal(12, "Paired")
+palette2 <- brewer.pal(12, "Set3")
+
+# combine into a single palette
+custom <- ...(c(palette1, palette2))
+
+# Do we still have enough colours?
+custom
+length(custom)
+```
+
+------------------------------------------------------------------------
+
+Looks like we have more than enough colours to satisfy our needs. Notice that these are coded using a hexadecimal system? Let's provide this vector as input.
+
+```{r, fig.width=14, fig.height=7}
+# Update our plot by adding colour
+my_plot + ...(values = custom)
+```
+
+------------------------------------------------------------------------
+
+### 1.3.4 You can always pick your own colours
+
+You can always choose a vector of your own colors using this [R color cheatsheet](https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/colorPaletteCheatsheet.pdf).
+
+::: {.alert .alert-block .alert-success}
+**Hexadecimal colours:** The RGB colour scheme is represented by 3 colour values (Red, Green and Blue) using a colour scale between 0-255 for each. This blending of shades produces the colours we see and can be represented by a Hexadecimal value ranging from **000000** to **FFFFFF**. Use an [RGB colourpicker](https://www.rapidtables.com/web/color/RGB_Color.html) if you are obsessed with picking your very own colour palette.
+:::
+
+If you just want a repeating patterns of colours, you can use the `rep()` command to help you out too!
+
+```{r}
+# Reminder of how the rep() command works
+rep(c(1,2,3,4),  # The pattern to repeat
+    4)           # The number of time to repeat it  
+```
+
+```{r, fig.width=14, fig.height=7}
+# Fill the boxplot using a rep() command
+my_plot + scale_fill_manual(values=rep(c("purple", "cornflowerblue", "grey", "yellow", "orange", "..."), 4))
+```
+
+------------------------------------------------------------------------
+
+Many colour palettes now exist. In the next section, we'll showcase a group of palettes that work nicely with `ggplot2`. These packages also have colour-blind friendly options.
+
+### 1.3.5 Colour blind accessible palettes can be found in the `viridis` package
+
+Sometimes you may wish to work with a colour palette that best represents a ***continuous*** series of diverging values. In this case you may also want to ensure your colour palette avoids issues for readers that are printing in greyscale or those that may be colour-blind. The `viridis` package contains some colour-blind accessible palettes that can also help to really differentiate between the extremes of your spectrum.
+
+The `viridis` package also has some nice color options (<https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html>). While these might all be diverging palettes (qualitative is best for our `experiment` variable), we will showcase a couple here.
+
+```{r, fig.width=14, fig.height=7}
+# Load the viridis package
+library(viridis)
+
+# Example 1 with viridis
+my_plot + ...
+
+# Example 2 with viridis (plasma)
+my_plot + ...
+```
+
+`RSkittleBrewer` is another option for funky colour palettes. `ggsci` has a variety of color palettes inspired by different scientific journals as well as television shows (<https://cran.r-project.org/web/packages/ggsci/vignettes/ggsci.html>).
+
+------------------------------------------------------------------------
+
+## 1.4.0 Theme: attributes unrelated to your data
+
+As mentioned earlier, it is possible to customize ***every single aspect*** of a `ggplot`. Most of this occurs with a call to `theme()`, which you can think of as modifying everything BUT your data. For example, my axis labels can be modified, but they (hopefully) have something to do with my data. However, changing the size of the text or the font of the labels is unrelated to my data, and the same structure (text font & size) could be carried over to other plots if I saved my own theme.
+
+Things that you can change with `theme()` include the axis, legend, panels, gridlines, or background.
+
+Each *element* of a theme inherits from one of:
+
+-   `element_text` (text elements like font, colour, size, face (bold, italics), alignment),
+-   `element_line` (grid lines, axis lines),
+-   `element_rect` (panels and backgrounds - colour, size, fill),
+-   `element_blank` (assigns nothing, usually when you are trying to get rid of something),
+-   `element_grob` (making a grid grob).
+
+`ggplot2` comes with some themes - I suggest starting with the one that is close to what you want, and then modifying from there.
+
+Check out these *themes*:
+
+-   `theme_minimal()`
+-   `theme_classic()`
+-   `theme_bw()`
+-   `theme_void()`
+-   `theme_dark()`
+-   `theme_gray()`
+-   `theme_light()`
+
+You can look at the default for each theme simply by typing it into the console.
+
+```{r}
+theme_bw
+```
+
+And this is what `theme_bw()` practically looks like:
+
+```{r, fig.width=14, fig.height=7}
+# Alter the theme of my_plot
+my_plot + ...
+```
+
+------------------------------------------------------------------------
+
+### 1.4.1 Remember that attribute changes are overridden by order of appearance
+
+Notice how that last addition of the `theme_bw()` layer overrides my previous changes to the plot like x-axis text orientation? When adding `theme()` layers, the latest layer takes precedence over previous layers. Any conflicts between `theme()` layers are overridden by the newly added layers.
+
+In our previous example, the angle of the x-axis text is returned from a vertical to a horizontal orientation since the horizontal orientation is specifically set in the `theme_bw()` layer.
+
+Here is an example of `theme_dark()`. I am going to override the default x-axis text angle of this theme by modifying it AFTER I call `theme_dark()`.
+
+```{r, fig.width=14, fig.height=7}
+# Alter my_plot and fix the x-axis
+my_plot + 
+  ... + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+```{r, fig.width=14, fig.height=7}
+# When building plots from scratch, be sure to place the theme_* above other theme changes
+
+embryo_long.df %>% 
+  ### 2.5.3 Filter for infections by LUAm1 over specific dates
+  filter(wormStrain %in% c("N2", "JU1400"), 
+         expTimepoint == 72,
+         # Drop these 3 replicate dates
+         !`Infection Date` %in% c("200912", "200915", "190423"),
+         (sporeStrain == "LUAm1" | doseLevel == "Mock")) %>% 
+  
+  # Filter just for Mock or Medium infection
+  filter(doseLevel %in% c("Mock", "Medium")) %>% 
+
+  # We're going to make a new variable here that combines just Infection date, sporeStrain, and doseLevel
+  unite(col = expKey, `Infection Date`, sporeStrain, doseLevel, sep = "_") %>%
+   
+  # 1. Data
+  ggplot(.) +
+    # 2. Aesthetics
+    aes(x=expKey, y = embryos, 
+        fill = expKey) + # Update the fill colour using the experiment variable
+    
+    ### 1.4.1 Add the dark theme first!
+    ... +
+    ### 1.4.1 Then make your additional thematic adjustments
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+          strip.text.x = element_text(face = "bold", size = 12) 
+         ) +  
+
+    # Update our titles and remove the legend
+    # Use the labs() command to set all of your labels
+    labs(title = "Reproductive capability after infection",
+         x = NULL,
+         y = "Embryos") +
+    guides(fill="none") +
+
+    # 4. Geoms
+    geom_boxplot(outlier.colour = "red") + # Specify the colour of outliers
+  
+    # 6. Facets
+    facet_wrap(~wormStrain, labeller = labeller(wormStrain = wormStrain_labels)) # rename the worm strains
+```
+
+------------------------------------------------------------------------
+
+### 1.4.2 More themes are found in the `ggthemes` package
+
+`ggthemes` is a package of themes. Some of these themes are based off of graphs seen in print or on websites (the economist, wall street journal, fivethirtyeight) or to match standard tools (excel, google docs).
+
+::: {.alert .alert-block .alert-success}
+**See more themes:** Information about the ggtheme options can be found at the [Github homepage](https://github.com/jrnold/ggthemes).
+:::
+
+Here are 2 possible themes.
+
+```{r, fig.width=14, fig.height=7}
+# Load the ggthemes package
+library(ggthemes)
+
+# Add the economist theme to our plot
+my_plot + 
+  ... + # Do you enjoy blue background panels?
+  theme(axis.text.x = element_text(angle=90, hjust=1)) # fix the x-axis
+```
+
+------------------------------------------------------------------------
+
+## 1.5.0 Make a customized theme
+
+You can also make your own custom theme as demonstrated here: <http://joeystanley.com/blog/custom-themes-in-ggplot2>
+
+I am going to show you how to customize a plot, starting from `theme_minimal()` because I don't like the grey backgrounds or harsh axis lines.
+
+```{r, fig.width=14, fig.height=7}
+# Start by using the minimal theme
+my_plot + 
+  ...
+```
+
+------------------------------------------------------------------------
+
+### 1.5.1 Fix your plot elements with the `theme()` layer
+
+Depending on the layout of your plot you can institute changes to the theme as you build your plot or afterwards. Just remember, each call to `theme()` will override any previous calls that conflict, so the order of changes is important. Many arguments to `theme()` represent major element categories, but there can be arguments that specifically represent sub-categories or sub-elements.
+
+Things I don't like about this plot and their solutions:
+
+| Problem | Solution | Layer / Command |
+|:---------------------------|:------------------------|:------------------|
+| x-axis labels overlap and are small | rotate labels | **axis.text.x** |
+| facet labels are smaller than axis labels | change size and face | **strip.text.x** |
+| title is not centered | adjust position horizontally | **plot.title** |
+| need a border to separate strains | create a border around each panel | **panel.border** |
+| add y axis ticks | update y axis ticks | **axis.ticks.y** |
+
+::: {.alert .alert-block .alert-success}
+**Theme layers are like onions:** No, not smelly. There are just a lot of them. It isn't necessary to remember all of this syntax! It's certainly helpful but you can just bookmark the [ggplot2 theme reference page](http://ggplot2.tidyverse.org/reference/theme.html) instead.
+:::
+
+As mentioned the last call to `theme()` will override previous calls that conflict. Therefore, if we want to start with `theme_minimal()` as our base, it has to be in our code BEFORE the other modifications.
+
+```{r, fig.width=14, fig.height=7}
+
+# Add our own theme elements
+my_plot + 
+  theme_minimal() + # start with theme minimal
+  theme(axis.text.x = ...(angle = 90, hjust = 1, vjust=0.5, size=14), # Adjust x-axis text and position
+        panel.border = ...(fill=NA), # Add a panel border to each facet
+        strip.text.x = element_text(face = "bold", size = 16), # alter the facet title text
+        plot.title = element_text(hjust=0.5, size = 18), # Centre that plot title
+        axis.ticks.y = ...()) # Add some little tick marks on the y-axis
+
+# Note that you could break this into multiple theme() calls as well!
+```
+
+------------------------------------------------------------------------
+
+There are a lot of way to customize your plots! Keep exploring and playing with parameters!
+
+### 1.5.2 Save your personalized themes to a variable
+
+You may be wondering, "Can I save this ***awesome*** theme to apply to all my ***amazing*** plots?" Yes, there are a number of ways to import your themes to other scripts if you learn to save your data objects to file in **Lecture 07**! For now, you can assign your themes to a variable and apply them to plots like any other layer.
+
+::: {.alert .alert-block .alert-info}
+**Work smarter not harder:** A key advantage to saving your theme to a variable is that once you save it, you can apply it easily to all of your plots **but** you can also update and tweak your theme in a single place within your code or notebook, rather than across multiple code cells, etc.!
+:::
+
+```{r, fig.width=14, fig.height=7}
+# Save you theme to a variable
+... <-
+  theme_minimal() + # start with theme minimal
+  # Our previous theme update
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
+        panel.border = element_rect(fill = NA),
+        strip.text.x = element_text(face = "bold", size = 16),
+        plot.title = element_text(hjust=0.5, size = 18),
+        axis.ticks.y = element_line())
+```
+
+```{r, fig.width=14, fig.height=7}
+# Apply your theme as a layer
+my_plot + ...
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Comprehension Question 1.0.0:** Alter the **my_plot** background to a cornflower blue and add major/minor gridlines in black. You can accomplish this by updating the **theme()** layer. Hint: you can use the **plot.background**, **panel.grid.minor**, and **panel.grid.major** arguments.
+:::
+
+```{r, fig.width=14, fig.height=7, eval = FALSE}
+
+# comprehension answer code 3.0.0 - updating the plot background and gridlines
+# Fill the blanks
+my_plot + 
+  theme_minimal() + # start with theme minimal
+  # Our previous theme update
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
+        panel.border = element_rect(fill = NA),
+        strip.text.x = element_text(face = "bold", size = 16),
+        plot.title = element_text(hjust=0.5, size = 18),
+        axis.ticks.y = element_line()) +
+
+  # Our current theme update
+  theme(..., # Set the background to a rectangle with new colour
+        ..., # Add minor grid lines
+          ...) # Add black major grid lines
+```
+
+------------------------------------------------------------------------
+
+# 2.0.0 Saving your figures
+
+Up until now, we have taken for granted that our plots have been displayed using a *Graphic Device*. For our Markdown Notebooks we can see the graphs right away and update our code. You can even save them manually from the output display but sometimes you may be producing multiple visualizations based on large data sets. In this case it is preferable to save them directly to file.
+
+## 2.1.0 Graphics Devices
+
+-   Plots must be created on a graphics device
+
+-   The default graphics device is almost always the screen device, which is most useful for exploratory analysis.
+
+-   File devices are useful for creating plots that can be included in other documents or sent to other people.
+
+-   For file devices, there are vector (pdf, svg, postscript) and bitmap (png, jpeg, tiff) formats.
+
+-   Vector formats are good for line drawings and plots with solid colors using a modest number of points.
+
+-   Bitmap formats are good for plots with a large number of points, natural scenes or web-based plots.
+
+(<https://rdpeng.github.io/Biostat776/notes/pdf/grdevices.pdf>)
+
+`ggplot2` has its own function for saving its graphics: `ggsave()`. This allows us to skip the step of explicitly calling separate graphics devices and shutting them down afterwards (if you have saved plots in base R or `lattice`, this will sound familiar to you).
+
+You can send the plot object to the screen device to preview your image, and then save that image by specifying the file device. If you do not specify the device type, `ggsave()` will guess it from your filename extension (pdf, jpeg, tiff, bmp, svg or png). Note that this will save whatever graphic was last on your screen device.
+
+With `ggsave()` you can minimally input the filename you would like to have, and the path to your file.
+
+```{r}
+# Save the last plot displayed by ggplot
+ggsave("...", path = "data")
+```
+
+However, in some cases you want to tailor your output. You can specify the width, height and units of your image, or you can apply a scaling factor (the 'eyeballing' approach). You can also specify the plot object you want to save instead of whatever was on your graphics device last using the 'plot' parameter. Note that this time I have combined the path with the filename, and called the file device type separately.
+
+```{r}
+# Save our altered plot to an object
+saved_plot <- my_plot + theme_personal
+
+# Specifically make saved_plot a pdf!
+ggsave("data/infectionBoxplot_simple.pdf", # The path for our output
+       plot = ..., # The object we want to save
+       device = ..., # explicitly name the type of file we want to make, despite the name
+       scale = 2, width = 250, height = 110, units = "mm") # Set some parameters for the final size
+```
+
+No image is sent to the screen device when a file is saved in this manner.
+
+------------------------------------------------------------------------
+
+## 2.2.0 But wait, there's more!
+
+While we have just scratched the surface of `ggplot`, as mentioned earlier in lecture there are many additional visualization packages that can work with more specific types of data. In some cases, these packages add functionality to the `ggplot` package itself!
+
+### 2.2.1 Interactive graphics
+
+`Plotly`: <https://plot.ly/r/>
+
+`ggvis`: <http://ggvis.rstudio.com/interactivity.html>
+
+Heatmaps: <https://github.com/talgalili/heatmaply>
+
+Interactive time-series data: <https://rstudio.github.io/dygraphs/>
+
+### 2.2.2 Network diagrams
+
+`visNetwork` (based on igraph): <https://datastorm-open.github.io/visNetwork/edges.html>
+
+### 2.2.3 Circos Plots
+
+Migest: <https://gjabel.wordpress.com/category/r/migest/>
+
+### 2.2.4 Geospatial Data
+
+Static Maps: - <https://bhaskarvk.github.io/user2017.geodataviz/notebooks/02-Static-Maps.nb.html>
+
+Interactive Maps: - <https://bhaskarvk.github.io/user2017.geodataviz/notebooks/03-Interactive-Maps.nb.html>
+
+### 2.2.5 Phylogenetics Data
+
+`ggtree`: - <http://www.bioconductor.org/packages/3.7/bioc/vignettes/ggtree/inst/doc/treeAnnotation.html#annotate-clades>
+
+`treeman`: - <https://bmcresnotes.biomedcentral.com/articles/10.1186/s13104-016-2340-8>
+
+`metacoder`: - <https://github.com/grunwaldlab/metacoder>
+
+`phyloseq`: - <https://joey711.github.io/phyloseq/index.html>
+
+### 2.2.6 Genomics Data
+
+`ggbio`: - <http://www.bioconductor.org/packages/2.11/bioc/vignettes/ggbio/inst/doc/ggbio.pdf>
+
+`GenVisR`: - <https://bioconductor.org/packages/release/bioc/vignettes/GenVisR/inst/doc/Intro.html>
+
+`GenomeGraphs`: - <https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-10-2>
+
+------------------------------------------------------------------------
+
+# 3.0.0 Visualizing big data
+
+Up until now many of our visualizations have focused on small to medium-sized datasets. We have been plotting hundreds of datapoints or summarizing them with distribution plots. In the past decades, however, high-throughput sequencing technologies have made experiments such as RNAseq far more accessible and along with this we must find ways to analyse and visualize these kinds of data.
+
+It's time to leave many of our `tidyverse` tools behind as we embark on a new journey of data analysis and boldly go wherever next generation sequencing can take us.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/BigDataMeme.jpg?raw=true" width="600"/>
+:::
+
+We'll begin by importing a "trimmed" RNASeq dataset from the [Immunological Genome Project Consortium](https://www.immgen.org/ImmGenData.html)
+
+```{r}
+rnaSeq.tbl <- read_tsv("...")
+
+# Take a quick look at the imported data
+head(rnaSeq.tbl)
+
+# Check the structure of our imported data
+str(rnaSeq.tbl)
+```
+
+Looking at this RNAseq data, we can see that we've imported a 4,258 x 84 data frame. Our first column is a list of gene symbols while the remaining columns consist of 83 cells samples. These data come from five populations of highly purified mouse immunocytes. For each population there are anywhere between 8 and 18 replicates. The original version of this data began with data on 55K gene symbols! However, we have trimmed it down here to save on size and memory.
+
+| Sample Coding | Cell Type | Description |
+|:----------------------:|:----------------------:|:----------------------:|
+| B.fo.Sp | B follicle | Central to T cell-dependent antibody production |
+| MF.PC | Peritoneal macrophage | White blood cells of innate immune system that engulf and digest pathogens |
+| NK.Sp | Natural Killer cells | White blood cells crucial to the innate immune system |
+| T.4.Nve | Naive CD4+ abT cells | Helper T cells part of the adaptive immune system |
+| Tgd.Sp | Gamma-delta T cells | Rapid response to pathogens and other cells |
+
+The goal of this processed data is to identify and confirm the expression of genes even at low expression. Looking more broadly, at the dataset, however, we can ask questions such as "how *similar* are our samples?", "can our samples be grouped or categorized in some way?" and "is there an underlying structure or architecture to our data?"
+
+We can study these questions using a number of techniques that range from clustering/categorization to projection of high-dimensional data onto a lower set of dimensions (usually 2 or 3). We'll begin, however, with some rudimentary analysis.
+
+------------------------------------------------------------------------
+
+## 3.1.0 Generate a heatmap to visualize large datasets
+
+When we think about our large data, a quick visualization that can work well is the heatmap. This grid-based visualization applies a colour or shade to each value within our cells. With the proper formatting, this can reveal trends or information about our samples. In this visualization, we do not begin by formatting our data in long-format, but rather turn to a package, `ComplexHeatmap` to help us handle things.
+
+From the `ComplexHeatmap` package we can use the function `Heatmap()` to generate a heatmap plot that can do a little more than what we were doing with our `ggplot2` package. A nice aspect of using `Heatmap()` is that we can ask it to reorder our samples along both the rows and columns. At the same time we can present the relationship between columns elements or row elements in the form of dendrograms.
+
+::: {.alert .alert-block .alert-info}
+**New Concept: what's a dendrogram?** A dendrogram is a generalized tree-like structure that shows the relationships between its leaves (or terminal nodes) by connecting them with branches. Leaves on the tree and internal nodes are also joined based on a hierarchical relationship that shows the similarity between nodes. Branch distances should contain informational value representative of the similarity metric used to join leaves and nodes.
+:::
+
+------------------------------------------------------------------------
+
+### 3.1.1 Subsetting data based on informative or helpful criteria
+
+Before we begin generating our heatmaps, we'll trim the data down to an even more manageable size for visualization. For our purposes, we'll filter to the top 200 genes in our dataset based on
+
+1.  mean expression levels between 100 - 1000 gene counts. This will make our colour range easier to manage amongst other things.
+2.  the highest mean counts in the specified range. This should help to give us a set of the more highly-expressed genes within our range.
+
+To accomplish this subsetting, we'll introduce two new tidyverse verbs: `rowwise` and `c_across`. The `rowwise()` verb, similar to `group_by()` will allow us to group our data by rows so that our new variable(s) will by calculated on a row-by-row basis. This will allows us to calculate a mean gene count *across* each row. Without it, trying to calculate the mean would combine *all* the data in the data frame, creating a single value for the variable we create. Once activated, we can use the `c_across()` helper function to help define which columns we would like to include in our calculation of the mean.
+
+We'll save this set of genes as our `top200`.
+
+```{r}
+# Create a top 200 set of genes
+top200 <- 
+  rnaSeq.tbl %>% 
+  # Use rowwise to calculate the mean gene counts across all ROWs
+  ... %>% 
+  # Create a new variable that calculates the mean
+  mutate(meanExp = mean(...)) %>% 
+  # Filter for the range we want to visualize
+  filter(meanExp > 100,
+         meanExp < 1000) %>%  
+  # Sort the data by highest mean values
+  arrange(desc(meanExp)) %>% 
+  # Retrieve just the gene symbols
+  pull(1) %>% 
+  # Keep the top 200
+  .[1:200]
+
+# View our list of 200 genes
+top200
+```
+
+With our list in hand, we can make a trimmed version of our data frame to work with
+
+```{r}
+rnaSeq_trimmed.tbl <-
+  rnaSeq.tbl %>% 
+  filter(...)
+
+# Just remember this is technically a tibble!
+dim(rnaSeq_trimmed.tbl)
+```
+
+------------------------------------------------------------------------
+
+### 3.1.2 Visualize using the `Heatmap()` function
+
+Now that we have a smaller set of data to work with, we can proceed to visualizing our data in a heatmap format. The `Heatmap()` function has quite a number of options and we'll explore these in a couple of steps but we'll start with basic version of our data.
+
+Important or helpful parameters to run `Heatmap()`:
+
+-   `matrix`: our matrix object. It ***must be a matrix***, and not a data frame. It could also be a vector but that becomes a single column.
+-   `col`: determines the colours used for the image - nothing to do with column names.
+-   `name`: the name/title of the heatmap (also use as the legend title by default)
+-   `row_*` : set our row text properties including titles and labels:
+    -   `row_title`, `row_title_side`, `row_title_gp` (graphic properties)
+    -   `row_names_side` `row_names_gp`
+    -   column properties can also be changed using `column_*`
+-   `cluster_rows` and `cluster_columns`: logical parameters to determine if clustering should occur (default is `TRUE`)
+-   `show_heatmap_legend`: whether or not to show the heatmap legend
+-   `heatmap_legend_param`: Set the title of the legend specifically is `list(title = "x")`
+-   `show_[row/col]_dend`: Whether or not to show dendograms for the row/column
+
+There are actually *a lot* of options but these should help us make a basic heatmap. Let's plot our data after we create a matrix version of it. When creating the heatmap, we'll save it into a new object `rnaSeq_hmap` and then use the `ComplexHeatmap::draw()` function to visualize the actual object.
+
+```{r}
+# Cast our tibble into a matrix
+rnaSeq_trimmed.mx <- as.matrix(rnaSeq_trimmed.tbl...)
+
+# We want to add the rownames back to the matrix, so they can be displayed by `Heatmap()`
+rownames(rnaSeq_trimmed.mx) <- pull(rnaSeq_trimmed.tbl, 1)
+```
+
+Create our basic heatmap using the trimmed data.
+
+```{r, fig.width=20, fig.height=20}
+# Create a Heatmap object
+
+rnaSeq_hmap <-
+  # Notice we'll only plot out the first 100 genes from our already-trimmed dataset
+  Heatmap(matrix = rnaSeq_trimmed.mx[...,],
+          
+          # Don't cluster on either rows or columns
+          cluster_rows = ..., cluster_columns = ..., 
+          
+          # Use column_title as the title of our heatmap
+          column_title = "Heatmap of mouse immune cell expression for 100 genes",
+                      
+          # Rotate the legend horizontally and give it a title
+          heatmap_legend_param = list(title = "normalized gene counts",
+                                      legend_direction = "horizontal"),
+                      
+          # Rotate column names to horizontal
+          column_names_rot = 90,
+          column_names_center = TRUE,
+          
+          # Set the colour map using the viridis colour scale
+          col = viridis(1000, alpha = 0.5)
+          )
+
+# Plot the heatmap 
+ComplexHeatmap::draw(rnaSeq_hmap, 
+     # Plot the legend on the bottom
+     heatmap_legend_side = "bottom"
+    )
+```
+
+------------------------------------------------------------------------
+
+### 3.1.3 How do we reorder our data via clustering?
+
+In its current form, we have our ordered our data along the columns in an ascending arrangement mostly by sample name and along our y-axis the rows are sorted in order of gene symbol. While this makes sense to us now, it may not help to visually identify the strongest trends or groupings in our data. Clustering attempts to bring order to our data by grouping data according to specific algorithms.
+
+Let's see what happens when we update the code to cluster our data into dendrograms on the x and y axes.
+
+```{r, fig.width=20, fig.height=20}
+# Create a Heatmap object
+
+rnaSeq_hmap_sorted <-
+  # Notice we'll only plot out the first 100 genes from our already-trimmed dataset
+  Heatmap(matrix = rnaSeq_trimmed.mx[1:100,],
+          
+          # Don't cluster on either rows or columns
+          cluster_rows = ..., cluster_columns = ..., 
+          
+          # Use column_title as the title of our heatmap
+          column_title = "Sorted heatmap of mouse immune cell expression for 100 genes",
+                      
+          # Rotate the legend horizontally and give it a title
+          heatmap_legend_param = list(title = "normalized gene counts",
+                                      legend_direction = "horizontal"),
+                      
+          # Rotate column names to horizontal
+          column_names_rot = 90,
+          column_names_center = TRUE,
+          
+          # Set the colour map using the viridis colour scale
+          col = viridis(1000, alpha = 0.5)
+          )
+
+# Plot the heatmap 
+ComplexHeatmap::draw(rnaSeq_hmap_sorted, 
+     # Plot the legend on the bottom
+     heatmap_legend_side = "bottom"
+    )
+```
+
+------------------------------------------------------------------------
+
+What just happened to our heatmap?
+
+The clustered output of our heatmap has grouped together similar looking samples (columns) as well as similar looking rows (gene symbols). Looking at the dimenions of our data, we have 83 samples, and 200 gene symbols. In terms of **each sample** we can identify it by the gene count values across 200 gene symbols. In essence, each sample can then be coded as a single point in a 200 dimension space. You can think of this set of 200 values then as the single-point 200-dimension address! For each gene symbol the same process is undertaken using the counts based on the 83 samples in an 83-dimensional plane.
+
+Overall, single points are usually grouped together as neighbours with the "nearest" neighbours determined by a metric of some kind. In our case, how far away are any two points, p and q, along the 200 dimensions. A simple metric you can imagine, for example, is the euclidean distance formula:
+
+$$d(p,q) = \sqrt{(p_{1}-q_{2})^2 + (p_{2}-q_{2})^2 + \ldots + (p_{n}-q_{n})^2}$$From this calculation, pairs of points (p, q) with the smallest distance can be considered neighbours.
+
+These neighbours are then further grouped into larger groups we call clusters, using the same metrics until the entire set is presented in these ordered groups. These groupings/relationships can also be presented as dendrograms. On a dendrogram, closest neighbours would be linked together, then their clusters linked, etc! In our current case, we aren't concerned with determining close groups *per se* (aka clusters) but rather with just connecting them by their similarity and then creating a hierarchical order that makes sense visually.
+
+By ordering the data as it is visualized, we now see more specific trends in our data. For instance, the `B.fo` (Follicular B) series of cells has a set of highly expressed genes clustered at the top of our heatmap. Similarly, the NK cells have a small cluster of 3 highly expressed genes at the bottom of our heatmap. In the middle, our MF cells (macrophage) have a large group of moderately expressed cells clustered together.
+
+Overall, our data begins to create a ***picture*** (pun intended) of the trends in our data - which genes are more or less expressed in each group of cells. We also see (to our relief) that cells of the same type, do appear to cluster together based on the expression of the genes alone - agnostic of the actual sample names!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/IanMalcolm.jpg?raw=true" width="600"/>
+
+Now imagine we tried to do this with all 4000+ gene symbols or the original 55K? It would be far too much data to look at!
+:::
+
+------------------------------------------------------------------------
+
+## 3.2.0 Correlating your data by read count
+
+What if we were to produce a heatmap directly with all of our data? It would be impossible to read, and including a dendrogram would actually take a while to process given the \~4K rows of data to process across the 83 datasets. That's another good reason as to why we used a small subset of data as an example to build a heatmap.
+
+From the previous output, we can see that our heatmap is already quite hard to read and that's coming off of using just 100 genes! We do, however, get some strong trends regarding our datasets - we can see certain sets of replicates are grouped together. This might be clearer if we were to factor in all of the datapoints or just the relevant genes that define the differences between datasets. We'll discuss the second part of that thought later in this lecture.
+
+Recall that what we're really interested in, regarding these read count data, is to ask just how similar the experiments are compared to each other. We can use the idea of correlation to not just ask "How similar is one gene to another gene" but to even ask "How similar is one sample to another sample". Much like our hierarchical clustering in n-dimensional space, we can use correlation to determine the relationship between samples. This can boil down 4000 datapoints into a single value!
+
+To compare two samples, for instance, we can ask if they share a mathematical relationship. When gene A in sample 1 has a high read count, is it also high in sample 2? We track the difference in value for all genes between both samples and come up with a metric of how well they follow each other. If we were to plot genes counts for samples 1 vs 2 in our example, a positive correlation would result in the points falling along a diagonal line of slope 1. If they were negatively correlated then we would see our points fall along a line of slope -1. A slope of 0 would indicate not real relationship in gene counts between samples 1 and 2.
+
+Let's quickly plot some of the data to see what that looks like.
+
+```{r}
+# Well-correlated pairs
+rnaSeq_trimmed.tbl %>% 
+  ggplot() +
+  aes(x = `B.fo.Sp#1.1`, y = `B.fo.Sp#1.10`) +
+  # Add a positive correlation line
+  ...(intercept = 0, slope = 1, colour = "red", linetype = "dashed", linewidth = 1) +
+  # Add a regression line
+  geom_smooth(method = "lm") +
+  geom_point()
+
+# Poorly correlated samples
+rnaSeq_trimmed.tbl %>% 
+  ggplot() +
+  aes(x = `MF.PC#1.1`, y = `Tgd.Sp#1.8`) +
+  # Add a positive correlation line
+  ...(intercept = 0, slope = 1, colour = "red", linetype = "dashed", linewidth = 1) +
+  # Add a regression line
+  geom_smooth(method = "lm") +
+  geom_point()
+
+```
+
+### 3.2.1 Calculate the correlations between samples in a pairwise manner with `expand.grid()` and `cor()`
+
+Looking at our plots, we can extend that idea forward to do a pair-wise comparison between *all* samples and then visually summarize the data as a heatmap! Our heatmap will be a symmetrical matrix because our rows and columns will both be made of samples names and the correlation values between those samples.
+
+Before that, however, we need to create a new matrix of correlation values. The base R correlation function is `cor()` from which we can choose between Pearson or Spearman correlation. Sometimes you may wish to compare both since Pearson examines linear relationships whereas Spearman uses a ranking method to compare variables for monotonic relationships (so magnitude weighs less than general direction of values).
+
+To generate our matrix we'll employ a couple of additional functions:
+
+-   `expand.grid()`: we can use this to build a matrix of pair-wise combination values. We'll use these to generate the pair-wise column combinations we want to compare with `cor()`. Given two or more vectors, this function will produce a table of all possible combinations between the vector elements supplied.
+
+-   `apply()`: by now you should be familiar with this function. We'll use it to iterate through our pair-wise column combinations and send each of those to...
+
+-   `cor()`: this will return the correlation co-efficient based on the `method` we choose (pearson, kendall, spearman)
+
+```{r}
+# Example of how you can use expand.grid to make pairwise combination between two sets of data.
+...(c(1:3),c(4:6))
+```
+
+Let's start the process by looking at our trimmed dataset of 200 genes first.
+
+```{r}
+# Create a correlation matrix of the top 200 genes on 83 samples
+
+rnaSeq_trimmed_cor.mx <- 
+  matrix(apply(# Supply a pairwise data frame
+               expand.grid(c(1:83), c(1:83)),
+               # explore the comparisons row-by-row
+               MARGIN = ...,                                       
+               
+               # Apply a function to each row which generates a pearson correlation between
+               # a specific pair of columns
+               function(x) cor(..., 
+                               ...,
+                               method = "...")               # Use a Pearson correlation
+               ),  # End the apply function
+  
+         nrow = 83,                                              # Cast our result as a matrix with 83 rows
+         dimnames = list(colnames(rnaSeq_trimmed.mx),            # name the rows and columns
+                           colnames(rnaSeq_trimmed.mx))
+  )
+
+# take a look at the final matrix
+head(rnaSeq_trimmed_cor.mx)
+```
+
+------------------------------------------------------------------------
+
+### 3.2.2 Plot your correlation matrix as a heatmap
+
+Now we have a much simpler metric for comparing our samples against each other. Our resulting correlation matrix has values ranging from {-1, 1} which will also make our visualization scale much simpler. Let's plot the trimmed data correlations now with `Heatmap` and see how it looks with a dendrogram.
+
+```{r, fig.width=20, fig.height=20}
+
+# Create a Heatmap object
+trimmed_cor_heatmap <- 
+  Heatmap(...,                         # Supply our matrix 
+          cluster_rows = TRUE, cluster_columns = TRUE,   # Cluster on both rows and columns
+          
+          # Colour it with viridis
+          col = viridis(100),
+          
+          # Use column_title as the title of our heatmap
+          column_title = "Heatmap of Pearson correlation between immune cell samples",
+          
+          # Rotate the legend horizontally and give it a title
+          heatmap_legend_param = list(title = "Pearson corr. value",
+                                      legend_direction = "horizontal"),
+          
+         )
+
+# Plot the heatmap 
+ComplexHeatmap::draw(trimmed_cor_heatmap, 
+     # Plot the legend on the bottom
+     heatmap_legend_side = "bottom"
+    )
+```
+
+------------------------------------------------------------------------
+
+Wow! Aside from a few off-target samples, most of our data is grouped by cell type. We see `NK.SP#1.17` has grouped with most of the `Tgd.Sp` samples and `Tgd.Sp#1.8` appears to be living kind of in its own world. We do, however, see that most cell types are positively correlated to each other based on the yellow boxes along our diagonals! We even have some strong **negative correlations** between our MF.PC (macrophage) and Tgd.Sp (gamma-delta T) cells.
+
+What if we were to look at all 4000 genes! Let's repeat the experiment with the **full dataset**.
+
+```{r, fig.width=20, fig.height=20}
+
+# Make a matrix of our full 4K gene dataset
+rnaSeq.mx <- as.matrix(rnaSeq.tbl[, -1])
+rownames(rnaSeq.mx) <- pull(rnaSeq.tbl, 1)
+
+rnaSeq_cor.mx <- 
+  matrix(apply(# Supply a pairwise data frame
+               expand.grid(c(1:83), c(1:83)),
+               # explore the comparisons row-by-row
+               MARGIN = 1,                                       
+               
+               # Apply a function to each row which generates a pearson correlation between
+               # a specific pair of columns
+               function(x) cor(...[, x[1]], 
+                               ...[, x[2]],
+                               method = "pearson")               # Use a Pearson correlation
+               ),  # End the apply function
+  
+         nrow = 83,                                              # Cast our result as a matrix
+         dimnames = list(colnames(rnaSeq.mx),                    # name the rows and columns
+                           colnames(rnaSeq.mx))
+  )
+
+# Create a Heatmap object
+cor_heatmap <- 
+  Heatmap(rnaSeq_cor.mx,               # Supply our matrix 
+          cluster_rows = TRUE, cluster_columns = TRUE,   # Cluster on both rows and columns
+          
+          # Colour it with viridis
+          col = viridis(100),
+                      
+          # Use column_title as the title of our heatmap
+          column_title = "Heatmap of Pearson correlation between immune cell samples",
+          
+          # Rotate the legend horizontally and give it a title
+          heatmap_legend_param = list(title = "Pearson corr. value",
+                                      legend_direction = "horizontal"),
+                      
+         )
+
+# Plot the heatmap 
+ComplexHeatmap::draw(cor_heatmap, 
+     # Plot the legend on the bottom
+     heatmap_legend_side = "bottom"
+    )
+```
+
+------------------------------------------------------------------------
+
+From our output, it looks like when we added in more data points, we lost the power to really discriminate between all of our immunocyte groups. This may have to do with our choice of correlation (Pearson). In fact, we find that if we had used the Spearman correlation we would have replicated our results from the smaller set. However, one of our problems with successfully using the Pearson metric may come from an *excess* of "junk" information.
+
+Recall that our data already represents a trimmed down set of data from 55K genes to \~4K genes. If we were to take a look at these samples and cluster them along the 4K gene symbols, it would be quite computational expensive. Some genes may not even have any interesting information if they have the same or very similar counts along all or most of the 83 samples. When generating RNAseq data, you are taking a snapshot of a sample which will have a specific expression profile based on cell type, cell cycle, and other conditions. Thus not all genes will even by expressed!
+
+How do we deal with this reality?
+
+------------------------------------------------------------------------
+
+# 4.0.0 Dimension reduction trims the (data) fat
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/doctorDimensionReduction.png?raw=true" width="600"/>
+
+Sometimes you can have too much data...
+:::
+
+One problem we encountered in our above analysis of RNA-Seq data is that there were simply too many dimensions (also often referred to as features)! With \~4k gene entries in our dataframe, the Pearson correlation analysis did not discriminate well between sample groups. We circumvented this problem by subsetting our data in two ways - filtering by read counts, and comparing means across samples. These approaches are a form of ***dimensionality reduction*** - namely feature elimination followed by feature selection. Our choices, however, may have inadvertently been throwing away data that could prove insightful! This is where other dimensionality reduction methods can help guide our analyses.
+
+You can achieve dimensionality reduction in three general ways:
+
+1.  **Feature elimination**: you can reduce the feature space by removing unhelpful features. No information is gained but you trim down your dataset size.
+
+2.  **Feature selection**: on the reverse side you can simply choose the most important features to you. How will you decide? Some schemes include ranking your features by importance but this may suffer from information loss if incorrect features are chosen.
+
+3.  **Feature extraction**: create new independent features which are a combination of the old features! Attempt to extract the essential features of your data in a more information-dense manner. Below is a table of feature extraction techniques. Each has it's own merits and pitfalls.
+
+| Technique | Description | Type | Useful for |
+|:----------------|:----------------------|:----------------|:----------------|
+| Random forest | Popular machine learning algorithm for classification randomly chooses from subsets of features to classify data. The most frequently appearing features amongst the forests are chosen. | Feature selection | Only takes numeric inputs |
+| PCA | Principal component analysis attempts to maximize variation when transforming to a lower-dimensional space. All new features are independent of one another. | Linear Feature Extraction | Actually really good at finding outliers in RNAseq data |
+| PCoA | Principal Coordinate analysis uses distance matrices rather than raw feature values. These distance matrices represent the pairwise dissimilarities between objects but they are very dependent upon the criteria/methods used to determine similarity. | Linear Feature extraction | Microbial community composition analysis |
+| t-SNE | t-Distributed Stochastic Neighbour Embedding is a non-linear technique similar to PCA suitable for high-dimension datasets. It attempts to minimize probabilities in mirroring nearest neighbour relationships in transforming from high to low-dimension spaces | Non-linear Feature extraction | Determine if your data has underlying structure |
+| UMAP | Uniform manifold approximation and projection is projection-based like t-SNE, this technique attempts to preserve local data structure but has improved translation of global data structure. | Non-linear feature extraction | Faster than t-SNE |
+
+Since we're not exactly building a classifier but rather trying to find trends in our data, we won't be looking at Random Forests here. Here we are interested in *exploratory data analysis*. We have a data set we want to understand, sometimes it is too complex to just project or divine 1) the underlying structure and 2) the features that drive that structure.
+
+::: {.alert .alert-block .alert-success}
+**There's more to explore with dimension reduction:** The above table is just a small subset of potentially different kinds of dimension reduction methods. PCA for instance has 2 "variants": Multiple Correspondence Analysis (MCA) which deals with relationships between categorical variables rather than continuous ones, and Independent Component Analysis (ICA) which also uses linear dimension reduction to identify independent components in your dataset. You can check out a little more [here](https://www.spiceworks.com/tech/artificial-intelligence/articles/what-is-dimensionality-reduction/) and [over here](https://en.wikipedia.org/wiki/Dimensionality_reduction)
+:::
+
+------------------------------------------------------------------------
+
+## 4.1.0 Reduce your dimensionality with Principal Component Analysis
+
+Going back to our RNAseq data, we used 200 gene symbols to group our data across 83 samples but we didn't necessarily use the most "useful" pieces of information (from 4000 genes). What if we wanted to transform all our information in some way to reduce the number of dimensions needed to represent their relationships? For our data set, 200 dimensions is a fair number of features across 83 samples. Imagine instead we were working with single cell RNAseq data, which will have just as many genes but could have hundreds of single "samples" to analyse! In such an RNA-Seq dataset you will encounter a feature-dense datasets without knowing *a priori* which features are actually meaningful, PCA provides a path forward in classifying our data.
+
+Now there are caveats to PCA. It produces linear feature extraction by building new features in your n-dimensional space such that each new feature (kind of like a projected line) maximizes variance to the original data points. Each new component must be uncorrelated with (ie perpendicular to) the previous ones while accounting for the next highest amount of variance. More resources on how this works in the references.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/PCA_second_principal.gif?raw=true" width="700"/>
+
+How do we go about maximizing the variance (spread of red dots) to our data features? Finding the point where variance is maximized, also minimizes error (red line lengths). Generated by user `Amoeba` on [stackexchange.com](https://stats.stackexchange.com/questions/2691/making-sense-of-principal-component-analysis-eigenvectors-eigenvalues)
+:::
+
+All math aside, our goal is to reduce our feature set to something smaller by trying to represent our data with these new features. Just remember that highly variable data and outliers can dominate your principal components. That means genes with a wider range of expression, can influence our new features more because they have a larger variance themselves!
+
+For simplicity let's head back and work with our trimmed RNASeq data again to illustrate our example with PCA.
+
+```{r}
+# Revisit our trimmed RNAseq data
+str(rnaSeq_trimmed.mx)
+
+head(rnaSeq_trimmed.mx)
+```
+
+------------------------------------------------------------------------
+
+## 4.2.0 Use `PCA()` to generate our analysis
+
+To generate our analysis of the RNAseq data, we'll use the `FactoMineR` function `PCA()` for which there are some parameters we'll be using that we should discuss:
+
+-   `X` a data frame of *n* rows (observations) and *p* columns (numeric variables)
+
+-   `ncp` the number of dimensions kept in the results (5 is the default)
+
+-   `scale.unit` a boolean to scale your data (TRUE by default)
+
+Therefore, in order to work our data, we'll have to transpose it so that our observations (samples) are correctly in rows and our variables (genes) are columns. Luckily for us, we've already put it into matrix form, which should make that process much simpler.
+
+### 4.2.1 What does it mean to scale our data?
+
+Remember that PCA is trying to maximize distance between a principal component and all of the observations supplied. Depending on the nature of your variables you may have, for instance, two different unit types like height and mass. Smaller changes in height may be matched with much larger changes in mass or just wider overall variance. This may lead the PCA algorithm to prioritize mass over height when you'd prefer they have an equal importance. By centering your mean and scaling data to unit variance, everything is compared as a **z-score**, bringing the overall variance across a variable to within \~3 standard deviations. Likewise with our gene count data, one gene may have a much lower AND smaller range of values vs another highly variable and highly expressed gene. If we want the genes to be treated equally, then we would have to scale our data.
+
+Let's compare PCA with and without scaling shall we?
+
+```{r}
+# Build a PCA of our RNAseq data with scaling applied
+rnaSeq_scaled.pca <- PCA(..., 
+                      scale.unit = ..., # What happens when we don't scale the data?
+                      ncp = 10,
+                      graph = TRUE)
+
+# Build a PCA of our RNAseq data WITHOUT scaling applied
+rnaSeq_unscaled.pca <- PCA(..., 
+                        scale.unit = ...,
+                        ncp = 10,
+                        graph = TRUE)
+```
+
+------------------------------------------------------------------------
+
+Don't worry too much about the figures we just generated during PCA creation. We'll revisit those in a few sections!
+
+### 4.2.2 Our PCA object has a complex number of data pieces
+
+Regardless of scaling, the result of our `PCA()` call produces an object with many variables we can access. Below you can see a brief description for each variable but we are most interested in a few particular ones:
+
+-   `eig` holds our dimensional data but also describes just how much each *new principal component* describes the overall variation of our data.
+
+-   `var` holds the results of all the variables. We can use these to graph and visualize our data.
+
+-   `ind$coord` will allow us to plot the coordinates of our observations along the principal components.
+
+If we `print()` our PCA object, we'll be able to see a brief summary of what these variables mean.
+
+```{r}
+# Take a look at the information inside our PCA object
+print(rnaSeq_scaled.pca)
+```
+
+```{r}
+# Notice our PCA object holds our original data frame!
+str(rnaSeq_scaled.pca)
+```
+
+------------------------------------------------------------------------
+
+## 4.3.0 Use the eigenvalues to determine the percent variance of each component
+
+The eigenvalues from our analysis pair with the eigenvectors (principal components) to help transform our data from the original feature set to the new set of features. While the eigenvectors may determine the directions of the new feature space, the *eigenvalue* represents the **magnitude** of the vector and in this case can be used to calculate the percent of overall variance explained by our eigenvector.
+
+The important take-away is that we can now see just how much of our variance is explained in each new principal component. We can access this information directly from `rnaSeq_scaled.pca` or by using the function `get_eigenvalue()`. We can also plot this as a barchart instead using `factoextra::fviz_eig()`.
+
+```{r}
+# Look at our eigenvalues directly
+rnaSeq_scaled.pca$...
+
+# Equivlanetly, use get_eigenvalue() to look at our eigenvalues
+# get_eigenvalue(rnaSeq_scaled.pca)
+```
+
+------------------------------------------------------------------------
+
+### 4.3.1 Build a scree plot to look at the effect of your dimensions with `fviz_eig()`
+
+See how nearly 85% of our variation is explained in just our first 3 PCs? We capture 90% of variation within the first 5 new PCs. We can use use `fviz_eig()` from the `factoextra` package to display this information visually in what is known as a scree plot. It's essentially a barplot/lineplot combo but what we're interested in is following the lines to find a "sharp elbow" to determine how many principal components we really need.
+
+```{r}
+# Visualize the impact of our eigenvalues
+fviz_eig(..., addlabels = TRUE) + 
+  theme(text = element_text(size=10))
+```
+
+------------------------------------------------------------------------
+
+### 4.3.2 Most of our variance is accounted for in the first two principal components!
+
+Looking at our eigenvalues we can see that even though 82 new PCs were generated, by the fourth PC, we get our sharp elbow. That suggests that whatever *linear* separation in our data exists, we can recreate 72% of that variability in a two-dimensional projection of coordinates from PC1 and PC2. This suggests that we can recreate a large portion of the underlying structure of our data with these two new features instead of using a 200-dimensional space!
+
+------------------------------------------------------------------------
+
+## 4.4.0 Investigate your variables with `get_pca_var()`
+
+Within our PCA, we can access information regarding how our original variables are transformed into the new space. This is all stored in the `var` element of our PCA object. We can extract the aspects of this using `factoextra::get_pca_var()` and visualize these to determine the quality of our variables and their representation by the new principal components.
+
+```{r}
+# What is the information associated with our original variables
+rnaSeq.var <- ...
+
+rnaSeq.var
+```
+
+------------------------------------------------------------------------
+
+### 4.4.1 What is the contribution of each variable to the new components?
+
+Each original variable may, to some degree, influence the amount of information captured into each new principal component. When we look at each we can see the breakdown of variables, which in some cases, can reveal to us where more or less variation is found as well.
+
+It is here now, that you'll see the effect of using the `ncp = 10` parameter inside our original `PCA()` call.
+
+```{r}
+# What is the contribution of each variable?
+rnaSeq.var$... %>%  head()
+```
+
+From our output, we can see that from across the 200 genes, each individual gene's variation in read count is not very high, somewhere between 0 and 1, at least from what we can see in the truncated output. We can make a quick summary of these contributions to see what we're dealing with for each dimension by doing a `rowwise()` analysis of our data.
+
+```{r}
+# Take the contributions as a matrix
+rnaSeq.var$contrib %>% 
+  # transpose it so the columns become rows
+  (t) %>% 
+  # Convert to a dataframe
+  as.data.frame(row.names = rownames(.)) %>% 
+  # Turn the rownames into a new column
+  rownames_to_column(var = "rowNames") %>% 
+  
+  # Group the rows based on rowname (which will be our dimensions)
+  ... %>%
+  
+  # Summarise across each row to see the min, max, median, and sd
+  summarise(minContrib = min(c_across()),
+  maxContrib = max(c_across()),
+  medianContrib = median(c_across()),
+  sdContrib = sd(c_across()))
+```
+
+::: {.alert .alert-block .alert-success}
+**How many dimensions should I get and how many do I keep?** It is at this point that we should discuss the *maximum* number of possible dimensions. Given ***n*** observations, and ***p*** features, the maximum number of dimensions after reduction is ***min(n-1, p)***. In terms of how many dimensions you keep, you should consider the general rule of thumb that ***at least 80%*** of your variation should be accounted for by the principal components that you choose. Keep that in mind!
+:::
+
+You may have noticed by now that we have produced 82 new principal components, which is in line with our expectation of min(83-1, 200). We originally kept excess data on 10 of those PCs, but our scree plot, summaries and analysis of the variables suggests that we really only need 4 to explain most of the variance in our data.
+
+------------------------------------------------------------------------
+
+### 4.4.2 Comparing the results of our scaled vs the unscaled PCA
+
+Recall that in **section 4.2.1** we explained that depending on the kind of data you are working with, the values between variables can really vary in magnitude and range. This is especially true with RNAseq data. Let's revisit our `rnaSeq_unscaled.pca` object and compare some of its qualities to our scaled results.
+
+In particular, we'll summarize the contributions for each dimension again and also make another scree plot.
+
+```{r}
+# 1. Make a summary of the contributions of the unscaled PCA
+
+# What is the information associated with our original variables
+rnaSeq_unscaled.var <- get_pca_var(...)
+
+# Take the contributions as a matrix
+rnaSeq_unscaled.var$contrib %>% 
+  # transpose it so the columns become rows
+  (t) %>% 
+  # Convert to a dataframe
+  as.data.frame(row.names = rownames(.)) %>% 
+  # Turn the rownames into a new column
+  rownames_to_column(var = "rowNames") %>% 
+  
+  # Group the rows based on rowname (which will be our dimensions)
+  rowwise(rowNames) %>%
+  
+  # Summarise across each row to see the min, max, median, and sd
+  summarise(minContrib = min(c_across()),
+  maxContrib = max(c_across()),
+  medianContrib = median(c_across()),
+  sdContrib = sd(c_across()))
+
+# 2. Visualize the impact of our eigenvalues in the UNSCALED version
+fviz_eig(..., addlabels = TRUE) + theme(text = element_text(size=10))
+```
+
+Okay a quick breakdown comparison shows that our unscaled PCA must have some variables (aka genes) dominating those components as we can see a series of higher values in the max contributions of the unscaled PCA. While this doesn't completely change our PC contributions to **total variance**, it certainly changed how these components (and their vectors) are formed.
+
+|   | Scaled max contribution | Unscaled max contribution | Scaled total contributions | Unscaled total contributions |
+|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
+| Dim 1 | 0.9% | 5% | 51.5% | 56.8% |
+| Dim 2 | 2.2% | 16.8% | 21.3% | 23.7% |
+| Dim 3 | 3.6% | 10.25% | 13% | 14.4% |
+| Dim 4 | 10.8% | 39.4% | 2.4% | 2% |
+| Dim 5 | 9.3% | 10.9% | 1.8% | 1% |
+
+Let's complete our analysis using the scaled version of our PCA.
+
+------------------------------------------------------------------------
+
+### 4.4.3 Checking the quality and representation of your variables in the PCA with `coord` and `cor`
+
+From the remaining variable information, `coord` and `cor` can both be used to plot our original variables along different pairs of principal components. These are also known as ***loadings*** and can range from {-1, 1}. Positive values suggest positive correlation of a variable with that particular PC, negative values suggest a negative correlation with that PC. In other words, if the sign is positive, then that variable increases or decreases with that PC. If the sign is negative, that variable will increase as the PC decreases and vice versa.
+
+The values found in the `coord` and `cor` elements are the same because this is not a *projection* of our variables onto the PCs but a correlation of them! The distance between the origin and the variable coordinates gauges the quality of the variables on the map. This number is summarized in the `cos2` (***squared cosine***) element which can range from {0,1}.
+
+```{r}
+# Look at the coordinates of our variables across the PCs.
+rnaSeq.var$... %>% head()
+rnaSeq.var$cor %>% head()
+```
+
+```{r}
+# What is the quality of our variables?
+# The higher the value the better!
+rnaSeq.var$... %>% head()
+```
+
+------------------------------------------------------------------------
+
+### 4.4.3 Plot your variable information on a unit circle with `fviz_pca_var()`
+
+To capture all of our information in a single visualization we can use `factoextra::fviz_pca_var()` to assess our variables. The `fviz_pca_var()` function will plot cos2 values on a 2-dimension axis of your choosing. The distance of that variable to the origin is proportional to how much of that variable's variance is explained by the PC along the axis.
+
+Therefore, high quality variables represented by the two dimensions of your circle (ie PC1 vs PC2) will be closer to the circumference of the circle. Variables that require more than 2 components to represent their variance will therefore fall inside the circle. Low quality correlations will be closer to the origin since they correlate less with the two dimensions represented on the graph.
+
+As we will verify from above, many of our variables are positively correlated with PC1. Across both PC1/PC2, our variables correlate highly.
+
+Two important parameters to keep in mind:
+
+-   `X`: the PCA object that you want to create.
+
+-   `axes`: a numeric vector with the two dimensions you want to examine.
+
+```{r, fig.width=20, fig.height=20}
+# Compare how our variables contribute and correlate with PC1/PC2
+fviz_pca_var(X = ..., 
+             col.var = "contrib", # How will we colour our data/lines
+             gradient.cols = c("green", "yellow", "red"), 
+             labelsize = 6,
+             repel = TRUE, # make sure text doesn't overlap
+             axes = c(...) # Determine which PCs you want to graph
+            ) + 
+    theme(text = element_text(size=10))
+```
+
+------------------------------------------------------------------------
+
+Many of our original variables (gene symbols) closely approach the circumference of our unit circle, but appear to be evenly split between positive and negative correlation for both PC1 and PC2. Let's compare that to the visualization of correlations for PC9 and PC10. Remember that these dimensions explain very little of the overall variance in our data!
+
+```{r, fig.width=20, fig.height=20}
+# Compare how our variables contribute and correlate with PC2/PC3
+fviz_pca_var(rnaSeq_scaled.pca, 
+             col.var = "contrib", # How will we colour our data/lines
+             gradient.cols = c("green", "yellow", "red"), 
+             labelsize = 6,
+             repel = TRUE, # make sure text doesn't overlap
+             axes = c(...) # Determine which PCs you want to graph
+            ) + 
+    theme(text = element_text(size=10))
+```
+
+In our PC9/PC10 correlation circle plot, we see that far fewer genes appear to contribute highly to these particular PCs. Many of the genes are low contribution overall. After all, these two dimensions don't account for much of the variance in the data to begin with!
+
+------------------------------------------------------------------------
+
+## 4.4.0 Projecting our PCA onto 2 dimensions with `fviz_pca_ind`
+
+Well, we appear to have successfully distilled our 200 gene set into 4 or so new principal components. We already had a sense that our 200 genes did a fairly good job in differentiating between our 5 immunocyte groups but can we capture just as much information using 4 new PCs?
+
+One handy and quick way to see our groupings is to project our data onto a 2-dimensional landscape. Using our two best PCs, we can see where our 83 samples sit along those two dimensions based on the eigenvalues from our PCA.
+
+Again, we'll work with another `factoextra` function called `fviz_pca_ind()` which will help us to graph our individuals (aka our samples) based on the **new principal coordinates** we've created.
+
+```{r, fig.width=10, fig.height=10}
+
+# Graph our scaled PCA data.
+fviz_pca_ind(..., 
+             repel = TRUE, # avoid overlapping text points
+             labelsize = 5, 
+             axes = c(1,2)
+            ) + 
+    
+    theme(text = element_text(size=10)) # Make our text larger
+```
+
+If we were to go back and compare this to our correlation heatmap based on 200 genes (dimensions of data) in **section 3.2.1** we would see that all of these trends are replicated using just TWO reconstructed principal components:
+
+1.  NK.Sp#1.17 is grouped in with the majority of Tgd.Sp samples
+2.  NK.Sp#1.18 is grouped in with the majority of MF.PC samples
+3.  Tgd.Sp.#1.8 is grouped a long way from any cluster
+4.  While distinct from each other, the B.fo.Sp and T.4.Nve samples cluster closely together which may not be correct given their lineages being from B lymphocytes and T lymphocytes respectively.
+
+------------------------------------------------------------------------
+
+## 4.5.0 PCA can work on very large datasets too!
+
+Well we started with a small example of our trimmed RNAseq dataset. Can we repeat or improve on our results using all 4000 genes as a source of data?
+
+Remember our procedure:
+
+1.  Convert our data to a matrix, ensuring our observations are rows, our variables are columns.
+2.  Generate our PCA.
+3.  Make a scree plot to summarize the contributions of each new PC to overall variance.
+4.  Graph the data using (usually) the first 2 PCs. This can vary depending on *how much* variation is explained by those to PCs.
+
+```{r}
+# 1. Convert our data to a matrix. That's done so we'll just check it to be sure
+str(t(rnaSeq.mx))
+
+# 1. Build a PCA of our PHU data with scaling applied
+rnaSeq_all_scaled.pca <- PCA(...,
+                             scale.unit = TRUE, # What happens when we don't scale the data?
+                             ncp = 10,
+                             graph = TRUE)
+
+# 2. Visualize the impact of our eigenvalues
+fviz_eig(rnaSeq_all_scaled.pca, addlabels = TRUE) + theme(text = element_text(size=10))
+```
+
+From the data, we get a slightly different skree plot compared to our trimmed down version of the PCA. Still, the numbers are very similar!
+
+Finally let's graph our data gain based on PC1/PC2
+
+```{r, fig.width=10, fig.height=10}
+
+# Graph our scaled PCA data.
+fviz_pca_ind(rnaSeq_all_scaled.pca, 
+             repel = TRUE, # avoid overlapping text points
+             labelsize = 5, 
+             axes = c(1,2)
+            ) + 
+    
+    theme(text = element_text(size=10)) # Make our text larger
+```
+
+------------------------------------------------------------------------
+
+By examining all 4000 genes and again using PCA to reduce that to a handful of dimensions, we have plotted our samples onto just the first 2 principal components. What we see again is a strong clustering of each cell type.
+
+1.  NK.Sp#1.17 is still grouped in with the majority of Tgd.Sp samples
+2.  NK.Sp#1.18 remains grouped in with the majority of MF.PC samples
+3.  Tgd.Sp.#1.8 is grouped a long way from any cluster
+4.  Now, however, we find that B.fo.Sp (B follicular cells) are grouped much further from the T.4.Nve (Naive CD4+) cells. This appears to be more in line with our expectations regarding their lineages.
+5.  In agreement with this, we now see our Tgd.Sp (gamma-delta T cells) are now more closely clustered with the Naive CD4+ cells. Both of these share a T lymphocyte lineage!
+
+### 4.5.1 Principal component analysis is a good form of dimension reduction
+
+While it may not be apparent, this form of analysis is a very solid and **deterministic** form of dimension reduction. Because we are working with pure algebraic transformation, we have an exact formula and set of values that can be used to:
+
+1.  Trace the transformation of each variable and observation onto each new principal component
+2.  Analyse the specific contributions of each variable to each new principal component
+
+We will always be able to draw information from our PCA to help identify which variable might be contributing highly to our new PCs and thus even identify which variables in the original data are more important to understanding the underlying structure of our data! No matter how many times we repeat this process on the same set of data, the results will **always** be the same!
+
+The same cannot be said of some of our fancier friends like t-sne and umap. You'll learn more about that in this week's tutorial.
+
+### 4.5.2 Start with as much data as you can and let PCA do the rest
+
+What is our take-home message in comparing our smaller vs our larger dataset with something like PCA? Just as the title of the section implies, we can let PCA take the wheel in this case to help us group our data. Using feature elimination prior to PCA simple muddied the waters a bit by removing what could be key pieces of information from the data.
+
+While our results were similar between the two datasets, we have much better clarity and can perhaps draw more accurate conclusions from our data. Had we not known the identity of our populations *a priori* we might have mistakenly grouped our B follicular cells closer to our gamma-delta cells in nature and perhaps function!
+
+### 4.5.3 Use PCA to identify outlier samples
+
+The other important message we should take from our results is that our PCA of the data helped to identify that two sets samples within our data NK.Sp#1.17 and NK.Sp#1.18 - both replicates from NK cell populations, were likely mislabeled. For whatever reason, perhaps at the stage of library preparation or by some mistake of the sorting process, these samples do not represent their labeled populations. Instead they highly correlate with our cell types in the experiment! A third sample, Tgd.Sp#1.8 also shows no real correlation with *any* of the populations. This could again be attributed to some kind of contamination or artifact of the sorting process.
+
+### 4.5.4 Does PCA ever fail?
+
+Yes. While we have shown a great example today of how PCA works, there are certainly exceptions to using this method. A major caveat to recall is that this is based on linear relationships being projected onto a linear subspace. Nonlinear relationships, heavy noise, poor correlation between variables and more can cause our PCA to fail. When that happens, we turn to other methods that use stochastic modeling, and local structure analysis to identify our clusters. You'll learn more about some of those methods in your tutorial.
+
+------------------------------------------------------------------------
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Everything_right.jpg?raw=true" width="600"/>
+
+Good luck with the rest of your CSB280 journey!
+:::
+
+# 5.0.0 Class summary
+
+That's the end for our sixth class on R! We finished off visualizations by looking at large and complex data sets and learning how to distill that information. Today we covered:
+
+1.  Customizing plot elements and themes in ggplot
+2.  Saving plots to files
+3.  Visualizing large datasets
+4.  Dimensionality reduction of large datasets
+
+## 5.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 5.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*
+
+------------------------------------------------------------------------
+
+## 5.3.0 Reference and Resources
+
+Wickham, Hadley. (2010). A Layered Grammar of Graphics. Journal of Computational and Statistical Graphics.
+
+Wilkinson, L. (2005), The Grammar of Graphics (2nd ed.). Statistics and Computing, New York: Springer. [14, 18]
+
+Tufte, Edward R. The Visual Display of Quantitative Information.
+
+[The tidyverse ggplot2 manual](http://ggplot2.tidyverse.org/reference/theme.html) [The R graphics cookbook](http://www.cookbook-r.com/Graphs/) [A nice ggplot2 tutorial](https://github.com/jennybc/ggplot2-tutorial) [ggbeeswarm](https://github.com/eclarke/ggbeeswarm) [Looking at custom themes in ggplot2](http://joeystanley.com/blog/custom-themes-in-ggplot2) [The ggthemes package](https://github.com/jrnold/ggthemes) [A colour palette cheatsheet](https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/colorPaletteCheatsheet.pdf)

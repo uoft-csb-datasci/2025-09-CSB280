@@ -1,0 +1,634 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Tutorial 06: Non-linear dimensional reduction
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/CSB280_Logo.png?raw=true" width="900"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.1.0 About this tutorial
+
+The abundance of data in biological sciences continues to grow year after year. The skills required to navigate and thrive in this field are no longer confined to the laboratory bench as experimental results go beyond simple analyses. The goal of this course is to teach introductory programming skills, and the conceptual tools used in the analysis of big data such as dimensional reduction, visualization, and machine learning. As students, you will get practical experience writing code to analyse example datasets similar to those found in the fields of cell and systems biology.
+
+Furthermore, the topics covered in this course will prepare you for upper-year courses that require the use of computational packages programmed in languages such as R. This course was developed based on feedback on the needs and interests of the Department of Cell & Systems Biology, the Department of Ecology and Evolutionary Biology and the Department of Molecular Genetics.
+
+The structure of this tutorial is a code-along style; it is 100% hands on! These tutorial sessions are meant to complement the materials discussed in class, taking some concepts a little further by applying them in some new ways. We may also discuss new material that is related to the content from recent lectures. **Future class lectures, quizzes and exams, could reference back to any of these topics so do your best to keep up!**
+
+A few hours prior to each tutorial, the materials for tutorial will be available through the nbgitpuller link used for class lectures. The tutorial materials will consist of an R Markdown Notebook with concepts, comments, instructions, and blank coding spaces that you will fill out with R by coding along with the TAs. Complete versions (including code) for each weekly tutorial will be made available approximately one day prior to the next lecture date.
+
+### 0.1.1 Where is this course headed?
+
+We'll take a blank slate approach here to R and assume that you pretty much know *nothing* about programming. From the beginning of this course to the end, we want to take you from some potential scenarios such as...
+
+-   You have experimental observations from a lab course or tutorial and you need to pull together an analysis for a report.
+
+-   You found a paper in the library and want to repeat their analysis because you don't believe their results or their data.
+
+-   You've been tracking your sleep cycles and want to know how its affected by your Netflix binges, all-night study sessions, and caffeination levels.
+
+-   You heard about R and want to learn some programming skills for that LinkedIn page or CV of yours.
+
+-   You asked a PI to join their lab for the summer but he/she wants you to know some basic data science skills before considering you as a candidate.
+
+-   You want to do a deep analysis of the socioeconomic state of Canadians.
+
+-   You want to make a data blog tracking how often your cats eat
+
+and get you to a point where you can...
+
+-   Format your data correctly for analysis.
+
+-   Produce basic plots/graphs and perform exploratory analysis.
+
+-   Work with advanced packages for complex analysis of your larger datasets.
+
+-   Generate, test, and evaluate predictive models of your data.
+
+-   Track your experiments in a digital notebook like R Markdown!
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/data-science-explore.png?raw=true" width="500"/>
+:::
+
+### 0.1.2 How do we get there? Step-by-step.
+
+In the first half of this course, you will learn where biological data comes from and what it looks like. From there you'll get cozy with the R Markdown Notebook environment and learn how to get help when you are stuck because everyone gets stuck - a lot! Next you'll talk about the basic capabilities, data structures and objects available in R.
+
+From there you will learn how to get your data in and out of R, how to tidy our data (data wrangling), and then subset and merge data. After that, you will dig into the data and learn how to make basic plots for both exploratory data analysis and publication. Once you have some experience with smaller data sets, you'll explore how to visualize and interpret, larger and more complex data.
+
+In the latter half of this course, you will explore the basic tools and ideas behind building models, hypothesis testing, generating classifiers for larger datasets, and predicting relationships or interactions between genes or proteins.
+
+While you could say that all topics in data science are important, our aim is to focus on the specific ideas that will be most useful or relevant to the foundation required for future lectures and studies within the Department of Cell and Systems Biology.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Draw_an_Owl.jpg?raw=true" width="700"/>
+:::
+
+Don't forget, the structure of the class is a **code-along** style: it is fully hands on. At the end of each lecture, the complete notes will be made available in an HTML format through the corresponding Quercus module so you don't have to spend your entire attention on taking notes. You may, however add your own notes to the lecture file as we go along.
+
+------------------------------------------------------------------------
+
+### 0.1.3 What kind of coding style will we learn?
+
+There is no single correct path from A to B - although some paths may be more elegant, or more computationally efficient than others. With that in mind, the emphasis in this lecture series will be on:
+
+1.  **Code simplicity** - learn helpful functions that allow you to focus on understanding the basic tenets of good data wrangling (reformatting) to facilitate quick exploratory data analysis and visualization.
+2.  **Code readability** - format and comment your code for yourself and others so that even those with minimal experience in R will be able to quickly grasp the overall steps in your code.
+3.  **Code stability** - while the core R code is relatively stable, behaviours of functions can still change with updates. There are well-developed packages we'll focus on for our analyses. Namely, we'll become more familiar with the `tidyverse` series of packages. This resource is well-maintained by a large community of developers. While not always the "fastest" approach, this additional layer can help ensure your code still runs (somewhat) smoothly later down the road.
+
+------------------------------------------------------------------------
+
+## 0.2.0 Tutorial Objectives
+
+This is the sixth in a series of eleven tutorials. This past lecture, we took a new direction with large RNASeq datasets and learned how to produce heatmap plots as well as how to reduce such large data sets into smaller dimensions, while retaining useful information with PCA! In today's tutorial we'll explore how map and group data that may not have a linear relationship to break down. Today's topics are broken into:
+
+1.  Introducing non-linear projection
+2.  Using t-SNE and UMAP
+
+You may eventually come across very large datasets with complex underlying architecture. You can use these techniques to help find patterns in your data.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/Data-Wrangling-Is-The.jpg?raw=true" width="700"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX/tutorial/`. You will find a partially coded `tutorial_skeleton.Rmd` file in this subdirectory as well as all of the data files necessary to run the week's tutorial.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the tutorial code released as an HTML file under the Modules section of Quercus. These will be available on the following Thursday morning before the next lecture. Tutorial slides (if any) will be made available as a PDF soon after each tutorial.
+
+------------------------------------------------------------------------
+
+### 0.4.3 Immunocyte RNASeq dataset from ImmGen
+
+This is a filtered RNAseq dataset from the [Immunological Genome Project Consortium](https://www.immgen.org/ImmGenData.html) which houses a [large database of immunological data](https://rstats.immgen.org/DataPage/). Today's dataset focuses on a series of deeply sequenced immunocyte populations in high replicate numbers. Low-expressing genes from these mouse immune cell populations may be identified as a result of their deep sequencing and more details about this set can be [found here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE122597).
+
+### 0.4.3.1 Dataset 1: data/GSE122597_filtered.tsv
+
+The dataset we use today is normalized read count data that has been filtered down from \~55K genes to \~4K genes.
+
+### 0.4.3.2 Dataset 2: data/GSE122597_meta.txt
+
+This represents some additional metadata about our samples so we can later identify our samples based on cell label or cell type.
+
+------------------------------------------------------------------------
+
+## 0.5.0 Packages used in this lecture
+
+The following packages are used in this lecture:
+
+-   `tidyverse` (tidyverse installs several packages for you, like `dplyr`, `readr`, `readxl`, `tibble`, and `ggplot2`)
+-   `ggbeeswarm` used for adding multiple points to strip plots
+
+```{r, eval = FALSE}
+#--------- Step 1: Install remaining packages to for today's session ----------#
+# None of these packages are already available on JupyterHub
+
+install.packages("Rtsne")
+install.packages("umap")
+```
+
+```{r}
+#--------- Install packages to for today's session ----------#
+#install.packages("tidyverse", dependencies = TRUE) # This package should already be installed on Jupyter Hub
+
+#--------- Load packages to for today's session ----------#
+library(tidyverse)
+library(viridis)
+
+# Data projection packages
+library(Rtsne)
+library(umap)
+```
+
+------------------------------------------------------------------------
+
+# 1.0.0 Non-linear projection
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/t-SNE_UMAP_examples.png?raw=true" width="900"/>
+
+How do we identify trends or groups within deeply complex data in an unsupervised manner?
+:::
+
+In lecture we used principal component analysis (PCA) as a means of feature extraction, which allowed us to convert our 4.2K dimension set of data down to 5 features that covered 89% of the variability within our data. This was done using the power of linear algebra to create new orthogonal planes we called principal components. While there are many good reasons for using PCA with feature extraction, there are a few caveats:
+
+1.  This process works on data with linear relationships. That means, the change in one variable is proportional to the change in another variable.
+2.  If there is too much noise or similarity between samples, then small patterns of variation may be hard to pick out. We might call these "small, local similarities" that are set apart from the larger variation found in PCA.
+
+Luckily for us, our RNAseq sample from lecture worked with PCA and we were able to project our data onto just the first two large PCs to show that the correct groups of data did appear to group together! If we had the chance, we could have further examined our new principal components to perform some hierarchical clustering with algorithms like [k-means clustering](https://www.datanovia.com/en/lessons/k-means-clustering-in-r-algorith-and-practical-examples/). However, even after clustering your PCs on large datasets, you may find very little clustering power even though they are still something like RNASeq samples!
+
+### 1.0.1 Revisit the immunocyte RNASeq data
+
+Let's begin by revisiting the immunocyte RNASeq data from lecture. We'll load it this time along with a set of metadata `GSE122597_meta.txt` which holds some additional information about the samples themselves.
+
+```{r}
+# Import our RNAseq data again
+rnaSeq.tbl <- read_tsv("...")
+
+dim(rnaSeq.tbl)
+
+```
+
+```{r}
+# Import the RNAseq metadata
+rnaSeqLabels.tbl <- read_tsv("...", col_types = c("cff"))
+
+str(rnaSeqLabels.tbl)
+```
+
+------------------------------------------------------------------------
+
+### 1.0.2 More data wrangling to transpose our RNAseq dataframes
+
+In lecture we did not add any metadata to our RNASeq data, which made it much easier to work with as matrix data. However, here we'll add some extra label information to the dataframe that will come in handy for plotting later down the road. That means we need to transpose our dataframe so we can add a few extra metadata variables to each observation (RNASeq sample). To accomplish this we'll fall back on our `tidyverse` tools:
+
+1.  We'll transpose our data using a combination of `pivot_longer()` and `pivot_wider()`.
+2.  We'll use an `inner_join()` to combine our metadata with the RNASeq dataframe.
+
+```{r}
+# Create a new tibble that is transposed and combined with our RNASeq metadata
+
+rnaSeqFull.tbl <-
+  rnaSeq.tbl %>% 
+  # Pivot to long format
+  ...(., cols = -1, names_to = "sampleName", values_to = "readCounts") %>% 
+  
+  # Pivot wide based on the gene symbols to move them into new columns!
+  ...(., names_from = "gene_symbol", values_from = "readCounts") %>% 
+  
+  # Join the metadata to the RNAseq data. This way, it will put the metadata at the start of the dataframe.
+  ...(x = rnaSeqLabels.tbl, y = ., by = c("sampleName" = "sampleName"))
+
+# View the resulting dataframe
+str(rnaSeqFull.tbl)
+
+```
+
+***
+
+## 1.1.0 t-Distributed Stochastic Neighbour Embedding with the `Rtsne` package
+
+We now have a somewhat more complex dataset. We are still short on actual samples (now observations) but 83 observations and 4K features isn't so bad. A broad question we may wish to ask with such a data set is if there is an underlying structure to these samples - i.e. do we see subgrouping based on tissue type, or perhaps even sample preparation.
+
+**t-Distributed Stochastic Neighbour Embedding** or **t-SNE** is a way for us to project our high-dimension data onto a lower dimension with the aim at *preserving the local similarities rather than global disparity*. When looking at data points, t-SNE will attempt to preserve the local neighbouring structure. As the algorithm pours over the data, it can use different transformations for different regions as it attempts to transform everything to a lower dimension. It is considered "incredibly flexible" at finding local structure where other algorithms may not.
+
+This flexibility is accomplished through 2 steps:
+
+0.  *Reduce dimensionality of your data features with PCA!*
+1.  Generate a probability distribution between all pairs by making similar objects highly probably and assigning dissimilar objects a low probability.
+2.  Define a similar probability distribution for the samples in a lower dimension while minimizing the divergence between the two distributions based on a distance metric between points in the lower dimension.
+
+We'll discuss more about how this algorithm affects interpretation after seeing the results, but this is considered an ***exploratory*** data visualization tool, rather than ***explanatory***.
+
+To produce our t-SNE projection we'll use the `Rtsne()` function from the package of the same name. Some important parameters are:
+
+-   `X` is our data matrix where each row is an observation
+
+-   `dims` sets the number of dimensions we'd like to project onto (default is 2).
+
+-   `initial_dims` sets the number of dimensions that should be retained in the initial PCA step (Default 50).
+
+-   `perplexity` a numeric parameter that tunes between local and global aspects of your data.
+
+    -   This parameter is a guess as to how many close neighbours a point may have. If you have a sense of sample types (or clusters!) ahead of time, you could try to play with this value (default is 30).
+
+    -   According to the algorithm this value should follow this rule: $perplexity * 3 \lt nrow(X) -1$
+
+-   `pca_scale` is a boolean to set if the initial PCA step should use scaled data.
+
+-   `max_iter` is the maximum number of iterations in the algorithm (default is 1000).
+
+-   `normalize` is a behavioural switch that will scale the data internally before proceeding with distance calculations. It is `TRUE` by default.
+
+```{r}
+# Rtsne prefers using a matrix for memory issues
+# set a seed for reproducible results
+set.seed(2025)
+
+# We have just 83 samples, but between 6-18 samples per "group"
+# Try for perplexity of 5 since it will be less memory intensive
+immunocyte_tsne <- Rtsne(as.matrix(...), 
+                     dims=2, 
+                     perplexity=5, 
+                     verbose=TRUE, 
+                     pca_scale = TRUE,
+                     max_iter = 1500) 
+```
+
+```{r}
+# What does our t-SNE object look like?
+str(immunocyte_tsne)
+```
+
+------------------------------------------------------------------------
+
+### 1.1.1 Extract information from our tsne object
+
+Looking above at the result of our t-SNE analysis, we can notice a few things...
+
+1.  We get back the number of observations we put in: 83.
+2.  The element `Y` is an 83x2 matrix holding the coordinates for our new 2D projection.
+    -   These observations are in the same order that we provided them as a matrix
+3.  There are NO eigenvectors or other information about the variables or dimensions or how they were used to create the projection!
+
+That's right, there is no underlying information for mapping back to our **original dataset**. It's a completely black box with no way to reverse engineer the process. That's because the process itself is ***stochastic***! Whereas **PCA was a deterministic process** - repeatable the same way every time with the same data - that is not the case for t-SNE. That's why even though it can be quite powerful in identifying local similarities, ***t-SNE does not provide a mathematical pathway back to our original data!***
+
+Let's extract the information, combine it with our sample information and project it using `ggplot2`. We can do this with a scatterplot since we have a set of x/y coordinates we can work with.
+
+```{r}
+# Build a new data frame from the $Y values
+immunocyte_tsne.df <- data.frame(x.coord = ...,
+                                 y.coord = ...)
+
+# Add in our sample information
+immunocyte_tsne.df <- ...(rnaSeqFull.tbl[,1:3], immunocyte_tsne.df)
+
+# Take a look at our new dataframe
+head(immunocyte_tsne.df)
+```
+
+------------------------------------------------------------------------
+
+### 1.1.2 Generate a visualization of the t-SNE result
+
+Now we'll plot the data as a scatterplot using the `x.coord` and `y.coord` values. We'll colour the data by `cellLabel` and plot the data as points with `geom_point()` with their shape based on `cellType`.
+
+```{r, fig.width=20, fig.height=20}
+
+# 1. Data
+ggplot(data = immunocyte_tsne.df) +
+  # 2. Aesthetics
+  aes(x = ..., 
+      y = ..., 
+      fill = ...,
+      shape = ...) +
+
+  # Themes
+  theme_bw() +
+  theme(text = element_text(size=20)) +
+
+  # 3. Scaling
+  scale_shape_manual(values = c(21:25)) +
+  scale_fill_viridis(discrete = TRUE, direction = -1) +
+  
+  # This layer is a bit of advanced code to make the legends somewhat correct
+  guides(fill = guide_legend(title = "Cell Label", override.aes = list(shape = c(21), size = 7)),
+         shape = guide_legend(title = "Cell Type")
+         ) +
+  
+  xlim(-50, 60) +
+  
+  # 4. Geoms
+  geom_point(size = 5)
+
+```
+
+------------------------------------------------------------------------
+
+### 1.1.3 Interpreting our t-SNE plot
+
+While we don't have a lot of samples, you can still see that we were able to cluster *some* of our data by cell types without providing that classification to the algorithm! Great job team!
+
+From our result, we can see that our t-SNE plot has generated 5 distinct groupings that are largely composed of the 5 cell labels in our data. Much like our PCA results, we see that two NK samples are classified into macrophage or gamma-delta t-cell groups. You might also recall from our correlation heatmap and PCA(s) that we had a single sample "Tgd.Sp#1.8" that kept being left out on it's own. From the plot, it looks like there is a stray Gamma-delta T cell now grouped with the B follicle cells. Could that be our missing sample?
+
+Let's figure out exactly where it went by altering our plot. We can replace our `geom_point()` layer with a `geom_text()` layer which can be provided with a set of labels to display. We'll display the sample names to help us out.
+
+```{r, fig.width=20, fig.height=20}
+
+# 1. Data
+ggplot(data = immunocyte_tsne.df) +
+  # 2. Aesthetics
+  aes(x = x.coord, 
+      y = y.coord, 
+      colour = cellLabel, 
+      label = sampleName) +
+
+  # Themes
+  theme_bw() +
+  theme(text = element_text(size=20)) +
+
+  # 3. Scaling
+  scale_colour_viridis(discrete = TRUE, direction = -1) +
+  xlim(-50, 60) +
+  
+  # This layer is a bit of advanced code to make the legends somewhat correct
+  guides(fill = guide_legend(title = "Cell Label", override.aes = list(size = 7))
+         ) +
+  
+  # 4. Geoms
+  ...(aes(label = sampleName), 
+            size = 8, 
+            position = "jitter",
+            key_glyph = "point")
+
+```
+
+Indeed, with the help of t-SNE, we've been able to place the `Tgd.Sp#1.8` sample with the B follicle grouping! Whether this relationship is correct would require further follow-up but now we know where to look!
+
+------------------------------------------------------------------------
+
+## 1.2.0 Uniform Manifold Approximation and Projection
+
+This algorithm for projection is in the same flavour as t-SNE projection but has some differences including:
+
+1.  Increased speed and better preservation of the global structure in your data
+2.  A different theoretical foundation used to balance between local and global structure
+
+What does that mean for us? Faster results, and more interpretive results! Otherwise the same issues can apply. The setup is slightly easier with few options to change if you leave the defaults. We can access `umap()` from the package of the same name. You may also alter the default methods by creating a `umap.defaults` object. More information on that [here](https://cran.r-project.org/web/packages/umap/umap.pdf)
+
+For more tinkering, you can choose to use the `uwot` [package](https://rdrr.io/cran/uwot/) instead where the `umap()` function has more options that are easily modified.
+
+```{r}
+# Set our seed
+set.seed(2025)
+
+# Generate our projection
+immunocyte_umap <- ...(as.matrix(rnaSeqFull.tbl[, -c(1:3)]))
+```
+
+```{r}
+# What does the UMAP object look like?
+str(immunocyte_umap)
+```
+
+------------------------------------------------------------------------
+
+### 1.2.1 Extract information from our UMAP object
+
+Looking at our UMAP object `immunocyte_umap` we see it houses the projection parameters used but also some additional variables:
+
+1.  `data`: holds our original data matrix.
+2.  `layout`: contains the projection coordinates we need for plotting the data.
+3.  `knn`: a weighted k-nearest neighbour graph. This is a graph that connects each observation to its nearest k neighbours. This generates the first topological representation of the data - like an initial sketch.
+
+You may notice again that there is no data that suggests how we ***arrived*** at this solution. There are *no eigenvectors or values* to reverse the projection!
+
+Let's extract the `layout` information, combine it with our sample information and project it using `ggplot2`
+
+```{r}
+# Re-map our projection points with our tissue data
+
+# Pull out the x and y coordinates
+immunocyte_umap.df <- data.frame(unscaled_x.coord = immunocyte_umap$...[,1],
+                                 unscaled_y.coord = immunocyte_umap$...[,2])
+
+# Add the metadata
+immunocyte_umap.df <- cbind(rnaSeqFull.tbl[,1:3], immunocyte_umap.df)
+
+# Take a look at the resulting dataframe
+head(immunocyte_umap.df)
+
+```
+
+Now that we have stored the coordinates into a dataframe, we can go ahead and plot it like our t-SNE data.
+
+```{r, fig.width=20, fig.height=20}
+# Plot the UMAP data
+
+# 1. Data
+ggplot(data = immunocyte_umap.df) +
+  # 2. Aesthetics
+  aes(x = ..., 
+      y = ..., 
+      colour = cellLabel, 
+      label = sampleName) +
+
+  # Themes
+  theme_bw() +
+  theme(text = element_text(size=20)) +
+
+  # 3. Scaling
+  scale_colour_viridis(discrete = TRUE, direction = -1) +
+  xlim(-10, 15) +
+  
+  # This layer is a bit of advanced code to make the legends somewhat correct
+  guides(fill = guide_legend(title = "Cell Label", override.aes = list(size = 7))
+         ) +
+  
+  # 4. Geoms
+  geom_text(aes(label = sampleName), 
+            size = 8, 
+            position = "jitter",
+            key_glyph = "point")
+
+```
+
+------------------------------------------------------------------------
+
+### 1.2.2 Interpreting our UMAP result
+
+What an interesting result? Certainly not as clear as our t-SNE plot. One thing our UMAP didn't take into consideration is the scaling of our RNASeq data. This has resulted in a series of loosely formed groups but there is definitely more overlap between them. They are also lined up along a smaller scale along the x-axis with all but the macrophages lining up vertically along the x-axis. While we can't interpret that to be much more than the non-linear projection, it certainly isn't a great projection.
+
+### 1.2.3 Transform or scale your data ahead of time
+
+Unlike the `rtsne()` function, which automatically scales the data before calculating distances (see the `normalize` parameter in section 1.1.0). We'll have to apply some sort of scaling function to our data before UMAP. A couple of options are:
+
+-   `log10()`: transforming our data so the overall variance of each gene symbol is reduced by an appropriate factor
+-   `scale()`: by default, the column values are centered around their mean and then normalized to the standard deviation of the same column
+
+Let's try them both before we wrap up.
+
+```{r}
+# Set our seed
+set.seed(2025)
+
+# Generate our projection with transformation
+immunocyte_log10_umap <- umap(...(as.matrix(rnaSeqFull.tbl[, -c(1:3)])))
+
+# Generate our projection with scaling
+immunocyte_scale_umap <- umap(...(as.matrix(rnaSeqFull.tbl[, -c(1:3)])))
+```
+
+------------------------------------------------------------------------
+
+Extract the layout information for both sets of data. We'll have to do some fancy data wrangling here but nothing we haven't experienced before
+
+```{r}
+# Re-map our projection points with our tissue data
+
+immunocyte_umap.df <-
+  immunocyte_umap.df %>% 
+  # Add our new data as new variables to the existing data frame
+  mutate(log10_x.coord = immunocyte_log10_umap$layout[,1],
+         log10_y.coord = immunocyte_log10_umap$layout[,2],
+         scale_x.coord = immunocyte_scale_umap$layout[,1],
+         scale_y.coord = immunocyte_scale_umap$layout[,2]
+         ) %>% 
+  # Pivot to long format
+  pivot_longer(cols = -c(1:3), names_to = "dataType", values_to = "dataValue") %>% 
+  
+  # Break up the data so you separate the type of analysis from the type of axis 
+  separate(., col = dataType, sep = "_", into = c("dataType", "axis")) %>%
+  
+  # Pivot back out so we have x.coord and y.coord columns
+  pivot_wider(names_from = "axis", values_from = dataValue)
+
+# Take a look at the final output
+head(immunocyte_umap.df)
+
+```
+
+### 1.2.4 Plot all UMAP data as a facet plot
+
+Now we can plot the new versions of our UMAP data using a `facet_wrap()` layer to help us out. We'll separate our data based on the `dataType` variable we created. We'll go back to just plotting the data as points instead of using the labels outright.
+
+```{r, fig.width=20, fig.height=10}
+
+# 1. Data
+ggplot(data = immunocyte_umap.df) +
+  
+  aes(x = x.coord, 
+    y = y.coord, 
+    fill = cellLabel,
+    shape = cellType) +
+
+  # Themes
+  theme_bw() +
+  theme(text = element_text(size=20)) +
+
+  # 3. Scaling
+  scale_shape_manual(values = c(21:25)) +
+  scale_fill_viridis(discrete = TRUE, direction = -1) +
+  
+  # This layer is a bit of advanced code to make the legends somewhat correct
+  guides(fill = guide_legend(title = "Cell Label", override.aes = list(shape = c(21), size = 7)),
+         shape = guide_legend(title = "Cell Type")
+         ) +
+  
+  xlim(-50, 60) +
+  
+  # 4. Geoms
+  geom_jitter(size = 5, alpha = 0.8) +
+
+  # 6. Facets
+  facet_wrap(~...)
+
+```
+
+It appears that our best result in terms of separation do come from transforming/scaling the data! Depending on your random seed and the servers, transforming/scaling should provide more vertical separation of our groups versus the unscaled data.
+
+------------------------------------------------------------------------
+
+## 1.3.0 Are t-SNE and UMAP better than PCA?
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/CSB280/Isthis_cluster.png?raw=true" width="700"/>
+:::
+
+### 1.3.1 The upside of non-linear projection
+
+Yes, our non-linear projections appeared to solve some mysteries that we couldn't quite solve with PCA. One step we didn't take with our original PCA was to use those 5 new principal components to perform an additional hierarchical clustering step.
+
+Our non-linear projections, on the other hand present to us a finalized projection onto a 2-dimensional plane which factors in the closeness of our sample points to one another. What we can interpret from our x and y axes, is that proximity between points is due to the relative similarity between our original samples.
+
+### 1.3.2 The downside of non-linear projection
+
+While t-SNE and UMAP produce projections onto a 2-dimensional plane there is a stochastic (random) component to this process. There is no labeling produced and you have no route back to understanding the relationships between closely plotted points. You may however, have metadata that can be used to identify potential substructures in your samples. PCA, on the other hand, is strictly a dimension reduction tool. It does not place or assign datapoints to any groups BUT it is useful to use on large datasets *prior* to clustering!
+
+Once you are done with your non-linear projection, it is up to you to design and verify the suspected grouping that you have identified. With PCA, you can go backwards, investigate specific variables in the original data based on contributions, etc.
+
+### 1.3.3 Which method should I go with?
+
+The complexity and relationships in your data really should be the deciding factors in your choices of methods. If you believe your relationships between your variable are linear (not between your samples) then start with PCA. If you find that you cannot explain a large portion of the variability in a small number of PCs, proceed to something like non-linear projection as there may be a high amount of noise, bias (many tightly related samples), or non-linear relationships between your variables.
+
+------------------------------------------------------------------------
+
+# 2.0.0 Class summary
+
+Today you've explored a little bit more about using methods to group and visualize complex data with:
+
+1.  t-distributed Stochastic Neighbour Embedding
+2.  Uniform Manifold Approximation and Projection
+
+## 2.1.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Calvin Mok, Ph.D. *Bioinformatician, Education and Outreach, CAGEF.*

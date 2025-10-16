@@ -1,0 +1,475 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 07: Models
+
+# Student Name:
+
+# Student ID:
+
+::: {align="center"}
+<img src="https://m.media-amazon.com/images/I/61GzgkffuoL._SY385_.jpg" width="200"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+# 1.0.0 How do we make basic models in R?
+
+## 1.1.0 mRNA makes protein model
+
+Let's start with our model where mRNA makes protein. We'll let kT be the translation rate and kD be the degradation rate. A simple scientific model can be expressed as a function.
+
+```{r}
+Protein <- function(...,...,...) { mRNA * kT / kD }
+```
+
+OK, but nothing happened! Let's use some numbers to see what the function can do.
+
+```{r}
+Protein(...,...,...)
+```
+
+The numbers 6, 2 and 1 represent the mRNA level, the translation rate and the degradation rate.
+
+OK, with these parameters, Protein is equal to twice mRNA. Now let's take advantage of R to quickly make a plot of this function.
+
+```{r}
+library('ggplot2')
+m = 0:10
+Protein(...,2,1)
+ggplot(data.frame("mRNA"=m,"Protein"=Protein(m,2,1)), mapping=aes(x=mRNA,y=Protein)) +geom_point() +geom_line(color="green")
+```
+
+OK, so we have a model! Let's see how well it can explain some data. First we need to load some data into R. We can do this using read.delim.
+
+###1.1.1 using data to test our model
+
+```{r}
+expression_data<-read.delim('...',row.names=1)
+head(expression_data)
+
+```
+
+Let's have a quick look at this data
+
+```{r}
+library('ggplot2')
+ggplot(expression_data,mapping=aes(x=...,y=...)) +geom_point()
+```
+
+Yikes! it does not look much like our model. Is our model wrong? We know there is 'noise' in the measurements. Let's look at just the first 30 datapoints.
+
+```{r}
+ggplot(expression_data[...],mapping=aes(x=mRNA,y=Protein)) +geom_point()
+```
+
+Now we can see that the lower mRNA does seem to go along with lower protein, but the higher protein doesn't always have the highest mRNA.
+
+we can calculate the 'residuals' (or errors) of our model and sum their squares. This gives us the sum of squared residuals.
+
+```{r}
+r <- expression_data$Protein[1:30] - Protein(...[1:30],2,1)
+r
+r2 <- sum(r^2)
+print ("sum of squares=")
+r2
+```
+
+Let's be formal about this and define a function for this.
+
+::: {.alert .alert-block .alert-info}
+**technical concept:** We can use functions inside other functions. Notice that I do this below. return() is a special function that tells the function what we want to get back.
+:::
+
+```{r}
+SSR_protein_pred <- function(Y,X,param1,param2) { ##the function needs to take in the parameters and the observations
+  r <- Y - ...(X,param1,param2)
+  r2 <- sum(r^2)
+  return(r2)
+  }
+```
+
+Again, nothing happens. We need to call our function.
+
+```{r}
+SSR_protein_pred(expression_data$...,expression_data$...,2,1)
+```
+
+This is very big! (But we know 2 was just a guess) What if we guess the rate to be 2 million instead?
+
+```{r}
+print ("sum of squares=")
+SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1)
+print ("ratio=")
+SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1)/SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],2,1)
+```
+
+The residuals (errors) when we choose 2 million are 40% less. Let's make a dataframe with a bunch of SSRs and plot it.
+
+```{r}
+ssr.df=data.frame(K=c(1,2,200000,1000000,2000000,5000000),
+                  residuals=c(
+                    SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1),
+                    SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1),
+                    SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1),
+                    SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1),
+                    SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1),
+                    SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1)
+                    )
+)
+library('ggplot2')
+ggplot(ssr.df,mapping=aes(x=K,y=residuals)) +geom_point()+geom_line()
+```
+
+You can see that for small values of K, the errors are high, they decrease for a while, and then go back up. Probably the "minimum" residuals/errors is somewhere between 1 million and 2 million. But how do we find it exactly?
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.1.1 Comprehension Question:** SSR_protein_pred() is an \_\_\_\_\_\_\_\_\_ function for model fitting
+:::
+
+------------------------------------------------------------------------
+
+### Section 1.1.1 comprehension answer:
+
+...
+
+------------------------------------------------------------------------
+
+Let's ask R to find the parameters that give us the least squares estimate. This is done using a function in R called nls() short for non-linear least squares.
+
+::: {.alert .alert-block .alert-info}
+**New concept:** nls() and other functions in R produce "models". These are used for various aspects of data analysis and there are special functions that we can use on these models. For example, predict() gives use the predictions of a model and coef() gives us the coefficients. These functions have different behaviors depending on the model.
+:::
+
+I will store the model in "mod".
+
+```{r}
+x <- expression_data$mRNA[1:30]
+y <- expression_data$Protein[1:30]
+mod<-...(y ~ Protein(x,K,1),start=c(K=2.0))
+summary(mod)
+```
+
+Notice that we have to tell it a starting guess of the parameter using start= and the name of the parameter and my guess in a list. Notice that we are not fitting kD, but rather just leaving it set to 1.
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.1.2 Comprehension Question:**
+
+```{=html}
+
+If we are fitting the model with kD = 1, K is: 
+a) a parameter 
+b) the ratio of transcription to translation rates
+c) an unknown number that we will fit using nls() 
+d) all of the above 
+e) none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 1.1.2 comprehension answer:
+
+...
+
+------------------------------------------------------------------------
+
+Let's check if nls() actually found a better guess than 2million.
+
+```{r}
+r_nls = SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],...,1)
+print ("sum of squares=")
+r_nls
+print ("ratio=")
+r_nls/SSR_protein_pred(expression_data$Protein[1:30],expression_data$mRNA[1:30],2000000,1)
+```
+
+You can see that I typed in the number that I got from the nls() fit. So the sum of squares for the K that the computer found is 20% smaller than our guess of 2 million. Let's plot the predictions and the data. Do do this, I'll make a dataframe to hold the predictions (and the mRNA data as well)
+
+```{r}
+pred.... = Protein(expression_data$mRNA,1365174,1)
+pred.... = Protein(expression_data$mRNA,2,1)
+pred.... = Protein(expression_data$mRNA,2000000,1)
+pred = data.frame(expression_data$mRNA,pred.nls,pred.2,pred.2million)
+
+ggplot(expression_data[1:30,],mapping=aes(x=mRNA,y=Protein)) + geom_point() +
+  geom_line(data = pred[1:30,], aes(x=expression_data.mRNA, y=pred.nls), color = "green") +
+  geom_line(data = pred[1:30,], aes(x=expression_data.mRNA, y=pred.2), color = "red") +
+  geom_line(data = pred[1:30,], aes(x=expression_data.mRNA, y=pred.2million), color = "blue")
+
+```
+
+OK, now we see the predictions of the 3 models and the data they were fit to. Let's repeat with all the data (instead of just the first 30 points)
+
+```{r}
+x = expression_data$mRNA
+y = expression_data$Protein
+mod<-nls(... ~ Protein(...,K,1),start=c(K=2.0))
+summary(mod)
+```
+
+Instead of typing it out, we can get the parameter estimates using coef()
+
+::: {.alert .alert-block .alert-info}
+**New concept:** coef() gives us the "coefficients" estimated during fitting. "coefficients" is the name R uses for what I call "parameters" in this course.
+:::
+
+```{r}
+coef(...)
+```
+
+As expected, we get a different answer when we fit to different data. In this case, it's a lot different!
+
+Let's go ahead and plot. This time I avoided typing out the parameter estimate.
+
+```{r}
+pred$pred.... = Protein(expression_data$mRNA,coef(mod),1)
+```
+
+Notice that I just replaced the column in the prediction dataframe. Now I can just do the plot again using the new nls() predictions.
+
+```{r}
+ggplot(expression_data,mapping=aes(x=mRNA,y=Protein)) + geom_point() +
+  geom_line(data = pred, aes(x=expression_data.mRNA, y=pred.nls), color = "green") +
+  geom_line(data = pred, aes(x=expression_data.mRNA, y=pred.2), color = "red") +
+  geom_line(data = pred, aes(x=expression_data.mRNA, y=pred.2million), color = "blue")
+
+```
+
+###1.1.2 Testing more complex models
+
+So we've found the best parameter for our model. But what if our model was altogether wrong? E.g., what if the protein depended on the square root of the mRNA ? We can fit that!
+
+```{r}
+x = expression_data$mRNA
+y = expression_data$Protein
+mod<-nls(y ~ K*...(x),start=c(K=2.0))
+r_sqrt <- expression_data$Protein - coef(mod)*...(expression_data$mRNA)
+r_nls <- expression_data$Protein - pred$pred.nls
+
+print ("sum of squares ratio=")
+sum(r_nls^2)/sum(r_sqrt^2)
+
+```
+
+Well, looks like a sqrt model fits worse. But not all that much worse.
+
+But what about other possibilities? We can test for other non-linear relationships using a clever trick by taking logs of the data...
+
+Notice that now our model has 2 parameters that need guess in nls()
+
+```{r}
+x = ...(expression_data$mRNA)
+y = ...(expression_data$Protein)
+mod<-nls(y ~ b0 + b1*x,start=c(b0=2.0,b1=1.0))
+coef(mod)
+r_log_2_parameters <- y - coef(mod)[1] + coef(mod)[2]*x
+
+```
+
+Now it estimated a slope of 0.83, which is less than 1, but bigger than 0.5 (which is the square root). But not that far off from 1. We can compare this to the fit if we don't estimate a slope (with is just the log of our original model).
+
+```{r}
+mod1<-nls(y ~ ...,start=c(b0=2.0))
+coef(mod1)
+r_log_1_parameter <- y - coef(mod1)[1] + x
+print ("sum of squares ratio=")
+sum(r_log_1_parameter^2)/sum(r_log_2_parameters^2)
+```
+
+The fit with 2 parameters seems better. We can go ahead and plot these predictions. this time, we'll use the predict function to get the predictions.
+
+```{r}
+pred.mod = ...(mod)
+pred.mod1 = ...(mod1)
+pred = data.frame(x,pred.mod,pred.mod1)
+head(pred)
+
+```
+
+We can see that predict() gave us the numbers for each of our models.
+
+::: {.alert .alert-block .alert-info}
+**Technical concept:** predict() is a function that gives the predictions for a model in R. It works differently with different types of models.
+:::
+
+```{r}
+ggplot(log10(expression_data),mapping=aes(x=mRNA,y=Protein)) + geom_point() +
+  geom_line(data = pred, aes(x=x, y=pred....), color = "green") +
+  geom_line(data = pred, aes(x=x, y=pred....), color = "blue")
+
+```
+
+Our model with slope=1 isn't all that much different than the least squares. (Notice how different the data look - this is because we're now looking at the logs of the mRNA and Protein levels. We will return to this)
+
+## 1.2.0 genotype to phenotype model
+
+Time for another model! now let's think about genetics.
+
+```{r}
+Phenotype = function(...,...) { mutant_alleles * mutant_effect }
+```
+
+In order for this to work, we need to turn the genotype into a number. Simplest way to do this is to count the number of 'mutant' alleles and set that as the genotype.
+
+```{r}
+genetics_data<-read.delim('...',row.names=1)
+head(genetics_data)
+```
+
+Now we actually have some genotypes (two positions on chromosome 14) and phenotypes. I've conveniently coded the genotypes as number of mutant alleles
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.2.0 Comprehension Question:** Given the genetics_data we just loaded,
+
+```{=html}
+
+1.  use table() or unique() on one of the genotype columns to find all the possible genotype values. What are the values?
+
+2.  How many different genotypes are there at each locus?
+a)  2
+b)  3
+c)  4
+d)  all of the above
+e)  none of the above
+
+3.  This means the cells must be:
+a)  haploid
+b)  diploid
+c)  aneuploid
+d)  all of the above
+e)  none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+## Section 1.2.0 comprehension answer:
+
+1.  Genotype values are: ...
+
+2.  answer is: ...
+
+3.  answer is: ...
+
+------------------------------------------------------------------------
+
+Let's take a look at our phenotype.
+
+```{r}
+library('ggplot2')
+ggplot(..., aes(x=X37C_growth)) + geom_histogram(binwidth = 1)
+```
+
+Negative growth rate is impossible, so data is obviously normalized somehow around 0.
+
+Let's ask R to find the mutant effect that minimizes the squares. This can be done using R's nls function.
+
+```{r}
+x <- genetics_data$X9623528_chr14_376315_C_T
+y <- genetics_data$X37C_growth
+mod<-nls(y ~ ...(x,b1),start=c(b1=1.0))
+summary(mod)
+```
+
+For each allele at this locus, the growth increases by 0.6 +/- 0.06. Let's use this estimate to get predictions for all the genotypes
+
+```{r}
+pred= Phenotype(0:2,...)
+pred=data.frame(0:2,pred)
+pred
+```
+
+Makes sense. Let's compare to the real data.
+
+```{r}
+ggplot(genetics_data,aes(x=X9623528_chr14_376315_C_T, y=X37C_growth))+geom_point()+geom_point(data = ..., aes(x = X0.2, y = pred),color = "red",shape=1, size=3, stroke=2)
+```
+
+Notice that the model didn't do all that well for cells with genotype 0 or 2. Looks like it has the scale of the phenotype wrong. Let's try adding an arbitrary constant to the phenotype (we are now fitting a line)
+
+```{r}
+mod<-nls(y ~ ... + Phenotype(x,b1),start=c(b1=1.0,b0=0.0))
+summary(mod)
+```
+
+Now, for each allele at this locus, the growth increases by 2.1 +/- 0.08, and the phenotype is -2.3 +/- 0.09 if you don't have any alleles
+
+```{r}
+pred= coef(mod)[2]+Phenotype(0:2,coef(mod)[1])
+pred=data.frame(0:2,pred)
+ggplot(genetics_data,aes(x=X9623528_chr14_376315_C_T, y=X37C_growth))+geom_point()+geom_point(data = pred, aes(x = X0.2, y = pred),color = "red", shape=1, size=3, stroke=2)
+```
+
+Wow ! Now it's doing much better at predicting the phenotype.
+
+
+
+# 2.0.0 Class summary
+
+Wow! In a very short time, and only in your 2nd year, you've learned how to fit quantitative biological models to data. I didn't learn this til 1st year of my PhD.
+
+In section 1.1.0, we tested how well mRNA abundance predicts protein abundance and in section 1.2.0, we fit simple genetics models and learned to match the "scale" of biological data with model predictions.
+
+## 2.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 2.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Alan Moses, Ph.D. *Professor, University of Toronto.* based on templates by Clavin Mok, Ph.D., *Bioinformatics and education, CAGEF*
+
+------------------------------------------------------------------------
+
+## 2.3.0 Reference and Resources
+
+Alan's slides will be made available on the quercus

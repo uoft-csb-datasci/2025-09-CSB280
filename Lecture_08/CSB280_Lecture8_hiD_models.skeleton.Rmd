@@ -1,0 +1,555 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 08: High-Dimensional Models
+
+# Student Name:
+
+# Student ID:
+
+::: {align="center"}
+<img src="https://m.media-amazon.com/images/I/61GzgkffuoL._SY385_.jpg" width="200"/>
+:::
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+# 1.0.0 Hi-dimensional models
+
+In today's code a long we'll try to
+
+1.  Understand numerical limitations of multiple regression
+2.  Fit sparse models in R
+3.  Understand the concept of overfitting
+
+## 1.1.0 Simplest "high-dimensional" model
+
+Everything should be as simple as possible, but not too simple. Let's start with a genotype to phenotype model
+
+### 1.1.1 First we need some data
+
+First, we load the phenotype data and make a quick plot.
+
+```{r}
+phenotype<-read.delim('...',row.names=1)
+str(...)
+library('ggplot2')
+ggplot(..., aes(x=YPD_growth)) + geom_histogram(binwidth = 1)
+
+```
+
+OK, great. Notice that this data doesn't seem to be normalized around 0.
+
+Let's get the genotypes for all the markers on chromosome 14
+
+```{r}
+genotype<-read.delim('...',row.names=1)
+str(...)
+```
+
+There are 634 positions where we have genotypes! This is "big data" so lets visualize it. My philosophy for high-dimensional data is Always Be Visualizing (ABV).
+
+First we'll look at the actual data. I'll use the built in heatmap function and turn off the clustering of the columns.
+
+```{r}
+heatmap(as.matrix(...),Colv=NA)
+```
+
+This gives us the individual genotypes as we move along chr14. You can see there are blocks where all the individuals have one of the genotypes or the other. This because these individuals are the results of a genetic cross.
+
+We'll do Calvin's trick of visualizing the correlation matrix of the genotypes instead of the individuals by genotypes matrix). Now I'll turn off both the row and column clustering
+
+```{r}
+heatmap(...(genotype),Rowv=NA,Colv=NA)
+```
+
+Awesome. Cool looking plot, right? Now we clearly see blocks of correlated loci as we move along the chromosome. (This is because recombination events have not managed to break up all of the loci.) The data make sense with what we know about genetics.
+
+Now we want to use these data to predict the phenotype. We need to make sure that the individuals in our genotype dataframe match the individuals in our phenotype dataframe. Let's check this
+
+```{r}
+head(rownames(genotype))
+head(rownames(phenotype))
+head(rownames(genotype))...head(rownames(phenotype))
+```
+
+In the last step I used "==" to test whether things were equal.
+
+::: {.alert .alert-block .alert-info}
+**Technical concept:** == is a way to test whether objects are equal in R. It returns a logical vector. Same can be done for \>, \<, and !=, the last being a way to test whether objects are not equal.
+:::
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.1.1 Comprehension Question:** To confirm that the individuals are in the same order in the genotype and phenotype files, do sum(rownames(phenotype)==rownames(genotype)).
+
+1.  What answer do you get?
+
+2.  This answer confirms that the order is the same because it matches the number of \_\_\_\_\_\_\_\_\_\_\_\_\_\_
+:::
+
+------------------------------------------------------------------------
+
+### Section 1.1.1 comprehension answer:
+
+1.  answer: ...
+
+2.  ...
+
+------------------------------------------------------------------------
+
+### 1.1.2 a 2D model
+
+Let's start with a simple model where we use only 2 genotypes (Xs) to predict the phenotype (Y). I checked the genotypes and found 2 that are predictive of this phenotype. For this we can use the simplest linear regression. In R, this is called lm(). Since this model isn't that high-dimensional, we can also fit it with nls() to see if we get the same answers.
+
+```{r}
+y = phenotype$YPD_growth
+x1 = genotype$X9623528_chr14_376315_C_T
+x2 = genotype$X9714243_chr14_467030_A_G
+mod<-...(y ~ b0 + x1*b1 + x2*b2,start=c(b0=0.0,b1=0.0,b2=0.0))
+mod_lm <- ...(y ~ x1 + x2)
+coef(mod)
+coef(mod_lm)
+```
+
+You can see we get the same answer if we fit the model 'ourselves' with nls(), or if we use the built in lm().
+
+Let's check how our linear model did using predict().
+
+```{r}
+library('ggplot2')
+
+pred = data.frame("predicted"=predict(...),"observed"=y)
+
+ggplot(data=pred,mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred$predicted),"x"=range(pred$predicted)), mapping=aes(x=x, y=y), color = "blue") +
+  annotate("text", x = max(pred$predicted), y = max(pred$predicted), label = "y=x", color ="blue", size = 5)
+
+
+```
+
+I used range() to plot a geom_line() covering the range of the predictions. I also added text 'y=x' to the plot. If the data falls exactly on y=x, the predicted is exactly equal to the observed.
+
+::: {.alert .alert-block .alert-info}
+**Technical concept:** range() gives us the minimum and maximum of a vector.
+:::
+
+This prediction looks very good. Notice that there are only certain values the prediction can be. This makes sense because the genotype is not a continuous value.
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.1.1 Comprehension Question:**
+
+```{=html}
+
+How can we get a negative value for one of the coefficients, even though growth rate can only be positive? 
+a) the genotypes are coded as integers 0, 1 or 2
+b) this coefficient is not statistically different than 0
+c) individuals with the reference genotype has a higher phenotype than the mutant
+d) all of the above
+e) none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 1.1.1 comprehension answer:
+
+1.  answer: ...
+
+------------------------------------------------------------------------
+
+## 1.2.0 real high-dimensional models
+
+Let's go ahead and try this with more of our genotypes. Let's start with 300 genotypes. I will choose them at random from the \>600 using R's sample() function.
+
+```{r}
+some_genotypes=sample(1:634,...)
+head(some_genotypes)
+```
+
+Notice that I just chose some random numbers between 1 and 634, not the actual genotypes. You should not expect to get the same numbers as me: it's random!
+
+::: {.alert .alert-block .alert-info}
+**New concept:** sample() is a function that let's you chose things randomly (from a list of vector). Technically it's sampling "without replacement" by default, so you won't get the same things more than once.
+:::
+
+This will still fit a lot of parameters, so let's keep out 50 individuals to test the phenotype predictions on something the model has never seen.
+
+```{r}
+test=sample(1:length(phenotype$YPD_growth),...)
+head(test)
+```
+
+Again, I'm choosing 50 random numbers up to the total number of observations we have.
+
+::: {.alert .alert-block .alert-info}
+**New concept:** Dividing up the data into groups is called 'splitting' and the groups are often called 'splits'
+:::
+
+The observations we don't use in training is a "held out" or "test" split. Since we chose them randomly, it's called "held out at random."
+
+To fit this model we'll do some tricky notation. First we'll give lm() a data frame as input. This dataframe will have the genotype data we want to use as well as the phenotype data we are trying to predict.
+
+```{r}
+GP300 <- genotype[,...]
+GP300$phenotype <- phenotype$YPD_growth
+```
+
+I used the random numbers to choose the genotypes that we'll include.
+
+The most confusing part is that we can use '.' inside lm() to specify all the variables that we haven't mentioned yet. We do this to avoid typing out tons of variables in the formula notation. Notice how I hold out the 50 random rows by using the numbers we stored in test.
+
+```{r}
+mod300 <- ...(phenotype ~ . , data=GP300[-test,])
+```
+
+Now we can go ahead and get the predictions from this model and plot them as before.
+
+```{r}
+
+
+pred = data.frame("predicted"=...(mod300),"observed"=phenotype$YPD_growth[-test])
+
+ggplot(data=pred,mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred$predicted),"x"=range(pred$predicted)), mapping=aes(x=x, y=y), color = "blue") +
+  annotate("text", x = max(pred$predicted), y = max(pred$predicted), label = "y=x", color ="blue", size = 5)
+
+
+```
+
+Woah. You can see that we are starting to get some near perfect predictions! Let's take a look at the coefficients (I'll drop the "intercept" because it's an arbitrary constant)
+
+```{r}
+ggplot(data.frame(b=...(mod300)[-1]), aes(x=b)) + geom_histogram(binwidth = 1)
+```
+
+Now we have some genotypes with effect sizes of more than 3 or less than -3 ! These are much bigger effects than we found with the two genotypes... (maybe we've discovered more important genes?)
+
+But what about predictions on the data that the model never saw? We can give predict the entire dataframe with all the observations.
+
+```{r}
+pred300 = data.frame("predicted"=predict(mod300,newdata=...),"observed"=phenotype$YPD_growth)
+
+ggplot(data=pred300[test,],mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred300$predicted),"x"=range(pred300$predicted)), mapping=aes(x=x, y=y), color = "blue")
+
+
+```
+
+Disaster! To get a sense for how good/bad the model predictions are, let's compare to the model based only on two genotypes. Again, we first put the data into a dataframe.
+
+```{r}
+GP2 <- data.frame(x1 = genotype$X9623528_chr14_376315_C_T,x2 = genotype$X9714243_chr14_467030_A_G)
+GP2$... <- phenotype$YPD_growth
+```
+
+The we can go ahead and fit the model (same trick with negative indexing to hold out the test data)
+
+```{r}
+mod2 <- lm(phenotype ~ . , data=GP2[...,])
+```
+
+And finally, get the predictions and plot them, again giving it the entire dataframe for predictions.
+
+```{r}
+
+
+
+pred2 = data.frame("predicted"=predict(mod2,newdata=...),"observed"=phenotype$YPD_growth)
+ggplot(data=pred2[test,],mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred2$predicted),"x"=range(pred2$predicted)), mapping=aes(x=x, y=y), color = "blue")
+```
+
+This actually looks better...
+
+We can compare the models quantitatively using the sum of squared errors / residuals.
+
+```{r}
+
+print ("2 genotypes vs. 300 genotypes, ratio of sum of squares for training:")
+sum((pred2$observed[-test] - pred2$predicted[-test])^2)...sum((pred300$observed[-test] - pred300$predicted[-test])^2)
+
+print ("2 genotypes vs. 300 genotypes, ratio sum of squares for held out test:")
+sum((pred2$observed[test] - pred2$predicted[test])^2)...sum((pred300$observed[test] - pred300$predicted[test])^2)
+
+```
+
+On the training data, the 2 genotypes model has more than double the sum of squares, but on the held out data, the model based on 2 genotypes has a much lower sum of squares on the test data than the model based on 300 genotypes!
+
+Things are not working great for lm in high-dimensions. We will come back to this. Let's try a more powerful tool. We'll try glmnet(). glmnet is easier to do with matrices, rather than dataframes. You can also see that it doesn't use the y \~ x formula notation, and takes x as a matrix. We'll quickly convert it and fit the model holding out the test data again.
+
+```{r}
+library('glmnet')
+y = phenotype$YPD_growth
+x = as....(genotype[,...])
+mod <- glmnet(x[-test,],y[-test])
+```
+
+Let's see if we can get a plot to see how well this is doing. We need the predictions from the model using predict(). You can see that when we use predict for glmnet models, we add the 'type' of prediction we want and s which is a 'hyperparameter' that we didn't discuss yet... we will come back to it.
+
+```{r}
+pred = data.frame("predicted"=as.numeric(predict(mod,...,type='response',s=0.1)),"observed"=y)
+
+#training data
+ggplot(data=pred[...,],mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred$predicted),"x"=range(pred$predicted)), mapping=aes(x=x, y=y), color = "blue") 
+
+#held out test data
+ggplot(data=pred[...,],mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred$predicted),"x"=range(pred$predicted)), mapping=aes(x=x, y=y), color = "blue")
+```
+
+Already the plot looks better. Here's the residuals.
+
+```{r}
+
+print ("2 genotypes vs. glmnet s=0.1 300 genotypes, ratio of sum of squares for training:")
+sum((pred2$observed[-test] - pred2$predicted[-test])^2)/sum((pred$observed[-test] - pred$predicted[-test])^2)
+
+print ("2 genotypes vs. glmnet s=0.1 300 genotypes, ratio sum of squares for held out test:")
+sum((pred2$observed[test] - pred2$predicted[test])^2)/sum((pred$observed[test] - pred$predicted[test])^2)
+
+
+```
+
+Now the two models are almost identical on the training data, and you can see that now the prediction on the held out data is much better, (but still not better than the model with 2 genotypes.)
+
+How does this work?
+
+```{r}
+head(coef(mod,s=0.1))
+print("these are the non-zero coefficients:")
+non_zero<-...(coef(mod,s=0.1)...0)
+print(non_zero)
+coef(mod,s=0.1)[non_zero,]
+```
+
+You can see that now we only have a few coefficients. glmnet has fit a 'sparse' model for us.
+
+::: {.alert .alert-block .alert-info}
+**New concept:** "sparse" models are models where most of the parameters have been set to 0 so that they do not contribute to the prediction.
+:::
+
+Sparsity is a way to prevent overfitting because even though you *could* include 100s of parameters, in practice you don't. It can also be thought of as automatic "feature selection" where the "features" you choose to make predictions are the ones that get non-zero coefficients. We won't discuss the technical details in this course, but glmnet ensures sparsity using so-called penalized likelihood: instead of choosing the model that maximumizes the likelihood, it "penalizes" the models based on how many non-zero parameters they have.
+
+Perhaps most practically useful is that we now can go ahead and fit a model with *all* the genotypes on chr14. We'll repeat the data formatting, fitting, prediction and plotting steps.
+
+```{r}
+y = phenotype$YPD_growth
+x = as.matrix(genotype[,]) #format the data, using everything this time
+mod <- glmnet(x[...,],y[...]) #fit a model holding out the test rows
+
+#get the predicitons
+pred = data.frame("predicted"=as.numeric(predict(mod,...,type='response',s=0.1)),"observed"=y)
+
+#training data
+ggplot(data=pred[-test,],mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred$predicted),"x"=range(pred$predicted)), mapping=aes(x=x, y=y), color = "blue")
+#held out test data
+ggplot(data=pred[test,],mapping=aes(x=predicted,y=observed)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(pred$predicted),"x"=range(pred$predicted)), mapping=aes(x=x, y=y), color = "blue")
+
+print ("2 genotypes vs. glmnet s=0.1 all genotypes, ratio of sum of squares for training:")
+sum((pred2$observed[-test] - pred2$predicted[-test])^2)/sum((pred$observed[-test] - pred$predicted[-test])^2)
+
+print ("2 genotypes vs. glmnet s=0.1 all genotypes, ratio sum of squares for held out test:")
+sum((pred2$observed[test] - pred2$predicted[test])^2)/sum((pred$observed[test] - pred$predicted[test])^2)
+
+```
+
+You can see that we're getting similar predictions as we did for the model when we knew which two genotypes to look for. We can even compare the predictions of the two models directly
+
+```{r}
+
+pred=data.frame("two_genotypes"=predict(mod2,newdata=GP2[...,]),"all_genotypes"=as.numeric(predict(mod,x[...,],s=0.1,type='response')))
+ggplot(data=pred,mapping=aes(x=two_genotypes,y=all_genotypes)) +geom_point(shape=1) +
+  geom_line(data.frame("y"=range(y[test]),"x"=range(y[test])), mapping=aes(x=x, y=y), color = "green") +
+  annotate("text", x = max(y[test]), y = max(y[test]), label = "y=x", color ="green", size = 5)
+
+
+```
+
+The two models agree pretty well.
+
+We can see which genotypes were chosen as the strongest predictors.
+
+```{r}
+strongest_chosen_genotypes<-which(...(coef(mod,s=0.1))...0.1)
+coef(mod,s=0.1)[strongest_chosen_genotypes,]
+```
+
+You can see that even though the predictions are similar, the markers that the model has chosen are not exactly the ones that I chose: x1 was X9623528_chr14_376315_C_T and x2 was X9714243_chr14_467030_A_G
+
+This is a fundamental issue in high-dimensions. There are usually many ways to make the same predictions... how do we know which is right or true?
+
+Once again, we get to a current research question.
+
+"The prediction-explanation fallacy: A pervasive problem in scientific applications of machine learning." <https://psycnet.apa.org/record/2024-74071-002>
+
+## 1.3.0 modeling cell types
+
+Let's try predicting immune cell types. I only include a small fraction of the genes to make things easier for our example.
+
+```{r}
+mRNA<-read.delim('...',row.names=1)
+head(...)
+```
+
+This is a bunch of gene expression data. ABV!
+
+```{r}
+heatmap(log(as....(mRNA)))
+```
+
+We can't actually see all the labels, but we do get a sense of the data. (Notice again that I'm putting gene expression in log space. We'll come back to why.)
+
+Calvin's correlation matrix trick:
+
+```{r}
+heatmap(...(...(as.matrix(mRNA))))
+```
+
+Again, can't fit all the cell labels, but cell types are clearly separated. We even see that T4 and Tgd are a bit more correlated, but still separate from eachother.
+
+Here are the actual cell type labels.
+
+```{r}
+cells<-read.delim('...',row.names=1)
+head(cells)
+table(cells)
+```
+
+Let's see what some of the famous immune marker genes look like. We'll label the points by their cell type on the plot.
+
+```{r}
+##not ggplot...
+x=as.matrix(log(mRNA[c("Cd4","Cd14"), ]))
+barplot(x,beside=TRUE)
+
+ggplot(data.frame(t(x)),aes(x=Cd4,y=Cd14)) + geom_point() + 
+  geom_text(aes(label = cells$...), nudge_x = 0.1, nudge_y = 0.1)
+```
+
+We can see that the cells that have Cd14 have very little Cd4 and vice versa. These correspond to MFs and T cells, respectively.
+
+Let's see how well we can predict cell type using these two genes. You'll see that we need to specify 'family=multinomial'. This is how we do many different "classes." I will return to this.
+
+```{r}
+y = ... ###we want to predict cell type
+x=t(as.matrix(log(mRNA[c("Cd4","Cd14"), ]))) ###a matrix of expression data
+mod <- glmnet(...,...,family='multinomial') ###fit the model
+```
+
+I'll use a built-in assessment function in glmnet called assess.glmnet() and ask for \$class, which seems to be just the misclassification error. We'll also get the predictions. They come out as numbers between 0 and 1, so I will change them to true or false.
+
+```{r}
+
+assess.glmnet(mod,x,y,s=0.1)$... ###assess the model
+predict(mod,x,s=0.1,type='response')...0.5 ###let's see the predictions
+```
+
+Pretty good at predicting T cells and MFs, as expected, but very bad at the other types of cells.
+
+We need more than 2 genes to predict 4 types of cells... let's try *all* the genes!
+
+```{r}
+y = cells$cell_type
+x = log(as.matrix(t(...)))
+mod <- glmnet(x,y,family='multinomial')
+assess.glmnet(mod,x,y,s=0.1)$class
+predict(mod,x,s=0.1,type='response')>0.5
+```
+
+Seems to be working! How to know? We will return to this...
+
+Let's see what genes it has chosen. Since there are now 4 types of cells, coef gives us a list and we have to do this 4 times. (Don't even want to think about how annoying it would be if we had 10 cell types!)
+
+```{r}
+B_genes <- ...(...length(mod,s=0.1)[[1]]!=0)
+coef(mod,s=0.1)[[1]][B_genes,]
+
+MF_genes <- ...(...(mod,s=0.1)[[2]]!=0)
+coef(mod,s=0.1)[[2]][MF_genes,]
+
+NK_genes <- ...(...(mod,s=0.1)[[3]]!=0)
+coef(mod,s=0.1)[[3]][NK_genes,]
+
+T_genes <- ...(...(mod,s=0.1)[[4]]!=0)
+coef(mod,s=0.1)[[4]][T_genes,]
+
+```
+
+Looks like the model has found some very interesting genes to tell apart the cells. Genes that tell apart cells are referred to as "marker genes." When scientists identify genes that tell apart disease cells from healthy cells, these genes can be "biomarkers" that can be used for diagnostics or even targets for new medicines. Identifying biomarkers is a major effort in systems biology. E.g., attempt to identify biomarkers for pre-term Birth: <https://pubmed.ncbi.nlm.nih.gov/33294138/> (And now *you* know how to do it!)
+
+# 2.0.0 Class summary
+
+After today, I hope you are thinking in high-dimensions.
+
+Taking advantage of high-dimensionality turns out to be key to modeling biology.
+
+We did multiple regression for both continuous and categorical data, and you should understand numerical limitations of multiple regression.
+
+We fit sparse, high-dimensional models in R using glmnet(), a major breakthrough for high-dimensional biological data analysis.
+
+## 2.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 2.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Alan Moses, Ph.D. *Professor, University of Toronto.* based on templates by Clavin Mok, Ph.D., *Bioinformatics and education, CAGEF*
+
+------------------------------------------------------------------------
+
+## 2.3.0 Reference and Resources
+
+Alan's slides will be made available on the quercus

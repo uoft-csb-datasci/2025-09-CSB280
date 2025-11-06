@@ -1,0 +1,658 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 09: Probability and Correlation
+
+::: {align="center"}
+<img src="https://m.media-amazon.com/images/I/61GzgkffuoL._SY385_.jpg" width="200"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+## 0.4.0 Lecture and data files used in this course
+
+### 0.4.1 Weekly Lecture and skeleton files
+
+Each week, new lesson files will appear within your RStudio folders. We are pulling from a GitHub repository using this [Repository git-pull link](https://r.datatools.utoronto.ca/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fuoft-csb-datasci%2F2025-09-CSB280&urlpath=rstudio%2F&branch=main). Simply click on the link and it will take you to the [University of Toronto datatools Hub](https://datatools.utoronto.ca). You will need to use your UTORid credentials to complete the login process. From there you will find each week's lecture files in the directory `/2025-09-CSB280/Lecture_XX`. You will find a partially coded `skeleton.Rmd` file as well as all of the data files necessary to run the week's lecture.
+
+Alternatively, you can download the R-Markdown Notebook (`.Rmd`) and data files from [Github](https://github.com/uoft-csb-datasci/2025-09-CSB280) to your personal computer if you would like to run independently of the Toronto tools.
+
+### 0.4.2 Post-lecture HTML files
+
+After each lecture there will be a completed version of the lecture code released as an HTML file under the Modules section of Quercus. These will be available on the following Monday morning after each lecture. Lecture slides (if any) will be made available as a PDF soon after each lecture.
+
+------------------------------------------------------------------------
+
+# 1.0.0 Understanding R-squared with mRNA and Protein models
+
+We'll start by trying to figure out which model "fits" best to our data.
+
+## 1.1.0 Load the mRNA and protein data again
+
+```{r}
+expression_data<-read.delim('...',row.names=1)
+head(expression_data)
+```
+
+We'll make exactly the same plot we did before.
+
+```{r}
+library('ggplot2')
+ggplot(expression_data,mapping=aes(x=...,y=Protein)) +geom_point()
+```
+
+We have a some genes with large mRNA (say \> 2000), but very low protein. Let's find them ...
+
+```{r}
+m2000<-which(expression_data$mRNA...2000)
+length(m2000)...length(expression_data$mRNA)
+```
+
+which() is an R function that tells us which elements of a vector are TRUE, so m2000 is a vector of the rows the the dataframe that have mRNA\>2000. Only 4.1% of genes have this high an mRNA level.
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.0.0 Comprehension Question:** What are the systematic names (ids) of the first 3 genes in the table that have mRNA\>2000 ?
+:::
+
+------------------------------------------------------------------------
+
+## Section 1.0.0 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+Let's take a look at the genes with mRNA\>2000 genes on the plot.
+
+```{r}
+library('ggplot2')
+ggplot(expression_data,mapping=aes(x=mRNA,y=Protein)) +geom_point() + geom_point(data = expression_data[...,], color = "red")
+```
+
+Maybe these are some kind of "outliers" or "bad data". Let's make a plot excluding the genes with highest mRNAs.
+
+```{r}
+
+library('ggplot2')
+ggplot(expression_data[...,],mapping=aes(x=mRNA,y=Protein)) +geom_point()
+```
+
+Looks a bit better. Will our model fit this data better?
+
+### 1.1.1 Let's now try comparing models on this data.
+
+Let's fit two models and compare. We'll do the exact same model fitting as before.
+
+```{r}
+Protein = ...(mRNA,kT,kD) { mRNA * kT / kD } #define our model
+#fit using all the data
+x = expression_data$mRNA
+y = expression_data$Protein
+mod1<-...(y ~ Protein(x,K,1),start=c(K=2.0))
+coef(mod1) #get the parameters
+#fit without the genes with mRNA >2000
+x = expression_data$mRNA[...]
+y = expression_data$Protein[...]
+mod2<-...(y ~ Protein(x,K,1),start=c(K=2.0))
+coef(mod2) #get the parameters
+```
+
+We can see that the parameter is much larger when we exclude the data with large mRNA levels. which is "better"? Let's calculate the residuals and sum their squares
+
+```{r}
+#residuals for model with all the data
+r1 <- expression_data$Protein ... Protein(expression_data$mRNA,coef(mod1),1)
+#residuals for model without mRNA>2000
+r2 <- expression_data$Protein[-m2000] ... Protein(expression_data$mRNA[-m2000],coef(mod2),1)
+print("sum of squared residuals:")
+print("all data model:")
+sum(r1...)
+print("mRNA>2000 model:")
+sum(r2...)
+```
+
+Sum of squared errors of the second model are smaller, but of course that's not fair because the second model has less datapoints and therefore less residuals.
+
+```{r}
+...(r1)
+...(r2)
+```
+
+What about MSEs ?
+
+```{r}
+...(r1^2)
+...(r2^2)
+```
+
+We still get a smaller number for the second model, but again, not fair because we excluded the largest datapoints, which will have larger "squares".
+
+```{r}
+mean(expression_data$Protein[-m2000])
+mean(expression_data$Protein)
+```
+
+We finally get to R-squared: we normalize the sum of squared residuals by the total sum of squares.
+
+### 1.1.2 R-squared is a fair comparison of models.
+
+```{r}
+R_squared <- function(rs,y) { 
+  sum_sq_res <- sum(...)
+  diffs_from_mean <- y ... mean(y)
+  sum_sq_diffs_mean <- sum(  ...^2 )
+  R_sq <- 1.0 - sum_sq_res...sum_sq_diffs_mean 
+  return (...)
+}
+```
+
+You can see that I defined a function where the inputs are the residuals and the values that we're trying to predict. We take the ratio of the sum of squared residuals to the sum of squared differences from the mean. Then we subtract that from 1. In the R_squared function I've used the special return() function to make it clear what will come out of the defined function.
+
+Notice that we subtract off the mean of y when we calculate the R-squared. The intuition is that we compare how good our model is at predicting y relative to how good the average is. If the model is no better than just taking the average, R-squared is 0. We've explained nothing.
+
+Let's see what we get for our two models:
+
+```{r}
+print("sum of squared residuals:")
+print("all data model:")
+R_squared(...,expression_data$Protein)
+print("no mRNA>2000 model:")
+R_squared(r2,expression_data$Protein[-m2000])
+```
+
+So in the "fair" comparison, looks like the model fit to all the data actually was better.
+
+# 2.0.0 The assumptions of least squares fitting
+
+## 2.1.0 mRNA and protein again
+
+### 2.1.1 Let's look at the residuals
+
+According to Gauss, least squares is the best possible way to fit a model *if the errors follow the normal distribution*. We can check if that's true. Our errors are the residuals, so let's try plotting them next to a normal distribution.
+
+```{r}
+library('ggplot2')
+ggplot() + 
+  geom_histogram(data=data.frame("residuals"=r1), aes(y=after_stat(density),x=residuals)) + 
+  stat_function(fun = dnorm, 
+                args = list(mean = ...(r1), sd = ...(r1)),
+                color = "red", 
+                linetype = "dashed", linewidth = 1)
+```
+
+You can see that our errors don't look like a normal distribution. There is way too much data right in the middle.
+
+You'll also notice that getting the normal distribution on the plot was horribly complicated to code. Turns out there's an easy way to compare distributions. It's called the qqplot. You can make it in ggplot2 using stat_qq() . You can also make in regular r using qqnorm()
+
+```{r}
+library('ggplot2')
+#what does actual normally distributed data look like?
+ggplot(data=data.frame("normal"=rnorm(length(r1),mean(r1),sd(r1))) , aes(sample=normal)) + ...() +ggtitle("Q-Q Plot of random normal sample")
+#what to our residuals look like?
+ggplot(data=data.frame("residuals"=r1), aes(sample=...)) + stat_qq() +ggtitle("Q-Q Plot of our residuals")
+
+```
+
+If the data are normally distributed, you get a line on the (normal) qqplot. I confirmed this by using rnorm() to "sample" from a normal distribution. I set the mean and standard deviation to be the same as our data, r1. Obviously, our residuals are not looking very "normal".
+
+::: {.alert .alert-block .alert-info}
+**key data analysis idea:** We can use "simulated data" where we know the answer as a "positive control" for data analysis. For example, to make simulated data from a normal distribution, we can use rnorm(n,m,s), which gives us n observations from a normal distribution with mean m and standard deviation s.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Section 2.0.0 Comprehension question:** Use rnorm() to simulate 10,000 residuals from a normal distribution with mean 0. Which of these are close to 0?
+
+a)  mean(simulated_residuals)/sd(simulated_residuals)
+
+b)  log(sum(simulated_residuals\>0)/sum(simulated_residuals\<0))
+
+c)  sum(simulated_residuals\^3)/length(simulated_residuals)
+
+d)  all of the above
+
+e)  none of the above
+:::
+
+------------------------------------------------------------------------
+
+### Section 2.0.0 comprehension answer:
+
+1.  answer: ...
+
+------------------------------------------------------------------------
+
+Even when the errors are not normally distributed, least squares fitting does very well if the errors have average (or expectation) of 0. We can use a t-test to see if the mean of our errors is close to 0.
+
+```{r}
+....test(r1)
+....test(r2)
+```
+
+You can see that with all the data, the average is 10 standard deviations a way from 0. When we throw away the highest mRNAs, it's still 3 standard deviations away from 0.
+
+This means that we have no (mathematical) guarantee that least squares is doing a good job of estimating the paramaters of our model.
+
+Luckily, for gene expression, this problem has been seen before and biologists have figured out a pretty good solution. Usually, all you have to do is analyze the log of the data.
+
+```{r}
+Protein = function(mRNA,kT,kD) { mRNA * kT / kD }
+
+x = expression_data$mRNA
+y = expression_data$Protein
+mod<-nls(log10(y) ~ ...(Protein(x,K,1)),start=c(K=2.0)) #take logs
+...(mod) ##look at the parameter
+```
+
+We get a different answer. Let's check our residuals for this model (fit in log space).
+
+```{r}
+r= log10(expression_data$Protein) ... log10(Protein(expression_data$mRNA,coef(mod),1))
+
+library('ggplot2')
+#what to our residuals look like?
+ggplot(data=data.frame("residuals"=...), aes(sample=residuals)) + stat_qq() +ggtitle("Q-Q Plot of our residuals")
+#is the mean of the residuals 0?
+t.test(...)
+
+```
+
+This looks much better. The average of the errors is now very close to 0. There are still a lot of genes where our prediction is too high (negative residual), so it's not quite a normal distribution. Let's plot our data against the residuals. We can try to figure out which data points are the "problem" by plotting the residuals against the predictions
+
+```{r}
+library('ggplot2')
+ggplot(data=data.frame("prediction"=predict(mod),"residual"=r),mapping=aes(x=...,y=residual)) +geom_point()
+```
+
+We can see that indeed, we have a bunch of genes where we predict the protein to be much higher than it is. In general we are not doing great for the genes with highest predictions.
+
+What about when we exclude the genes with mRNA \>2000 ?
+
+```{r}
+library('ggplot2')
+#what to our residuals look like?
+ggplot(data=data.frame("residuals"=r[...]), aes(sample=residuals)) + stat_qq() +ggtitle("Q-Q Plot of our residuals")
+```
+
+Let's look at the errors without the highest mRNA levels. Much better. Still not a perfect line, but we're getting pretty close. We can now be confident that least squares fitting is doing a good job, and maybe nearly as good as we can possibly do (for the model without the highest values).
+
+### 2.1.1 Comparing models again
+
+Let's revisit our question about which model fits better. We'll compare the models using R-squared, but this time in log space.
+
+```{r}
+##fit model to all the data
+x = expression_data$mRNA
+y = expression_data$Protein
+mod1<-nls(log10(y) ~ log10(Protein(x,K,1)),start=c(K=2.0)) 
+
+##fit model to data excluding highest mRNAs
+x = expression_data$mRNA[-m2000]
+y = expression_data$Protein[-m2000]
+mod2<-nls(log10(y) ~ log10(Protein(x,K,1)),start=c(K=2.0))
+
+##residuals for model 1
+r1= log10(expression_data$Protein)-log10(Protein(expression_data$mRNA,...(mod1),1))
+##residuals for model 2
+r2= log10(expression_data$Protein[-m2000])-log10(Protein(expression_data$mRNA[-m2000],...(mod2),1))
+
+print("R-squared using the model fit to all the data")
+R_squared(r1,...(expression_data$Protein))
+print("R-squared using the model fit excluding the outliers >2000")
+R_squared(r2,...(expression_data$Protein[-m2000]))
+
+
+```
+
+Now we find out that the model without the highly expressed genes actually fits the data better!? What are we supposed to believe??
+
+while we're at it, let's check the log 1st law of gene expression again
+
+```{r}
+##fit two models
+x = expression_data$mRNA[-m2000]
+y = expression_data$Protein[-m2000]
+mod3<-nls(log10(y) ~ b0 + b1*log10(x),start=c(b0=2.0,b1=1.0)) ##fit a line
+mod4<-nls(log10(y) ~ b0 + log10(x),start=c(b0=2.0)) ##only fit intercept, so slope=1
+##this time I'll use predict() so I don't mess it up.
+r3=log10(expression_data$Protein[-m2000])...predict(mod3)
+r4=log10(expression_data$Protein[-m2000])...predict(mod4)
+print("R-squared using the model fit excluding the outliers >2000, where slope can be any number")
+...(mod3)
+R_squared(r3,log10(expression_data$Protein[-m2000]))
+print("R-squared using the model fit excluding the outliers >2000, where slope = 1")
+...(mod4)
+R_squared(r4,log10(expression_data$Protein[-m2000]))
+```
+
+Now we see that the prediction of the 1st law of gene expression is almost exactly right (for this subset of the data).
+
+In this case we could log transform and then throw away some data and get errors that had mean=0 and were more normally distributed. What if this trick didn't work? At least three options:
+
+1.  Accept the statistician's motto "all models are wrong. Some are useful." Figure out if the models we fit with least squares is useful. (We will return to this.)
+
+2.  Use a numerical approach to find out what we expect under other models. (We may return to this)
+
+3.  Give up on the model fitting, and still test the null hypothesis of no correlation. This is called a non-parametric test (we'll discuss this now).
+
+# 3.0.0 Testing hypotheses with no model fitting and fewer assumptions
+
+Turns out that if we change the numbers into "ranks", then we can get test the correlation without many assumptions.
+
+::: {.alert .alert-block .alert-info}
+**technical concept:** R has a function rank() that can turn data into their ranks.
+:::
+
+Let's compare the "ranks" of log transformed and raw data. We'll put our data into long format for this plot by adding the log transformed data after the raw data and adding a column to note what data is what. Then we can get the two plots side by side using facet_wrap
+
+```{r}
+library('ggplot2')
+
+ggplot(
+    data=data.frame(
+      "mRNA"=c(rank(expression_data$mRNA),rank(...(expression_data$mRNA))), ##mRNA data followed by log data
+      "protein"=c(rank(expression_data$Protein),rank(...(expression_data$Protein))), ##protein data followed by log data
+      "..."=c(rep("raw",length(expression_data$mRNA)),rep("log10",length(expression_data$mRNA)))
+      ), ##labels
+      aes(x=mRNA, y=protein)
+    ) + geom_point() + ...(~ log_transform, ncol = 2) ##make the two plots side by side
+
+
+
+```
+
+Notice that the plots are now identical, whether we are in log space or not. We can also confirm that the R-squared is the same.
+
+```{r}
+x = ...(expression_data$mRNA) #convert data to ranks
+y = ...(expression_data$Protein) #convert data to ranks
+r1 = ...(lm(y ~ x)) - y  #get residuals
+R_squared(r1,y)
+
+x = ...(log10(expression_data$mRNA)) #convert data to ranks
+y = ...(log10(expression_data$Protein)) #convert data to ranks
+r2 = ...(lm(y ~ x)) - y  #get residuals
+R_squared(r2,y)
+```
+
+Now the two models are *exactly the same*! Notice that I didn't bother saving the models because when we transform to ranks, the parameters lm() fits are meaningless: the units are "ranks" which are relative to this specific dataset. (this is the downside of doing things in ranks)
+
+Spearman figured out that you can also get a P-value for the rank correlation under the null hypothesis of no correlation.
+
+```{r}
+...(log10(expression_data$mRNA),log10(expression_data$Protein), method='spearman')
+...(expression_data$mRNA,expression_data$Protein ,method='spearman')
+```
+
+You can see that you get identical results whether in log space or not. We'll come back to p-values in a few minutes.
+
+::: {.alert .alert-block .alert-danger}
+**Section 3.0.0 Comprehension question:** Why did cor.test() give 0.598271, but our R_squared function gave 0.357921 ?
+
+```{=html}
+a) our function doesn't work on the ranks 
+b) I did the cor.test() with method Spearman, but I gave ranks to our R_squared function 
+c) 0.598271 squared is 0.357921 
+d) all of the above 
+e) none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 3.0.0 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+# 3.1.0 Let's return to our genotype to phenotype models
+
+```{r}
+...<-read.delim('yeast_phenotype_YPD_growth.txt',row.names=1)
+...<-read.delim('yeast_chr14_genotypes.txt',row.names=1)
+... = phenotype$YPD_growth
+... = genotype$X9623528_chr14_376315_C_T
+... = genotype$X9714243_chr14_467030_A_G
+mod<-nls(... ~ b0 + x1*b1 + x2*b2,start=c(b0=0.0,b1=0.0,b2=0.0))
+mod_lm <- lm(... ~ x1 + x2)
+r = y - ...(mod)
+library('ggplot2')
+#what to our residuals look like?
+ggplot(data=data.frame("residuals"=r), aes(sample=residuals)) + stat_qq() +ggtitle("Q-Q Plot of our residuals")
+#is the mean of the residuals 0?
+t.test(r)
+```
+
+Wow! You can see that the errors here are matching almost exactly to the normal distribution. (Why do errors ever match a normal distribution?)
+
+Since we used lm() to fit the genetics model, we can take advantage of a special feature of linear models: the correlation squared is equal to the R-squared. Let's check this.
+
+```{r}
+R_squared(...,phenotype$YPD_growth)
+cor(predict(mod),phenotype$YPD_growth)...
+```
+
+yup. (It would be very unlikely to get exactly the same numbers if we had made mistakes, so this also confirms that we implemented R_Squared correctly. yay!)
+
+Since in this case we are pretty confident that the errors are truly Guassian, we can go ahead and interpret the statistical information from lm().
+
+```{r}
+summary(...)
+```
+
+Obviously, lots of fancy statistical information. First of all, we can see the estimates of the effects on phenotype for our two SNPs are 0.72 and -0.99. But we also get the standard error around +/- 0.07 for both. So we aren't *sure* that our estimates are 0.72 or -0.99, but we know the range of the estimates. Let's add another locus and fit the model again.
+
+```{r}
+x3=genotype$X9352902_chr14_105689_G_C
+summary(lm(y ~ x1 + x2 + ...))
+```
+
+You can see that the estimates for the first two loci didn't change much, and the estimate for the third locus is -0.11, with a similar standard error of 0.07. When the errors are truly Gaussian, parameter estimates in linear regression have an approximately normal distribution. Let's plot them as if they were normal distributions.
+
+```{r}
+ggplot(data.frame(x = c(-2, 2)), aes(x = x)) + 
+  stat_function(fun = dnorm,args=list(...=0.73,sd=0.07),color = "blue") + 
+  stat_function(fun = dnorm,args=list(...=-0.99,sd=0.07),color = "green") + 
+  stat_function(fun = dnorm,args=list(...= -0.11,sd=0.07),color = "red")
+```
+
+We can see that the first two loci (green and blue) are far away from 0. But the third locus (red) overlaps with 0.0. This means that the estimate for the parameter for the third locus might actually be 0.
+
+Let's confirm one more time that we can actually get the R-squared without fitting the model
+
+```{r}
+R_squared(y-predict(lm(y ~ x1)),y)
+cor(x1,...)^2
+```
+
+Wow ! it really does work. Let's go ahead and test each of the loci independently
+
+```{r}
+...(x1,y)
+...(x2,y)
+...(x3,y)
+```
+
+What are the "p-values" ? The probability that you could estimate a correlation that big (or bigger) if there was really no correlation. Let's see if the p-values are right using "permutation" also known as resampling.
+
+::: {.alert .alert-block .alert-info}
+**technical concept:** Permutation is a way to do statistical hypothesis testing by randomizing the data.
+:::
+
+```{r}
+y = phenotype$YPD_growth
+n_reps=... ##how many repeats do we want? 
+scrambled_y <- sapply(1:n_reps,FUN=function(x) ...(y,length(y)) ) ###get scrambled data over and over
+...(scrambled_y) ##what exactly did we get from sapply
+```
+
+I applied the sample function to the numbers 1:n_reps using sapply(). You can see that the function I applied didn't actually use the number! just a clever way to do the same function over and over again.
+
+Let's see what we get for x3
+
+```{r}
+head(cor(...,x3)) #we can use the cor() function to do the correlation with each column of the matrix.
+
+ggplot(data.frame(null_distribution=cor(scrambled_y,x3)), aes(x=null_distribution)) + geom_...() ##histogram
+ggplot(data.frame(null_distribution=cor(scrambled_y,x3)), aes(sample=null_distribution)) + ...() ##qqplot
+```
+
+What we see here is the distribution of the correlation *if* there really was no correlation (we obtained this by scrambling the data). This is known as the "null distribution". You can see that in our case it's very close to a normal distribution, but the tails are a tiny little bit too far. (In fact, it follows a student's T-distribution.) For p-values we care about the tails.
+
+OK, now let's calculate the p-value for x3. We're asking how many times a "random" correlation would be more extreme than the correlation we see for x3.
+
+```{r}
+sum( abs(cor(scrambled_y,x3)) > abs(cor(...,x3)) ) / n_reps
+```
+
+Wow - turns out that the theory is almost exactly right in this case.
+
+# 3.2.0 Interesting things about correlations and P-values
+
+In the case when X is 0 or 1, statistical tests using correlation are mathematically equivalent to t-tests.
+
+Let's check this out using out mouse immune expression data from before
+
+```{r}
+...<-read.delim('mouse_immune_cell_expression.txt',row.names=1)
+head(mRNA)
+...<-read.delim('mouse_immune_cell_types.txt',row.names=1)
+table(cells)
+
+```
+
+Let's check if Cd4 is "differentially expression" in T-cells. We can do this by testing for a correlation or doing a t-test on the two groups of cells. Watch how I define a logical vector and then use it cleverly.
+
+```{r}
+... = t(log(mRNA["Cd4",]))
+... <- cells$cell_type=='T' ## tells us which indices are T-cells
+
+summary(...(y ~ Tcells)) ## fit a linear model to predict expression
+...(y,as.numeric(Tcells)) ## correlation between experession and T-cells
+t.test(y[Tcells],y[...Tcells],var.equal = TRUE) ## test the difference of means
+```
+
+You can see that we get the exact same answer. This also tells us about a key assumption of the null hypothesis used in linear regression and the correlation.
+
+We saw above that we can make a more general test using ranks when we calculate the correlation. Turns out we can do something very similar with t-tests too.
+
+```{r}
+...(rank(y)[Tcells],rank(y)[!Tcells]) ## test the difference of means
+wilcox.test(y[Tcells],y[!Tcells])
+```
+
+Unlike with the correlation, they aren't numerically equivalent (to my knowledge). But they are essentially doing exactly the same thing.
+
+# 3.3.0 P-values are a dangerous thing
+
+In our era of data-rich biology it is easy to find correlations with small p-values. This can result in confusing biological data science that I've decided to name 'p-value salad'.
+
+For example, let's compare gene expression between yeast and mouse immune cells.
+
+First, I get the orthologs of mouse genes in yeast (downloaded them from ensembl, a leading genome database)
+
+```{r}
+...<-read.delim('mouse-yeast-orth.txt',row.names=1)
+head(orth)
+```
+
+Next, I get the expression of mouse immune cells from last time. I'll just average them over all the cells and extract the genes where I actually have yeast orthologs.
+
+For the yeast cells, I don't need to average, so I'll just get the rows that correspond to the mouse genes.
+
+Let's make a quick plot to check the data.
+
+```{r}
+mRNA<-read.delim('mouse_immune_cell_expression.txt',row.names=1)
+mouse_orth_immune_mRNA<-rowMeans(...)[rownames(orth)] ##get the mouse orthologs, average over the cells
+yeast_orth_mRNA<-expression_data[...$yeast_gene_id,]$mRNA ##get the yeast orthologs
+
+library('ggplot2')
+
+ggplot(
+    data=na.omit(data.frame("mouse_immune_cells"=mouse_orth_immune_mRNA,"yeast_cells"=yeast_orth_mRNA)),
+    mapping=aes(x=mouse_immune_cells,y=yeast_cells)
+    ) +geom_point()
+    
+```
+
+Looks like highly expressed genes in mouse are also highly expressed in yeast!
+
+```{r}
+cor.test(mouse_orth_immune_mRNA,yeast_orth_mRNA ,na.rm=1, method=...) ##use the rank-based test
+```
+
+And there we go! p-value\<2.2e-16. And I used Spearman's correlation, so the p-value can't be wrong!
+
+I found a highly significant similarity (p-value\<2.2e-16, spearman rank correlation) between gene expression in mammalian immune cells (ImmGen database) and expression of the orthologous yeast genes (orthologs obtained from ensembl), strongly suggesting that gene expression is as similar between yeast and immune cells. We've discovered a novel similarity between yeast and immune cells.
+
+Right?
+
+------------------------------------------------------------------------
+
+# 4.0.0 Class summary
+
+Hopefully by now you understand why R-squared is used to compare models.
+
+You should be able to answer questions like: What is a probabilistic model? What is the connection between probability and least squares?
+
+We followed this kind of thinking to statistical hypothesis tests and P-values
+
+## 4.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 4.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Alan Moses, Ph.D. *Professor, University of Toronto.* based on templates by Clavin Mok, Ph.D., *Bioinformatics and education, CAGEF.*
+
+------------------------------------------------------------------------
+
+## 4.3.0 Reference and Resources
+
+Alan's slides will be made available on the quercus

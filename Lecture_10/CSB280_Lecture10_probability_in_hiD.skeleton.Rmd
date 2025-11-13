@@ -1,0 +1,792 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 10: Probability in high-dimensions
+
+# Student Name:
+
+# Student ID:
+
+------------------------------------------------------------------------
+
+::: {align="center"}
+<img src="https://m.media-amazon.com/images/I/61GzgkffuoL._SY385_.jpg" width="200"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+# 1.0.0 Hi-dimensional models
+
+In today's code a long we'll
+
+1.  Understand multiple testing
+2.  Think about the correlation structure of our data
+3.  see examples of multimodality in biological data
+
+## 1.1.0 One by one association tests
+
+Let's take some of the probability tricks we learned to high-dimensions. Let's start with a genotype to phenotype model
+
+### 1.1.1 get some data
+
+First, we load the genotype and phenotype data.
+
+```{r}
+phenotype<-read.delim(...,row.names=1) 
+genotype<-read.delim(...,row.names=1) ##genotypes from chromosome 14
+
+```
+
+We don't need to fit a high-dimensional model. We can test each genotype against the phenotype using the correlation!
+
+```{r}
+length(...(genotype, phenotype)) ##computes correlations for all the columns
+library('ggplot2')
+ggplot(data.frame(correlations=as.numeric(cor(genotype,phenotype))), aes(x=correlations)) + geom_...() ##let's see a histogram
+```
+
+R just calculated correlations for all 634 markers on chr14. Looks like most of the correlations are actually negative. Unfortunately, Rs cor() doesn't give us the p-values.
+
+### 1.1.2 P-values for every marker
+
+To get the p-values for all the loci we need apply cor.test() to all the columns of the data genotype matrix. We need to find out what's returned by this function. let's try str()
+
+```{r}
+...(cor.test(genotype[,1],phenotype$YPD_growth))
+```
+
+OK, so we know that it's a list. but what's in the list?
+
+```{r}
+...(cor.test(genotype[,1],phenotype$YPD_growth)) #get the names of list elements
+```
+
+Awesome, looks like the list has names. The thing we want is the p.value. It's the 3rd thing in the list, and we can get it by name or number.
+
+```{r}
+cor.test(genotype[,1],phenotype$YPD_growth)$...
+cor.test(genotype[,1],phenotype$YPD_growth)...
+```
+
+We want to apply this to to all the columns of our genotype data now. We do this using apply(). To pass the arguments and get back the pvalue, we define another function that is actually used in apply().
+
+```{r}
+all_pvals<-apply(
+  X=..., ##data
+  MARGIN=..., ## rows or columns
+  FUN=function (column) { cor.test(...,phenotype$YPD_growth)$p.value } ##column is input to cor.test(), p.value is the output
+)
+
+ggplot(data.frame(pvals=all_pvals), aes(x=pvals)) + 
+  geom_histogram(binwidth=0.05) +
+  geom_vline(aes(xintercept = ...), colour="red") + ##add line at 0.05
+  annotate("text", x = 0.05, y = 0, label = "p=0.05", color ="red", size = 5)
+```
+
+let's also compare the pvalues to the actual values of the correlations
+
+```{r}
+ggplot(
+  data.frame(correlations=as.numeric(cor(genotype,phenotype)),pvalues=all_pvals),
+  aes(x=...,y=pvalues)
+) + 
+geom_point() +
+geom_hline(aes(yintercept = ...), colour="red") + ##add line horizontal
+annotate("text", x = 0, y = 0.05, label = "p=0.05", color ="red", size = 5)
+```
+
+OK, correlation around 0.1 has p-value \<0.05.
+
+So how many genotypes are "significantly" correlated on chromosome 14?
+
+```{r}
+sum(all_pvals<0.05)
+```
+
+Wow. more than 1/3 of the markers are significantly correlated with the phenotype. Let's confirm the p-values by scrambling the phenotype using the sample() function.
+
+```{r}
+scrambled_phenotype= ...(phenotype$YPD_growth,length(phenotype$YPD_growth))
+
+all_scram_pvals<-apply( ##same as before
+  X=genotype, ##data
+  MARGIN=2, ## rows or columns
+  FUN=function (column) { cor.test(column,...)$p.value } ##column is input to cor.test(), p.value is the output
+)
+
+sum(all_scram_pvals<0.05)
+head(sort(all_scram_pvals))
+```
+
+OK, so there are still some p-values \< 0.05 even when we scramble? What's going on?
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.1.2 Comprehension Question:**
+
+```{=html}
+
+We can still get p-value<0.05 when we scrambled the data because: 
+
+a) scrambling the data is not really the null hypothesis because we sample without replacement
+b) we tested much more than 20 loci
+c) The sample() function is not truly random
+d) all of the above
+e) none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 1.1.2 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+To compare the scrambled and real data directly, we'll need to make long-format data. We use rep() to add vectors of repeated labels.
+
+```{r}
+library('ggplot2')
+
+plot.df<-data.frame( ##make a long format dataframe
+    pvals=c(all_pvals,all_scram_pvals),
+    ...=c(rep("real",length(all_pvals)),rep("scrambled",length(all_scram_pvals)))
+)
+
+ggplot(plot.df, aes(x=pvals)) + 
+  geom_histogram(binwidth=0.05) + #histogram
+  geom_vline(aes(xintercept = 0.05), colour="red") + ##line again
+  annotate("text", x = 0.05, y = 0, label = "p=0.05", color ="red", size = 5) +
+  ...(~ scrambled, ncol = 2) #here's the magic
+
+#add the correlations to the df
+...$"correlations"=as.numeric(c(cor(genotype,phenotype),cor(genotype,scrambled_phenotype)))
+
+ggplot(plot.df, aes(x=correlations,y=pvals)) +
+  geom_point() + #scatter plot
+  geom_hline(aes(yintercept = 0.05), colour="red") + ##line again
+  annotate("text", x = 0, y = 0.05, label = "p=0.05", color ="red", size = 5) +
+  facet_wrap(~ scrambled, ncol = ...)
+
+```
+
+Visualization confirms that the correlations are dramatically different when the data is scrambled. Maybe we are just doing too many tests. What if we apply the Bonferroni correction?
+
+```{r}
+print("significant real p-values after correction")
+sum(...*all_pvals<0.05) #multiply the pvalues by the number of tests
+print("significant scrambled p-values after correction")
+sum(...*all_scram_pvals<0.05) #multiply the pvalues by the number of tests
+
+```
+
+Much better! But still impressive that 110 of the markers are correlated with this one phenotype.
+
+If we plot the p-values across the chromosome, we can understand why we have so many significant correlations.
+
+::: {.alert .alert-block .alert-info}
+**visualization strategy:** a "Manhattan plot" is a plot where p-values are plotted against genome positions to help show the spatial correlation in statistical association.
+:::
+
+First, I will parse the positions out of the genotype names. (parsing like this is a bit advanced. Not on the test.) Again, we'll make long-format data to compare the real with the scrambled.
+
+```{r}
+
+marker_positions <- sapply(
+  colnames(genotype), #get the marker names
+  function (x) { as.numeric(unlist(strsplit(x,"_"))[3]) } ##get the position
+) 
+
+manhattan.df <- data.frame( ##set up a data frame for the plot
+  "positions"= rep(...,2), ##two sets of positions
+  "pvalues"= ...(c(all_pvals,all_scram_pvals)), ##switch the p-values so that 'up' is 'more significant'
+  "scrambled"=c(rep("real",length(all_pvals)),rep("scrambled",length(all_scram_pvals)))
+)
+
+library('ggplot2')
+ggplot(manhattan.df, aes(x=positions,y=pvalues)) +
+  geom_point() +
+  geom_hline(aes(yintercept = -log10(...)), colour="red") + ##standard cutoff
+  annotate("text", x = mean(manhattan.df$positions), y = -log10(0.05), label = "p=0.05", color ="red", size = 5) +
+  geom_hline(aes(yintercept = -log10(0.05/...)), colour="blue") + ##Bonferroni corrected cutoff
+  annotate("text", x = mean(manhattan.df$positions), y = -log10(0.05/length(all_pvals)), label = "Bonferroni corrected", color ="blue", size = 5) + 
+  facet_wrap(~ scrambled, ncol = 2)
+
+
+```
+
+This plot shows why we're getting so many significant p-values. It's because the markers across the chromosome are highly correlated. And you can see that even for the scrambled data, we see this effect.
+
+```{r}
+marker_positions[...(all_pvals)] ##find the position of the minimum pval
+min(all_pvals)
+
+marker_positions[which.min(all_pvals)...] ##get the next one on the chromosome
+all_pvals[which.min(all_pvals)...]
+
+marker_positions[which.min(all_pvals)-1] ##get the previous one on the chromosome
+all_pvals[which.min(all_pvals)-1]
+
+```
+
+As we see in the plot, These very significant p-values are all right next to eachother.
+
+There are really probably only a handful of regions of the chromosome that are associated with this phenotype (and some of them are below the Bonferroni threshold).
+
+We should actually be testing region by region. But we don't know what the regions are. or do we?
+
+```{r}
+marker_positions[which.min(...)] ##same thing for scrambled pvals
+min(all_scram_pvals)
+
+marker_positions[which.min(all_scram_pvals)+1]
+all_scram_pvals[which.min(all_scram_pvals)+1]
+
+marker_positions[which.min(all_scram_pvals)-1]
+all_scram_pvals[which.min(all_scram_pvals)-1]
+```
+
+You can see that we still see that nearby markers have similar p-values even in the scrambled phenotype, because the structure is still there in the Xs.
+
+## 1.3.0 Multiple "test"ing
+
+What about "tests"? Let's simulate random guessing on some tests. Here's a test with 5 questions, each has 4 possible answers.
+
+```{r}
+answer_key<-...("a","b","c","d","a")
+
+number_correct_by_guessing <- ...(ans_key) { ##define a function that grades random guessing
+  test_result<-...(c("a", "b", "c", "d"), length(ans_key),replace=TRUE) ##guess randomly 
+  nc<-sum(test_result...ans_key) ##add up the number correct
+  return(nc)
+}
+
+number_correct_by_guessing(answer_key)
+```
+
+Seems pretty unlikely that you could get 4/5 or 5/5 by guessing.
+
+Now let's say we have 200 students in the class. We can run the same thing many times using replicate().
+
+```{r}
+
+all_students_marks<-replicate(200,...(answer_key))
+ggplot(data.frame(marks=...), aes(x=marks)) + geom_histogram()
+sum(all_students_marks...3)
+
+```
+
+Usually a few tests will be 4/5 or 5/5. If we give enough tests, a few students will almost always get A's even with random guessing! This is multiple testing.
+
+## 1.4.0 Finding T-cell genes
+
+What about finding genes associated with immune cell types going one by one?
+
+### 1.4.1 let's get our mouse immune cell expression and cell type data
+
+```{r}
+...<-read.delim('data/mouse_immune_cell_expression.txt',row.names=1)
+head(mRNA)
+...<-read.delim('data/mouse_immune_cell_types.txt',row.names=1)
+table(cells)
+
+```
+
+Let's get a logical vector that tells us what is a T-cell.
+
+```{r}
+Tcells <- cells$cell_type...
+```
+
+### 1.4.2 P-values for each gene
+
+Now we can go ahead and do test for correlation of gene expression on T cells. As we've discussed, this turns out to be mathematically equivalent to a certain t-test.
+
+```{r}
+
+all_pvals<-apply(
+  X=...(mRNA), ##data
+  MARGIN=..., ## rows or columns
+  FUN=function (r) { cor.test(,as.numeric(Tcells))$p.value } ##row is input to cor.test(), p.value is the output
+)
+
+```
+
+I hope you are amazed. R just calculated \>4000 p-values for us!
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.4.0 Comprehension Question:**
+
+```{=html}
+
+For the genotype data, we used apply() on the columns. For the mRNA data, we did the rows. This is because we are trying to find _________ correlated with T cells, and these are usually in the rows.
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 1.4.0 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+Let's look at these pvalues
+
+```{r}
+...(mRNA)[which.min(all_pvals)] ##name of row with smallest pvalue
+sum(all_pvals<0.05) #how many significant pvalues?
+```
+
+Cd8 makes sense, but nearly every gene passes this test! Let's check our scrambled data again.
+
+```{r}
+scram_Tcells <- ...(as.numeric(Tcells),length(Tcells))
+
+all_scram_pvals <-apply(
+  X=log(mRNA), ##data
+  MARGIN=1, ## rows or columns
+  FUN=function (r) { cor.test(r,scram_Tcells)$p.value } ##column is input to cor.test(), p.value is the output
+)
+
+sum(all_scram_pvals<0.05)
+
+```
+
+Again, we still get a bunch of "significant" things even when the data have been randomized.
+
+Let's try to control for this using Bonferroni
+
+```{r}
+print("significant real p-values after correction")
+...(length(all_pvals)*all_pvals<0.05)
+print("significant ... p-values after correction")
+...(length(all_scram_pvals)*all_scram_pvals<0.05)
+```
+
+Still a huge number of genes that are associated with Tcells. Let's see if we can figure out why.
+
+first, we'll find the genes that pass the Bonferroni cutoff.
+
+```{r}
+sig_T_genes<- ...(all_pvals < 0.05/length(all_pvals))
+```
+
+Now we'll do something crazy. Reduce the gene expression data to 1 dimension
+
+```{r}
+#library('uwot')
+#reduced1d<-umap(log(mRNA),n_components=1,metric="cosine",seed = 42) , 
+
+library('umap')
+umap.settings<-umap.defaults 
+umap.settings$n_components <- ... ##reduce to 1 dimensions
+umap.settings$metric <- ... ##  a better metric for gene expression
+umap.settings$random_state <- ... ## set a seed so that we might all get the same plot.
+reduced1d <- umap(log(...),config=umap.settings)
+```
+
+Now we can plot the P-values according to how similar the genes are.
+
+```{r}
+
+sim_vis <- data.frame( expression = reduced1d$layout, "pval"= ...(all_pvals) ) #change pvalues so up is more significant
+library('ggplot2')
+ggplot(sim_vis,mapping=aes(x=expression,y=pval)) +geom_point() + geom_point(data = data.frame(sim_vis[sig_T_genes,]), color = ..., shape=1) #significant genes are red
+
+
+```
+
+Now we can see that there are groups of significant genes with similar expression patterns. The significant genes are nearby eachother. They have similar patterns. Which makes sense - we know gene expression is highly correlated.
+
+# 2.0.0 Simplifying the structure in high-dimensional data
+
+We already knew there was structure in our data. We saw it in plots like this:
+
+```{r}
+heatmap(...(genotype),Rowv=NA,Colv=NA)
+```
+
+We shouldn't be testing the markers one by one. Let's try to find the "clusters" of linked markers that are near each other on the chromosome, and then make a model where we predict the phenotype based on the genotype in a "cluster".
+
+## 2.1.0 How do we find the "clusters" ?
+
+::: {.alert .alert-block .alert-info}
+**technical concept:** Clusters are groups of high-dimensional observations that share a pattern. "Clustering" is the process of discovering patterns in data by searching for these patterns or groups.
+:::
+
+There are 100s of clustering algorithms. We'll start with a simple one. "Hierarchical clustering" or hclust() in R.
+
+hclust expects a "distance matrix". We can use our friend cor for this.
+
+```{r}
+dis_mat <- as.dist(1-...(genotype))
+```
+
+Notice that I used 1- correlation as a distance.
+
+```{r}
+genotype.hclust<-...(hclust(dis_mat),h=0.5)
+table(genotype.hclust)
+```
+
+hclust() builds a tree from a distance matrix and then cutree() returns a vector where each observation is assigned to a cluster. h is the distance to 'cut' the tree to get clusters.
+
+We got 14 clusters. I chose h=0.5 to get around that many. I'm going to define colours for my clusters.
+
+```{r}
+...(length(unique(genotype.hclust))) ## a colour for each cluster
+
+cluster_colours <- rainbow(length(unique(genotype.hclust)))
+
+...(rep(1,length(unique(genotype.hclust))),col = cluster_colours[unique(genotype.hclust)]) #visualize colours using a pie chart
+
+
+```
+
+Now I'll add those colours to my heatmap.
+
+```{r}
+
+heatmap(cor(genotype),Rowv=NA,Colv=NA,RowSideColors = ...[genotype.hclust])
+```
+
+You can see that the clustering did a very good job joining together the nearby genotypes that are similar.
+
+To get the actual pattern of genotypes in each cluster we can average the loci assigned to each cluster. We'll define a function that works on on cluster at a time, and then apply it to the vector of cluster numbers.
+
+```{r}
+get_cluster_avg <- function(clust_num,cluster_assignments,data) {
+  return(...(data[,cluster_assignments==clust_num])) #average over all data in that cluster
+}
+
+cluster_avg <- ...( ##simple apply to a vector
+  ...(genotype.hclust), ##apply to cluster numbers
+  function(x) get_cluster_avg(x,genotype.hclust,genotype)
+)
+```
+
+::: {.alert .alert-block .alert-info}
+**technical concept:** The vector that summarizes the cluster (using the mean or median) is called the centroid.
+:::
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 2.1.1 Comprehension Question:**
+
+```{=html}
+
+In the get_cluster_avg function, what is cluster_assignments==clust_num doing?
+
+a) selecting columns that were assigned to a given cluster
+b) storing the vector cluster number in cluster_assignments
+c) logically testing for whether the cluster assignment is correct
+d) all of the above
+e) none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 2.1.1 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+ABV
+
+```{r}
+...(cluster_avg,Rowv=NA,Colv=NA)
+```
+
+We can see that these "cluster genotypes" (or centroids) are not very similar. Let's now use these for high-dimensional data analysis.
+
+```{r}
+...(cluster_avg,phenotype$YPD_growth) #correlations
+
+apply( ##pvalues
+  X=cluster_avg, ##data
+  MARGIN=2, ## rows or columns
+  FUN=function (column) { cor.test(column,phenotype$YPD_growth)$p.value } ##column is input to cor.test(), p.value is the output
+)
+
+summary(lm(phenotype$YPD_growth ~ ...)) ##plain old multiple regression!
+```
+
+We can now actually do the regression because 14 clusters is manageable. Looks like cluster 9 has the strongest effect.
+
+```{r}
+
+manhattan.df <- data.frame(
+  "positions"=marker_positions,
+  "pvalues"= -log10(apply( genotype, 2, function (column) { cor.test(column,phenotype$YPD_growth)$p.value } )), ##switch the p-values so that 'up' is 'more significant'
+  "cluster9"=as.numeric(genotype.hclust==...)*10 ##add a column to the dataframe showing the loci assigned to cluster 9
+)
+
+
+library('ggplot2')
+ggplot(manhattan.df, aes(x=positions,y=pvalues)) +
+  geom_point() +
+  geom_hline(aes(yintercept = -log10(0.05)), colour="red") + 
+  annotate("text", x = mean(manhattan.df$positions), y = -log10(0.05), label = "p=0.05", color ="red", size = 5) +
+  geom_hline(aes(yintercept = -log10(0.05/length(all_pvals))), colour="blue") + 
+  annotate("text", x = mean(manhattan.df$positions), y = -log10(0.05/length(all_pvals)), label = "Bonferroni corrected", color ="blue", size = 5) + 
+  geom_point(aes(x=positions,y=...), color = "green") + ##add the column to the plot
+  annotate("text", x = mean(manhattan.df$positions), y = 10, label = "Cluster 9", color ="green", size = 5)
+
+
+ggplot(data.frame("cluster9_genotype"=cluster_avg[,9],phenotype=phenotype$YPD_growth),mapping=aes(x=cluster9_genotype,y=phenotype)) +geom_point()
+
+cor...(cluster_avg[,9],phenotype$YPD_growth) #test the cluster for correlation with phenotype
+```
+
+This is the same region that we saw in the individual marker p-value plot (manhattan plot)
+
+## 2.2.0 Let's try the same idea for the gene expression data.
+
+We'll use cutree() and hclust() on the correlation distances again.
+
+```{r}
+X <- ...(log(mRNA)) ###need to transpose matrix because cor works on the columns
+mRNA.hclust<-cutree(hclust(as.dist(1-...(X))),h=1)
+table(mRNA.hclust)
+```
+
+I chose h=1 this time, again, to avoid getting too many clusters.
+
+Now we can average the genes assigned to each cluster to get the "centroids".
+
+```{r}
+
+cluster_avg <- sapply( ##as before, but different data
+  ...(mRNA.hclust), ##get cluster numbers
+  function(cl_num) get_cluster_avg(...,mRNA.hclust,X) ##average each cluster
+)
+```
+
+let's see if we can see a signal in the data analysis using these cluster averages (or centroids).
+
+```{r}
+
+cluster_pvals<-apply(
+  X=cluster_avg, ##data
+  MARGIN=2, ## rows or columns
+  FUN=function (column) { cor.test(column,as.numeric(Tcells))$p.value } ##column is input to cor.test(), p.value is the output
+)
+print("the cluster with the smallest pvalue is:")
+min_pvalue_cluster<-...(cluster_pvals)
+print(min_pvalue_cluster)
+print("the cluster with Cd8 is:")
+Cd8_cluster <- mRNA.hclust["Cd8b1"]
+print(Cd8_cluster)
+
+print("the genes in the cluster with the smallest pvalue are:")
+sort(rownames(mRNA)[...==min_pvalue_cluster]) #get the gene names for that cluster
+...(t(X[,mRNA.hclust==min_pvalue_cluster])) #ABV
+
+
+print("the cluster with Cd4 is:")
+Cd4_cluster<-...["Cd4"]
+print(Cd4_cluster)
+print("the genes in the cluster with Cd4 are:")
+sort(rownames(mRNA)[...==Cd4_cluster])
+heatmap(t(X[,...==Cd4_cluster]))
+
+
+```
+
+Finally, we can just plot the cluster centroids against the cells
+
+```{r}
+Tcell_plot.df = data.frame( ##make long format data
+  "Tcells"=...(as.numeric(Tcells),2),
+  "centroid"=...(cluster_avg[,min_pvalue_cluster],cluster_avg[,Cd4_cluster]),
+  "cluster_type"=...(rep("min_pvalue_cluster",length(Tcells)),rep("Cd4_cluster",length(Tcells))) 
+)
+
+library('ggplot2')
+ggplot(Tcell_plot.df, aes(x=centroid,y=Tcells)) +
+  geom_point() + #scatter plot
+  facet_wrap(~ ..., ncol = 2) #magic is here
+```
+
+The clusters with the strongest associations do seem correlated with T-cells.
+
+# 3.0.0 high-dimensional predictions
+
+So far we've been considering the case where we have many different observations (X) we can use to predict one thing (y). But what about when the data we are trying to predict is high-dimensional?
+
+## 3.1.0 Let's look at some multivariate phenotype data
+
+We'll get yeast cell growth rates on different sugars (yeast love to eat sugars, but they have preferences for which sugars they like.)
+
+```{r}
+
+phenotype<-read.delim('data/yeast_phenotype_sugar_growth.txt',row.names=1)
+...(as.matrix(phenotype),cexCol=1) ##new data, so ABV
+
+```
+
+Obviously something very interesting going on with the maltose data. Let's do a histogram.
+
+```{r}
+library('ggplot2')
+ggplot(data.frame(Maltose_growth=phenotype...), aes(x=Maltose_growth)) + geom_histogram()
+```
+
+Maltose shows a "bimodal distribution".There are lots of cells that grow around -5 or around 2, but very few cells that grow around -2.
+
+::: {.alert .alert-block .alert-info}
+**New concept:** Bimodal distributions have two highly probable regions with improbable regions in between.
+:::
+
+Since this data is only 4-dimensions, we can do a cool trick with the built in R plot() function
+
+```{r}
+...(phenotype) ##not ggplot2
+```
+
+This shows that the correlation of these phenotypes is complicated. Lactate and Lactose growth show a simple correlation. If you like one, you like the other. Lactose and Mannose show much less correlation, while Lactose and Maltose show a correlation in each of the two groups, but very little correlation *overall* !?
+
+We can see this quantiatively with our friend cor()
+
+```{r}
+print("overall correlation:")
+cor(phenotype)
+
+slow=which(phenotype... <  -2.5) #rows where cells grow less than -2.5
+fast=which(phenotype... >  -2.5) #rows where cells grow more than -2.5
+
+print("correlation in slow Maltose cells:")
+cor(phenotype[...,])
+print("correlation in fast Maltose cells:")
+cor(phenotype[...,])
+
+print("overall Maltose correlation with Lactose:")
+cor(phenotype$Maltose,phenotype$Lactose)
+print("Maltose correlation with Lactose for slow Maltose cells:")
+cor(phenotype$Maltose[...],phenotype$Lactose[slow])
+print("Maltose correlation with Lactose for fast Maltose cells:")
+cor(phenotype$Maltose[...],phenotype$Lactose[fast])
+
+```
+
+This example shows how the bi-modality can make it more difficult to interpret the correlations.
+
+In both groups, the correlation with other sugars is stronger than overall.
+
+## 3.2.0 Complicated phenotypes can still be genetically controlled
+
+Let's load the genotype at a single locus that is associated with some of these phenotypes (note that these cells are haploid to make things easier.) We'll just plot the Maltose growth rates according to the genotype at this locus
+
+```{r}
+genotype<-read.delim('data/yeast_genotype_sugar_growth.txt',row.names=1)
+phenotype.df<-phenotype
+phenotype.df$chr07_1074154 = genotype$X4813093_chr07_1074154_G_C #just add the genotype into the dataframe.
+
+library('ggplot2')
+ggplot(phenotype.df, aes(x=Maltose)) +
+  geom_histogram() +
+  facet_wrap(~ chr07_1074154, ncol = 2) ##make a plot for each genotype
+```
+
+Incredible! If you have a G at this locus, you have a bi-modal distribution of Maltose growth, but if you have a C, you almost always grow fast. Let's see what happens to the correlations.
+
+```{r}
+wt <- ...(genotype$X4813093_chr07_1074154_G_C==0)
+mut <- ...(genotype$X4813093_chr07_1074154_G_C==1)
+
+print("correlation in wt cells:")
+cor(phenotype[...,])
+print("correlation in mutant cells:")
+cor(phenotype[...,])
+
+print("overall Maltose correlation with Lactose:")
+cor(phenotype$Maltose,phenotype$Lactose)
+print("Maltose correlation with Lactose for wt cells:")
+cor(phenotype$Maltose[...],phenotype$Lactose[wt])
+print("Maltose correlation with Lactose for mutant cells:")
+cor(phenotype$Maltose[...],phenotype$Lactose[mut])
+
+```
+
+When you have the mutant allele, the correlation with growth in lactose is nearly twice as strong.
+
+For our last trick, let's colour the points by this genotype.
+
+```{r}
+plot(phenotype,...=rainbow(2)[genotype$X4813093_chr07_1074154_G_C+1]) ##not ggplot2
+```
+
+Amazing. Blue are the cells that all grow fast, while red are bimodal. You can see that under other conditions (Lactate, Lactose, Mannose) there's no difference between these cells.
+
+# 4.0.0 Class summary
+
+After today's class you should feel comfortable with the issue of multiple testing.
+
+We also saw how to take advantage of the correlation structure of high-dimensional data to find clusters. This can greatly simplify our data analysis (and reduce multiple testing burden).
+
+## 4.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 4.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Alan Moses, Ph.D. *Professor, University of Toronto.* based on templates by Clavin Mok, Ph.D., *Bioinformatics and education, CAGEF*
+
+------------------------------------------------------------------------
+
+## 4.3.0 Reference and Resources
+
+Alan's slides will be made available on the quercus

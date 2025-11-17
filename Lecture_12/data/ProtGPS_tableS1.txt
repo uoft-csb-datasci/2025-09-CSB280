@@ -1,0 +1,14 @@
+split	Random split			MmSeqs2 split		
+classifier	protGPS	Random Forest	Logistic Regression	protGPS	Random Forest	Logistic Regression
+Nuclear speckle	0.905	0.861	0.74	0.759	0.745	0.769
+P-body	0.887	0.753	0.645	0.688	0.619	0.543
+PML-body	0.768	0.555	0.554	0.614	0.549	0.587
+post synaptic density	0.872	0.767	0.742	0.766	0.718	0.759
+Stress granule	0.83	0.658	0.649	0.619	0.668	0.621
+Chromatin	0.921	0.794	0.692	0.663	0.674	0.633
+Nucleolus	0.92	0.826	0.652	0.796	0.737	0.601
+Nuclear pore complex	0.987	0.847	0.863	0.855	0.928	0.776
+Cajal body	0.9	0.664	0.822	0.646	0.62	0.5
+RNA grandule	1	1	0.994	0.964	0.998	0.968
+Cell junction	0.925	0.834	0.713	0.727	0.784	0.731
+Transcriptional condensate	0.869	0.709	0.556	0.605	0.708	0.675

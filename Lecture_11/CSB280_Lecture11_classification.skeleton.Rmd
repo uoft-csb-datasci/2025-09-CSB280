@@ -1,0 +1,619 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 11: Classification
+
+# Student Name:
+
+# Student ID:
+
+
+------------------------------------------------------------------------
+
+::: {align="center"}
+<img src="https://m.media-amazon.com/images/I/61GzgkffuoL._SY385_.jpg" width="200"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+# 1.0.0 Classification
+
+In today's code a long we'll
+
+1.  Train classifiers to find disease causing mutations
+2.  Compute the confusion matrix and evaluate the classifiers
+3.  return to classification of cell types using gene expression data
+
+## 1.1.0 Disease mutation data
+
+Predicting whether a mutation will cause a disease is one of the major outstanding problems in biology. Most genetic differences are 'benign' : they don't have any effect. But our genome is big, so even though they are rare, there are still lots of mutations that cause disease.
+
+### 1.1.1 get some data
+
+p53 is one of the most frequently mutated genes in cancers. Let's get data about mutations in p53.
+
+```{r}
+p53data<-read.delim('data/p53_cadd_clinvar.txt',row.names=...) ###read the data
+head(p53data)
+
+```
+
+A key bit of information is in the last column. This tells what we 'know' about the variant's effect based on a database called clinvar. Since these are all p53 mutations, the pathogenic ones likely cause cancer.
+
+```{r}
+head(p53data$...) #let's see what that data looks like
+
+p53data$clinvar_status[...(p53data$clinvar_status)]<-"unknown" #Let's assign "unknown" to the variants that are NA in this column
+
+table(p53data$clinvar_status) #count the number of each type
+```
+
+Let's also separate out the mutations where we do know their effect.
+
+```{r}
+benign<-...(p53data$clinvar_status=='likely_benign') #get the row numbers
+pathogenic<-...(p53data$clinvar_status=='pathogenic')
+```
+
+### 1.1.2 let's visualize this kind of data
+
+We can change the colour/shape of the points based on their class. I'll choose position and GC content to start with.
+
+```{r}
+
+colour_map<-...("green","red","grey") ##need three colours for the three types
+...(colour_map)<-c("likely_benign","pathogenic","unknown")
+
+library('ggplot2')
+ggplot(p53data,aes(x=Pos,y=GC)) + 
+  geom_point(color = ...[p53data$clinvar_status], shape=1) ##a colour for each point
+
+
+```
+
+You can see there are groups of mutations along the chromosome (why?) and in each group there are both pathogenic and benign (why?). How well can GC content and Position in the genome tell apart benign from pathogenic mutations?
+
+### 1.1.3 let's train some classifiers
+
+```{r}
+
+known_mut<-...[c(benign,pathogenic),] #get the subset of rows where we know
+
+y <- as.numeric(known_mut$clinvar_status...'pathogenic') #create a numeric vector where 1 indicates pathogenic, and 0 indicates benign
+
+Pos_GC <- as.matrix(...[,c("Pos","GC")]) #exctract the data for two predictors
+
+library('glmnet')
+
+mod <- glmnet(Pos_GC,...,family='binomial') #fit a classifier to predict y
+coef(mod,s=0) #get coefficients, don't need sparsity here
+
+plot.df<-data.frame(
+  "predicted"=as.numeric(...(mod,Pos_GC,s=0,type='response')), #get predictions
+  "observed"=... #get observations
+  )
+print("R-squared is=")
+...(plot.df$predicted,plot.df$observed)^2 ##short cut to get R-squared
+
+ggplot(...,aes(x=predicted,y=observed)) + geom_point()
+
+
+```
+
+doesn't look like it can predict anything. Let's try some different features
+
+```{r}
+p53_2d <- as.matrix(...[,c("mamPhyloP","mutIndex")]) #exctract the data for two predictors
+
+mod=...(p53_2d,y,family='binomial') #Fit the model
+coef(mod,s=...) ##again, don't need to regularize
+
+plot.df<-data.frame(
+  "predicted"=as.numeric(predict(mod,...,s=0,type='response')), #get predictions
+  "observed"=y #get observations
+  )
+
+print("R-squared is=")
+cor(plot.df$predicted,plot.df$observed)... #short cut R-squared formula
+
+ggplot(...,aes(x=predicted,y=observed)) + geom_point() #give the df to the ggplot2
+
+```
+
+OK, so this model can predict something. Still not great. Because this model is only 2D, we can look at the "decision boundary"
+
+```{r}
+
+
+ggplot(p53data,aes(x=mamPhyloP,y=mutIndex)) + ##only two of the dimensions
+  geom_point(color = colour_map[p53data$...]) + ##colour by clinvar
+  geom_ab...( #plot a line
+    intercept = coef(mod,s=0)[1]/coef(mod,s=0)[3], #normalize the intercept
+    slope = coef(mod,s=0)[2]/coef(mod,s=0)[3], ##normalize the slope
+    color = "black", linetype = "dashed" 
+  )
+
+
+```
+
+Now we can see the the red points are mostly on one side of the line and green points are on the other. Let's let glmnet choose from a bigger list of features.
+
+```{r}
+useful_features=as.matrix(...[,c(19:26,29:34)]) ##get a bigger set of features
+mod2=glmnet(...,y,family='binomial') ###fit another model
+
+coef(mod2,s=...) ##now we are regularizing
+plot.df<-data.frame(
+  "predicted"=as.numeric(predict(mod2,...,s=0.01,type='response')),
+  "observed"=y
+  )
+
+print("R-squared is=")
+cor(plot.df$predicted,plot.df$observed)^2 ##as before
+
+ggplot(plot.df,aes(x=predicted,y=observed)) + geom_point() ##as before
+```
+
+OK, now we're getting somewhere. How do we measure how well we are doing?
+
+### 1.1.4 Measuring classifiers: confusion matrix
+
+We are not fitting a line, so R-squared doesn't make a lot of sense. How do we decide which mutations will be pathogenic? we need a "cutoff". If we interpret the predictions as probabilities, a natural cutoff is 0.5. Anything above 0.5 is a "positive" (1) and anything below is a "negative" (0)
+
+```{r}
+ggplot(plot.df,aes(x=predicted,y=observed)) + geom_point() + 
+  geom_vline(aes(xintercept = ...), linetype = "dashed", lwd=1, colour="blue") + 
+  ##plot the cutoff as a vertical line
+  annotate("text", x = 0.5, y = 0.5, label = "0.5", color ="blue", size = 5)
+```
+
+Once we define a cutoff, we can think about the different things that can happen, and make our confusion matrix.
+
+```{r}
+confusion_matrix=function(cutoff,predictions, observations) { 
+   positives = observations ##assume observations are 0 or 1
+   negatives = ...observations ## get a vector that is 1 when observations are 0.
+   true_positives = as.integer(...>cutoff) * positives
+   true_negatives = as.integer(...<cutoff) * negatives
+   false_positives = as.integer(predictions>cutoff) * negatives
+   false_negatives = as.integer(predictions<cutoff) * positives
+   CM=...(c(sum(true_negatives),sum(false_positives),sum(false_negatives),sum(true_positives)),nr=2) #turn this into a matrix with two rows
+   rownames(...)=c("Pred. neg.","Pred. pos.") ## assign row names
+   colnames(...)=c("Obs. neg.","Obs. pos.") ##assign column names
+   return(...) #return the matrix
+ }
+```
+
+Let's compute the confusion matrix
+
+```{r}
+CM=confusion_matrix(...,predict(mod2,useful_features,s=c(0.01),type='response'),y) ##confusion matrix depends on the cutoff
+print (CM)
+```
+
+You can see that there are still quite a few mutations that we are predicting as pathogenic, but we're wrong. What if we make the cutoff higher?
+
+```{r}
+
+CM=...(0.9,predict(mod2,useful_features,s=c(0.01),type='response'),y) ##call our function
+print (CM)
+##let's plot the higher cutoff with the observations and predictions again
+ggplot(plot.df,aes(x=predicted,y=observed)) + geom_point() + 
+  geom_vline(aes(xintercept = 0.5), linetype = "dashed", lwd=1, colour="blue") + 
+  annotate("text", x = 0.5, y = 0.5, label = "0.5", color ="blue", size = 5) +
+  geom_vline(aes(xintercept = ...), linetype = "dashed", lwd=1, colour="green") + 
+  annotate("text", x = 0.9, y = 0.5, label = "0.9", color ="green", size = 5)
+```
+
+Wow, now almost all of our predicted pathogenic mutations really are pathogenic. PPV = 107/116 = 92% There are only a few 0s passing our threshold. But now we're missing a lot of the mutations. Maybe we should lower it to get some of them back.
+
+```{r}
+CM=confusion_matrix(0.7,predict(mod2,useful_features,s=c(0.01),type='response'),y)
+print (CM)
+
+ggplot(plot.df,aes(x=predicted,y=observed)) + geom_point() + 
+  geom_vline(aes(xintercept = 0.5), linetype = "dashed", lwd=1, colour="blue") + 
+  annotate("text", x = 0.5, y = 0.5, label = "0.5", color ="blue", size = 5) +
+  geom_vline(aes(xintercept = 0.9), linetype = "dashed", lwd=1, colour="green") + 
+  annotate("text", x = 0.9, y = 0.5, label = "0.9", color ="green", size = 5) +
+  geom_vline(aes(xintercept = 0.7), linetype = "dashed", lwd=1, colour="purple") + 
+  annotate("text", x = ..., y = 0.5, label = "0.7", color ="purple", size = 5)
+```
+
+Ooh. I like this better. We're getting most of the positives, but still no too many false positives. But is there a "best cutoff"? How can we choose it?
+
+```{r}
+confusion....(mod2,useful_features,y,s=0.01) ##glmnet has a built-in confusion matrix function
+```
+
+Looks like the built in confusion matrix is done with cutoff 0.5.
+
+### 1.1.5 Measuring classifiers: ROC curve
+
+Let's see how the models compare overall, without choosing a cutoff. glmnet has a built-in ROC curve for us.
+
+```{r}
+str(roc....(mod2, useful_features, y,s=0.01)) ##glmnet has a built-in ROC curve function
+##put the two models on the same ROC curve
+ggplot(data=roc.glmnet(..., useful_features, y,s=0.01),aes(x=FPR,y=TPR)) +
+  geom_point(col="cyan") +
+  geom_point(data=roc.glmnet(..., p53_2d , y,s=0), col="violet") #second model
+
+
+```
+
+No matter what cutoff we choose, mod2 is always better: for the same true positive rate, it has a lower false positive rate.
+
+Here are the built-in assessments, you can see that it includes the AUC.
+
+```{r}
+...(assess.glmnet(mod2,useful_features,y,s=0.1))
+
+print("mamPhyloP and mutIndex model error, auc:")
+assess.glmnet(mod,p53_2d,y,s=0)$class... ##tricky because these are lists.
+assess.glmnet(mod,p53_2d,y,s=0)$auc...
+print("14 other things model error, auc:")
+assess.glmnet(mod2,useful_features,y,s=0.01)$class[[1]]
+assess.glmnet(mod2,useful_features,y,s=0.01)$auc[[1]]
+
+```
+
+glmnet has other ways to evalute the model:
+
+You can see that we got 'mis-classification error' and 'AUC'. These are measures of how well we are doing at classifying. What are these things?
+
+## 1.2.0 let's apply the classifier to the unknown mutations!
+
+It's all fine to predict what we know, but real predictions are the mutations that we don't know about.
+
+```{r}
+unknown_mut <- as.matrix(p53data[...c(pathogenic,benign),c(19:26,29:34)]) ##get the 'useful features' for the mutations we don't know about
+pred<-predict(mod2,...,s=c(0.01),type='response') #predict on those
+...(pred)<-rownames(unknown_mut) ##assign the names for easier analysis.
+print("here are the mutations we predict are most likely to cause disease:")
+head(...(pred,decreasing=TRUE)) #get the top few
+print("number above 0.9:")
+...(pred>0.9) ##count the strongest predictions.
+```
+
+I used 0.9, which had a very good Positive predictive power on our training data (92%). Let's try to estimate positive predictive power in our "use-case" of the unknown mutations. We assume that disease mutations are relatively rare.
+
+```{r}
+... <- as.matrix(p53data[benign,c(19:26,29:34)]) ##false positive rate depends only on the negatives
+
+FPR_at_0.9 <- ...(predict(mod2,negative_data,s=c(0.01),type='response')>0.9)/length(benign) ##count any positive predictions in the negative data
+
+...("false positive rate at 0.9 is =") #print it out
+FPR_at_0.9
+
+print("expected maximum number of false positives at 0.9 in new data is =")
+dim(unknown_mut)[1]*... ##multiple the number of unknown mutations by the false positive rate
+
+print("expected minumum number of true positives at 0.9 in new data is =")
+sum(pred>0.9) ... dim(unknown_mut)[1]*FPR_at_0.9 ##just subtract off the false ones
+
+print("expected minimum Positive Predictive power at 0.9 in new data is =") ##PPV = true positive predictions/ total predictions
+( sum(pred>0.9) - dim(unknown_mut)[1]*FPR_at_0.9 ) ... sum(pred>0.9) 
+```
+
+This means that of the predictions we made, we guess that at least 80% are actually disease mutations. Still pretty good, but much less than \>90% we saw in our training data.
+
+# 2.0.0 Multiclass classification
+
+We could spend a whole course on predicting disease mutations, but we need to move on to a more tricky (and more typical in biology) problem. What if there is not just "yes" or "no", but rather many classes?
+
+## 2.1.0 Big data for classification
+
+We'll get a big dataset of immune cell mRNA and cell type annotations.
+
+```{r}
+mRNA<-read.delim('...',row.names=1)
+cells<-read.delim('...',row.names=1)
+```
+
+Always be visualizing.
+
+```{r}
+colour_map<-rainbow(length(...(cells$cell_type))) ##chose colours for each cell type
+names(...)<-unique(cells$cell_type) ##make a map for plotting
+heatmap(cor(log(mRNA)),RowSideColors = ...[cells$cell_type]) ##add colours to the heatmap
+```
+
+Let's get a sense of how hard this classification problem is. We'll do PCA on the data
+
+```{r}
+mRNA.pca <- prcomp(...(scale(log(mRNA)))) ## we want to reduct the dimensions of genes to predict cells. These are the rows But prcomp assumes that the columns are the dimensions
+```
+
+Now let's plot our cells in 2d
+
+```{r}
+library('ggplot2')
+ggplot(mRNA.pca$...[,c("PC1","PC2")],aes(x=PC1,y=PC2),) +  ##the principal components are stored in x
+  geom_...(col = colour_map[cells$cell_type],shape=1) ##colour a scatter plot using our colour map
+
+pie(rep(1,length(colour_map)),col = ...,labels=names(colour_map)) ##get the colours and cells using the pie chart trick
+
+```
+
+At least some of the cell types are mixed, but some of them should be separable by lines.
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 2.1.0 Comprehension Question:**
+
+```{=html}
+
+1. colour_map[cells$cell_type] gave a colour for every observation because 
+
+a) It looked up the cell type for each observation by name in the vector colour_map
+b) Subsetting gave us the rows of colour_map that we needed
+c) We only used the entries in cells$cell_type that evaluate to true
+d) all of the above
+e) none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 2.1.0 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+## 2.2.0 Getting started with multi-class Classification
+
+We'll start with 2d
+
+```{r}
+library('glmnet')
+... = cells$cell_type #we're going to predict the cell type
+... = mRNA.pca$x[,c("PC1","PC2")] ##we'll get a 2d reduction of the genes
+mod2d <- glmnet(x2d,y,family=...) ##muticlass classification
+
+...(mod2d,s=0) ##see all the "lines" the model has learned
+
+....glmnet(mod2d,x2d,y,s=0) ##get the confusion matrix
+
+```
+
+OK, great. Looks like we're doing pretty well. But T cells and Tgd are getting confused. What about other assessments? What about other assessments?
+
+```{r}
+
+...(assess.glmnet(mod2d,x2d,y,s=0)) ##see what else glmnet tells us
+....glmnet(mod2d, x2d, y,s=0) ##try the bultin roc curve
+```
+
+Notice that we don't get AUC ! and no convenient ROC!
+
+Let's code the average_precision ourselves.
+
+```{r}
+
+AP_metric <-function(...) { ##confusion matrix is the input
+  precisions<-...(0,dim(CM)[1]) ##we'll initialize a vector to hold the precisions for each class
+  
+  #precisions <- diag(CM) / rowSums(CM) ##get the diagonal and divide by the totals. Easy way to do it, but doesn't work if you don't have all the types of predictions...
+  
+  classes_we_have <- ...(rownames(CM) %in% colnames(CM)) ##check what predictions we actually have observations for
+  
+  ##apply to the rownames of the classes we actually have
+  precisions[classes_we_have] <- ...( rownames(CM)[classes_we_have], 
+                        function (row_name) CM[row_name,row_name]/...(CM[row_name,]) ##divide the true positives by total in that row
+                        )
+  AP<-...(precisions) ##take the average
+  return(AP)
+}
+AP_metric(confusion.glmnet(mod2d,x2d,y,s=0)) ##apply to the confusion matrix
+
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 2.2.0 Comprehension Question:**
+
+```{=html}
+
+By setting s=0, we did not learn a sparse model with glmnet(). We estimated 3 parameters for each of the 6 cell types. We are not concerned with overfitting in this case because _____________________________
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 2.2.0 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+### 2.2.1 beyond 2 dimensions
+
+Let's see if going to higher dimensions can help. We can use the PCA to add more and more (less important) dimensions.
+
+```{r}
+x2d = mRNA.pca$x[,c("PC1","PC2")]
+x4d = mRNA.pca$x[,c("PC1","PC2","...","...")]
+x8d = mRNA.pca$x[,c("PC1","PC2","...","...","...","...","...","...")]
+```
+
+Let's fit models for these. We'll now use a held out test set. It's not fair to compare models with different numbers of parameters (more dimensions takes more parameters) because they have different capacity for overfitting.
+
+```{r}
+
+library('glmnet')
+y = cells$cell_type #all the models will try to predit the same thing.
+test <- ...(1:length(y),86) #sample 20% of the data to be held out. Use same split for fair comparison
+print("Averge Precision ... dimensions")
+... <- glmnet(x2d[-test,],y[-test],family='multinomial')
+AP_metric(confusion.glmnet(mod2d,x2d[...,],y[test],s=0))
+print("Averge Precision ... dimensions")
+... <- glmnet(x4d[-test,],y[-test],family='multinomial')
+AP_metric(confusion.glmnet(mod4d,x4d[...,],y[test],s=0))
+print("Averge Precision ... dimensions")
+... <- glmnet(x8d[-test,],y[-test],family='multinomial')
+AP_metric(confusion.glmnet(mod8d,x8d[...,],y[test],s=0))
+```
+
+Even though we are adding PCs that don't explain much of the variance, we can see that they are still helping us classify. Could be related to my claim that linear classification gets easier in high dimensions. For those interested, here's more: <https://en.wikipedia.org/wiki/Cover%27s_theorem>
+
+### 2.2.3 All the dimensions
+
+Let's see how these compare to letting glmnet choose the genes for us (in a sparse model, of course).
+
+```{r}
+
+library('glmnet')
+x = ...(as.matrix(t(mRNA))) ###now we'll just use all the genes, don't forget logs!
+mod <- glmnet(x[-test,],y[-test],family='multinomial')
+
+...(predict(mod,x[sort(test),],s=0.1,)[,,1],Rowv=NA,Colv=NA) #visualize the predictions
+....glmnet(mod,x[test,],y[test],s=0.1) #get the confusion matrix
+
+print("Averge Precision 9177 dimensions (sparse)")
+AP_metric(confusion.glmnet(mod,x[test,],y[test],s=...))
+
+```
+
+OK, wow. What genes did glmnet choose?
+
+```{r}
+B_genes <- which(coef(mod,s=0.1)[[...]]!=0) #first element of the list
+print ("B cell model")
+coef(mod,s=0.1)[[1]][B_genes,]
+
+print ("DC model")
+DC_genes <- which(coef(mod,s=0.1)[[...]]!=0) #second element of the list
+coef(mod,s=0.1)[[2]][DC_genes,]
+
+print ("MF model")
+MF_genes <- which(coef(mod,s=0.1)[[...]]!=0) #you get the idea
+coef(mod,s=0.1)[[3]][MF_genes,]
+
+print ("NK model")
+NK_genes <- which(coef(mod,s=0.1)[[...]]!=0)
+coef(mod,s=0.1)[[4]][NK_genes,]
+
+print ("T model")
+T_genes <- which(coef(mod,s=0.1)[[...]]!=0)
+coef(mod,s=0.1)[[5]][T_genes,]
+
+print ("Tgd model")
+
+Tgd_genes <- which(coef(mod,s=0.1)[[...]]!=0)
+coef(mod,s=0.1)[[6]][Tgd_genes,]
+
+```
+
+This also illustrates an advantage of sparse regression over the reduced dimensionality model: we can directly understand how the model makes predictions. For the principal components, we have to try to understand the loadings of genes on each component.
+
+## 2.3.0 Generalization
+
+So far we've been avoiding bias due to overfitting by holding out a randomly held out test set. However, this is an "easy" test: everything else is held constant (same experiment, same cells, same technology, same lab, etc., etc.)
+
+A much harder test is to see how our classsifier does "out in the wild" on a new dataset, different lab, different experiment etc.
+
+### 2.3.1 Get some more data
+
+Luckily for us, we actually have some additional data, so we can test "real world" generalization in this case.
+
+```{r}
+cells2<-...('data/big_immune_cell_types2.txt',row.names=1)
+mRNA2<-...('data/big_immune_cell_mRNA2.txt',row.names=1)
+mRNA2<-mRNA2[...(mRNA),] ##make sure we are using the same genes in the same order.
+```
+
+As usual, we'll quickly visualize to make sure our data looks more or less ok
+
+```{r}
+colour_map<-...(length(unique(cells2$cell_type))) ##make colours as before
+names(colour_map)<-...(cells2$cell_type)
+heatmap(cor(log(mRNA2)),RowSideColors = ...[cells2$cell_type])
+```
+
+Looks ok. Cells are clearly seperated by expression patterns. Should be easy to classify.
+
+### 2.3.2 test our classifier
+
+```{r}
+newx = ...(as.matrix(t(mRNA2))) #don't forget logs
+newy = ...$cell_type #get the new cell types 
+
+heatmap(predict(mod,newx,s=...)[,,1],Rowv=NA,Colv=NA) ##visualize predicitons
+confusion.glmnet(mod,newx,newy,s=...) ##look at the confusion matrix
+AP_metric(....glmnet(mod,newx,newy,s=0.1)) ##use our function to quantify
+```
+
+What happened?
+
+# 3.0.0 Class summary
+
+We've trained several high-dimensional classifiers.
+
+We saw how tricky performance statistics can be in training vs. use-case.
+
+We implemented Average Precision for multi-class confusion matrices.
+
+We even tested out-of-sample performance and we saw degradation in performance.
+
+## 3.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 3.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Alan Moses, Ph.D. *Professor, University of Toronto.* based on templates by Clavin Mok, Ph.D., *Bioinformatics and education, CAGEF*
+
+------------------------------------------------------------------------
+
+## 3.3.0 Reference and Resources
+
+Alan's slides will be made available on the quercus

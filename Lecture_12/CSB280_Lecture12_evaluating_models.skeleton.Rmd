@@ -1,0 +1,780 @@
+---
+title: 'CSB280H1F: Data Science for Cell and Systems Biology'
+author: "Department of Cell and Systems Biology"
+output: html_notebook
+knitr:
+  opts_chunk:
+    R.options:
+      width: 200
+---
+
+```{r setup, include=FALSE}
+# options(width = 300)
+knitr::opts_chunk$set(echo = TRUE, R.options = list(width = 200))
+# knitr::opts_chunk$set(out.width = "200%")
+```
+
+# Data Science for Cell and Systems Biology
+
+# Lecture 12: Evaluating Models
+
+------------------------------------------------------------------------
+
+::: {align="center"}
+<img src="https://m.media-amazon.com/images/I/61GzgkffuoL._SY385_.jpg" width="200"/>
+:::
+
+------------------------------------------------------------------------
+
+## 0.3.0 A legend for text format in R Markdown
+
+-   `Grey background`: Command-line code, R library and function names. Backticks are also use for in-line code.
+-   *Italics* or ***Bold italics***: Emphasis for important ideas and concepts
+-   **Bold**: Headers and subheaders
+-   [Blue text](): Named or unnamed hyperlinks
+-   `...` fill in the code here if you are coding along
+
+Along the way you'll also see a series of boxes. In HTML format, they will be coloured although while working live on these in class, they will all appear grey.
+
+::: {.alert .alert-block .alert-info}
+**Blue box:** A new or key concept that is being introduced. These will be titled "New Concept" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-warning}
+**Yellow box:** Risk or caution about the previous code section. These will be titled "Warning" for better visibility.
+:::
+
+::: {.alert .alert-block .alert-success}
+**Green boxes:** Recommended reads and resources to learn more in R. These will be titled "Extra Information" for better visibility and may contain links or expand on ideas in the section immediately preceding the box.
+:::
+
+::: {.alert .alert-block .alert-danger}
+**Red boxes:** A comprehension question which may or may not involve a coding cell. You usually find these at the end of a section. These will be titled "Comprehension Question" for better visibility.
+:::
+
+------------------------------------------------------------------------
+
+# 1.0.0 Models for Scientific understanding
+
+Given that we've found a model to be working for one dataset, we want to push the model further. Can we falsify it?
+
+## 1.1.0 Human mRNA and Protein
+
+Humans are much more complicated than yeast. Let's look at mRNA and protein levels for human tissues.
+
+### 1.1.1 get some data
+
+Let's read the data as we always do.
+
+```{r}
+# Read in our datasets for analysis
+
+# Retrieve a set of human protein count data
+Protein<-read.delim("...",row.names=1)
+
+# Retrieve tissue-specific expression count data
+mRNA<-read.delim("...",row.names=1)
+
+# What does the data look like?
+...(Protein)
+...(Protein)
+
+head(mRNA)
+str(mRNA)
+```
+
+```{r}
+# Do our datasets represent the same tissues and genes?
+
+sum(colnames(mRNA[-1])...colnames(Protein[-1])) ##do the tissues match?
+
+sum(rownames(mRNA[-1])...rownames(Protein[-1])) ##do the genes match?
+```
+
+To compare the data, we need to make sure the genes/proteins match up. Use the `intersect()` function to compare two vectors for overlapping elements
+
+```{r}
+# Check the interset between Protein and mRNA row names
+...<-intersect(rownames(Protein),rownames(mRNA)) 
+
+print("row names in common=")
+length(in_common)
+print("row names in mRNA=")
+length(...(mRNA))
+print("row names in Protein=")
+length(...(Protein))
+
+#how many of the row names in protein are in the mRNA?
+
+
+```
+
+::: {.alert .alert-block .alert-info}
+**technical concept:** intersect() is a great function to use when trying to combine real data sets. Need to make sure that you have observations about the same genes/loci/etc.
+:::
+
+Since we're trying to compare mRNA and Protein, no point working with genes where we don't have in both.
+
+```{r}
+# Overwrite the datasets so they only have the same gene/protein names
+# Use in_common as a way to index both sets!
+
+...<-mRNA[in_common,] ##only grab the rows in common
+...<-Protein[in_common,]
+```
+
+What about missing data?
+
+```{r}
+# Are there any NA values in our datasets?
+sum(...(mRNA))
+...(is.na(mRNA))
+
+sum(...(Protein))
+...(is.na(mRNA))
+```
+
+yay! but suspicious... we know that technologies to measure mRNA and proteins aren't perfect. Why do you think there are no `NA` values present in our data?
+
+### 1.1.2 Let's take a look at this data.
+
+Let's see what the data look like. As usual we'll plot expression data in log space. Since we can't take log of 0, we'll add 1 to all the data.
+
+```{r}
+library('ggplot2')
+
+# Plot only the brain-specific tissue data
+# Note that we are taking the log(1+value)
+ggplot(data = data.frame(Brain_mRNA=log(...mRNA$Brain),
+                         Brain_Protein=log(...Protein$Brain)), 
+       aes(x=Brain_mRNA, y=Brain_Protein)) + 
+  
+  # Add in your points
+  geom_...(alpha = 0.2) +
+  
+  # Add in a regression line calculation
+  geom_...(method="lm")
+
+```
+
+Yikes, looks like we have a lot of 0s (recall: log(1) = 0). It could be the case that very low mRNA counts can still result in detectable protein amounts or protein levels remain undetectable despite having high levels of mRNA.
+
+### 1.1.3 Test our model on human Brain
+
+Let's get rid of all these 0s before we do a regression because they could be cases where detection failed. Then we can check the slope.
+
+We'll filter for Brain-specific data but filter out any 0 values. When we plot, we'll use the log-transform (natural log) of our data. Remember
+
+```{r}
+# Make a new vector of shared genes with non-zero values from the Brain data
+brain_common<-intersect(rownames(mRNA)[mRNA$Brain...0],
+                        rownames(Protein)[Protein$Brain!=0])
+
+x<-mRNA[brain_common,"Brain"]
+y<-Protein[brain_common,"Brain"]
+
+#library('ggplot2')
+
+# Replot our Brain-specific data
+ggplot(data.frame(Brain_mRNA=log(x),         # Note that we are taking the log of our values!
+                  Brain_Protein=log(y)),  
+       aes(x=Brain_mRNA, y=Brain_Protein)) + 
+
+  geom_point(alpha = 0.2) +
+  
+  # Add a regression line
+  geom_smooth(method="lm", )
+
+# Make a quick linear model of protein ~ mRNA
+summary(lm(...(y) ~...(x)))
+
+
+```
+
+Well, slope is not 1. But it's also not that far off from 1 (\~1.2). And you can see that we are still at the "edge" on our x-axis. There are probably mRNAs that we have not detected in the Brain, but we did detect the protein. Just not that easy to get mRNAs out of people brains probably.
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 1.1.3 Comprehension Question:**
+
+```{=html}
+
+Why are we bothering to get rid of the zeros? If we just do the regression with all the data, but use 1+mRNA and 1+Protein,  
+
+a) We'll get approximately the same answer that the slope is nearly 1 because we're in log space.
+
+b) we'll get a much bigger slope and smaller intercept because the 1+0s will strongly bias the regression
+
+c) We'll get a slope not significantly different from 0 becuase the 1+0s will ruin the correlation
+
+d) We can't run the analysis in R, so there's no way to figure this out. 
+
+e) none of the above
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 1.1.3 comprehension answer:
+
+answer: ...
+
+------------------------------------------------------------------------
+
+### 1.1.4 let's apply to all the other tissues.
+
+We'll write a function that we can apply to the columns. We'll be able to test our model in 29 separate experiments that correspond to major human tissues!
+
+For each column, we'll find the rows where we have non-zero data for mRNA and Protein. Then we can do the regression and return the slope.
+
+```{r}
+# Build a function to generate linear regression models and return a slope of the model
+# We'll use a column name as the input to our function
+# Note that we will be using the mRNA and Protein dataframes already in memory
+get_mRNA_Protein_slope <-function(col_name) {
+  
+  # Find the non-zero intersecting rownames for our specific column
+  ...<-intersect(rownames(mRNA)[mRNA[,col_name]!=0],
+                       rownames(Protein)[Protein[,col_name]!=0])
+  
+  # Use our rowname list to set our mRNA and Protein datasets
+  ...<-mRNA[in_common,col_name]
+  ...<-Protein[in_common,col_name]
+  
+  # Return the coefficienct of an lm() we create
+  # The second element will be our slope!
+  return(coef(lm(log(y)~log(x)))[...])
+}
+
+```
+
+We can apply this function to the column names using sapply()
+
+```{r}
+result.df <- data.frame(slopes = sapply(X = colnames(Protein[-1]),
+                                        FUN = ...))
+
+# library('ggplot2')
+
+ggplot(data = result.df,  
+       aes(x=slopes)) + 
+  # Create a histogram of our slopes
+  geom_histogram()
+
+# What is the mean of our set of slopes?
+mean(result.df$slopes)
+
+# Can we do a t-test on our data?
+t.test(result.df$slopes ...)
+```
+
+OK, well looks like over all the tissues, we can rule out the hypothesis that the slope is 1. But the estimate is 1.05 +/- 0.02. So the first law of gene expression is holding to within 5% (in log space). I think this gives us a scientific insight: despite all the complicated regulatory mechanisms that have been discovered (miRNAs, uORFS, etc) and the technical difficulties of measuring 1000s of things, most of the differences in protein abundance we observe over human tissues can be explained simply by mRNA levels.
+
+------------------------------------------------------------------------
+
+# 2.0.0 Independent test splits
+
+In the mRNA and protein example, we had truly independent data from an independent lab, independent organism, etc. We don't often have that.
+
+ProtGPS authors included a control for sequence similarity using mmseqs2.
+
+## 2.1.0 Get the data
+
+let's load their supplementary table where this data is reported
+
+```{r}
+# Pull in some ProtGPS data
+...<-read.delim("data/ProtGPS_tableS1.txt",
+                       header = TRUE)
+
+# View the table
+supp_table
+
+
+```
+
+You can see this is not tidy data. The first 3 data columns are the random split, the second three are the mmseqs controlling for sequence similarity.
+
+### 2.2.1 Data wrangling/cleaning
+
+Let's split it into two tables.
+
+```{r}
+# Collect our values based on how the data was split
+# Random split results
+random_split.df <- supp_table[,...]
+head(random_split.df)
+
+# Split data based on sequence similarity
+mmseqs_split.df <- supp_table[,...]
+head(mmseqs_split.df)
+```
+
+Now we can get rid of the header and assign it to the actual column names (row 1) and the rownames from the full table
+
+```{r}
+# Random split data
+# Set the column names using the first row
+colnames(random_split.df)<-random_split.df[...,]
+# Set the row names from the original supplemental table
+rownames(random_split.df)<-supp_table[,...] 
+
+# Sequence family splits
+#Set the column names using the family split first row
+colnames(mmseqs_split.df)<-mmseqs_split.df[1,]
+# Set the row names from the original supplemental table
+rownames(mmseqs_split.df)<-supp_table[,1] 
+
+head(random_split.df)
+head(mmseqs_split.df)
+```
+
+These are looking better. We can also get rid of the first row.
+
+```{r}
+# Drop the first row and overwrite our dataframes
+random_split.df<-random_split.df[...,]
+mmseqs_split.df<-mmseqs_split.df[...,]
+
+# Take a look at the updated data frames
+head(random_split.df)
+head(mmseqs_split.df)
+```
+
+***
+Now we have two tables with the same structure. Let's visualize the effect of the split. We'll need to put the classifier name as a variable so that we can facet the plot. Let's get some help from `tidyverse` to reformat our dataframes.
+
+```{r}
+library('tidyverse')
+
+# Pivot the random split data
+random_split.long <- random_split.df %>% 
+  # Take a moment to capture the rownames as a column before they are lost
+  rownames_to_column(var = "localization") %>% 
+  
+  # Use pivot_longer to put our evaluations into a single column
+  ...(cols=c("protGPS","Random Forest","Logistic Regression"), 
+               names_to = "classifier", 
+               values_to = "AUC") %>% 
+  
+  # Make sure our values are treated as numbers
+  ...(AUC = as.numeric(AUC))
+
+# Pivot the mmseq2 data
+mmseqs_split.long <- mmseqs_split.df %>% 
+  # Take a moment to capture the rownames as a column before they are lost
+  rownames_to_column(var = "localization") %>% 
+
+  ...(cols=c("protGPS","Random Forest","Logistic Regression"), 
+               names_to = "classifier", 
+               values_to = "AUC") %>% 
+  
+  # Make sure our values are treated as numbers
+  ...(AUC = as.numeric(AUC))
+
+# What does it look like now?
+head(random_split.long)
+head(mmseqs_split.long)
+```
+
+OK, we are ready to visualize!
+
+## 2.2.0 Always be visualizing
+
+We'll put the two longer dataframes together to plot
+
+```{r}
+# Combine our two set of dataframes
+plot.df<-data.frame(
+  localization = random_split.long$localization,     # Cellular localization
+  AUC_random=random_split.long$AUC,                  # AUC values in random split
+  AUC_mmseqs=mmseqs_split.long$AUC,                  # AUC values in mmseq2 split
+  classifier=random_split.long$classifier             # One of 3 possible classifier values
+)
+
+# Plot our combined data
+library('ggplot2')
+ggplot(data = plot.df,
+       aes(x=..., y=...)) + 
+  # Add in our datapoints
+  geom_point() + 
+  
+  # Add in an intercept line with slope of 1
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") +
+  
+  # Add in some text to identify our abline
+  annotate("text", x = 0.9, y = 0.9, label = "y=x", color ="blue", size = 5) +
+  
+  # Split the data by classifier
+  facet_wrap(..., ncol =3)
+```
+
+So now we can see that the split makes a big difference.
+
+I include a diagonal line with slope=1. If the split had no effect on the classifier, then the points would be close to either side of the line. This is largely true for the Logistic Regression classifier and perhaps even Random Forest. However, **protGPS** shows a very strong effect: the AUCs (for each cellular localization) are much bigger for the random test split than for the sequence similarity controlled test split. This shows that the protein language model is making a lot of predictions likely based on sequence similarity.
+
+***
+
+## 2.3.0 P-values
+
+We can test the effect of the split on the classifier formally using a t-test on the differences (a paired t test). Ask yourself, why are we generating the differences between our groups AND what are we comparing against?
+
+```{r}
+# Compare our protGPS AUC results
+t.test(as.numeric(random_split.df$protGPS)...as.numeric(mmseqs_split.df$protGPS))
+
+# Compare our Logistic Regression AUC results
+t.test(as.numeric(random_split.df$`Logistic Regression`)...as.numeric(mmseqs_split.df$`Logistic Regression`))
+```
+
+We can see that the split had a big effect on protGPS, but no effect on the Logistic regression. the AI model can learn sequence similarity, but the simpler model can't.
+
+Is the protGPS model actually better than logistic regression and random forest once sequence similarity is controlled for? We can graph this in a number of ways, but we'll reformat keep it simple and just pull the data we need for our x and y axes.
+
+```{r}
+library('ggplot2')
+
+# We'll make a temporary dataframe of just RF vs protGPS data
+ggplot(data = data.frame(protGPS=as.numeric(mmseqs_split.df$protGPS),
+                         RF=as.numeric(mmseqs_split.df$`Random Forest`)),
+       aes(x=protGPS, y=RF)) + 
+  # Plot the scatterplot
+  geom_point(col="blue") + 
+  
+  # Make a second set of points to compare Logistic Regression vs protGPS data
+  ...(data = data.frame(protGPS=as.numeric(mmseqs_split.df$protGPS),
+                               LR=as.numeric(mmseqs_split.df$`Logistic Regression`)),
+       aes(x=protGPS,y=LR),
+       col="red") +
+  
+  # Add a line with slope of 1
+  geom_abline(intercept = 0, slope = 1, color = "black", linetype = "dashed") +
+  
+  labs(y = "LR or RF (AUC)", x = "protGPC (AUC)") +
+  
+  # Annotate the line with some additional text
+  annotate("text", x = 0.9, y = 0.9, label = "y=x", color ="black", size = 5)
+```
+
+Maybe the red points (Logistic Regression vs protGPS) are below the line, but the blue ones (Random Forest vs protGPS) are mostly along the line. Some are above and some are below. Let's test it formally, as we did before.
+
+```{r}
+# Compare how our mmseq split training does between models
+# LR vs protGPS
+t.test(as.numeric(mmseqs_split.df$`Logistic Regression`)...as.numeric(mmseqs_split.df$protGPS))
+
+# RF vs protGPS
+t.test(as.numeric(mmseqs_split.df$`Random Forest`)...as.numeric(mmseqs_split.df$protGPS))
+```
+
+At least according to the t-test, neither of these is very different. Overall, there isn't that much evidence that the protein Language model has added anything here except that it knows about sequence similarity.
+
+Here are some claims from the protGPS authors:
+
+"We developed a protein language model, ProtGPS, that predicts with high performance the compartment localization of human proteins excluded from the training set."
+
+-   no evidence that the protein language model is better than logistic regression once sequence similarity has been controlled for.
+
+"The performance of the ProtGPS model indicates that it detects patterns in the protein sequence that differentiate these condensate compartments."
+
+-   Again, not much evidence that the language model detects anything (other than sequence similarity) that they didn't put into their logistic regression classifier
+
+(when describing the control for sequence similarity) "the performance was only somewhat better than a random forest or linear regression model (fig. S2 and table S1)"
+
+-   no formal evidence that we can find in table S1 that it's better.
+
+***
+
+## 2.4.0 Correlation structure creates the dependence in splits
+
+In the previous example, I said that sequence similarity in the proteins was the problem. But in general, how will I know if there's a problem of non-independence of my training and test data?
+
+### 2.4.1 A lab experiment
+
+Let's start with an example we've already seen. We know we can predict some phenotypes reasonably well using genotypes on chromosome 14
+
+```{r}
+# Import our data
+genotype<-read.delim('...',row.names=1)
+phenotype37<-read.delim('...',row.names=1)
+
+# Remind ourselves what it looks like
+head(genotype)
+dim(genotype)
+head(phenotype37)
+dim(phenotype37)
+```
+
+Note that our row names represent sample labels. Each dataset has 504 samples, however, it doesn't appear that the sample names correspond between each other by row.
+
+Let's go ahead and make our model now using our data based on that information.
+
+```{r}
+# Load up our glmnet library
+library('glmnet')
+sparsity=0.01
+
+##find individuals in common
+in_common<-intersect(rownames(...),rownames(phenotype37)) 
+
+# Retrieve the correctly ordered phenotype growth data
+y<-phenotype37[...,"X37C_growth"]
+# Retrieve similarly ordered genotype data
+x<-genotype[...,]
+
+# Generate our test set for holdout
+test<-sample(1:length(y),50) 
+
+```
+
+Now that we've correctly ordered and formatted our data, as well as made a test set, we can go ahead and build our model.
+
+```{r}
+# fit the model using our training data
+mod<-glmnet(x[...,],y[...])
+
+# Check how our model does with the test data
+growthPred.df <- data.frame("predicted" = as.numeric(predict(object = mod,           # model predicted growth using the test data
+                                                       as.matrix(x[...,]), 
+                                                       s=sparsity, 
+                                                       type="response")),
+                      "observed" = y[...]                                     # observed growth phenotype in the test data
+)
+
+head(growthPred.df)
+
+#get the R-squared
+cor(x=growthPred.df$..., y = growthPred.df$...)^2
+```
+
+Okay so our R-squared value says that our model explains that percentage of our variation in the data. Let's visualize the predictions
+
+```{r}
+#visualize the predictions
+library('ggplot2')
+
+ggplot(data = growthPred.df,
+       aes(x=...,y=...)) + 
+  
+  # Add in our data points
+  geom_point() +
+  
+  # Put in our line of slope = 1
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") +
+  annotate("text", x = mean(growthPred.df$observed), y = mean(growthPred.df$observed), label = "y=x", color ="blue", size = 5)
+```
+
+I hope you can see here that get an impressive R-squared on a randomly held out test set of 50 individuals. But could this be over-estimated? Let's visualize our data
+
+```{r, fig.width=8, fig.height=8}
+# Create a heatmap of the correlation of samples
+# Note that samples are by row so we must tranpose for cor()!
+heatmap(cor(t(genotype)))
+```
+
+We can see that looking at correlation of samples based on genotype, there is no obvious structure in the relationships of the individuals here. There are no groups of strong blocks of correlations suggesting that there are no large subgroups that are highly genetically similar. Although the samples have been clustered, in this case, there's no reason to think that randomly held out data is a problem. There's nothing in the training data for the model to 'memorize'. Note that this was a lab experiment and these individuals were the results of a genetic cross of the same two parents.
+
+------------------------------------------------------------------------
+
+### 2.4.2 A wild experiment
+
+What about if we actually took yeast from the wild and tried a genetic association on them? Here's a sample of wild yeast genotypes from chromosome 14. We also have data about yeast growing on caffeine.
+
+```{r}
+# Import our data
+wild_yeast_genotypes<-read.delim('...',row.names=1)
+phenotypeCaff<-read.delim('...',row.names=1)
+
+head(wild_yeast_genotypes)
+dim(wild_yeast_genotypes)
+
+head(phenotypeCaff)
+dim(phenotypeCaff)
+```
+
+------------------------------------------------------------------------
+
+::: {.alert .alert-block .alert-danger}
+**Section 2.4.2 Comprehension Question:**
+
+```{=html}
+
+The rows of the wild yeast genotype data are ____________ and the columns are ____________.
+```
+:::
+
+------------------------------------------------------------------------
+
+### Section 2.4.2 comprehension answer:
+
+... and ...
+
+------------------------------------------------------------------------
+
+We'll do the exact same kind of analysis as we did before on our lab-grown yeast at 37C!
+
+```{r}
+# Set up our model information and datasets
+sparsity=0.01
+
+in_common<- intersect(rownames(...(phenotypeCaff)),rownames(wild_yeast_genotypes))
+
+# Create our test split
+...<- sample(1:length(in_common),50)
+
+# designate our x (genotype) and y (phenotype) data
+...<-phenotypeCaff[in_common,1]
+...<-wild_yeast_genotypes[in_common,]
+
+# Create the model while holding out the test data
+mod<-glmnet(x[-test,],y[-test])
+
+# Generate a comparison of the predicted vs observed
+caffPred.df <- data.frame("predicted" = as.numeric(predict(object = mod,
+                                                           as.matrix(x[test,]),
+                                                           s=sparsity,
+                                                           type="response")),
+                          "observed" = y[test]
+)
+
+# What is our R-squared?
+cor(caffPred.df$predicted, caffPred.df$observed)^2
+
+#visualize the predictions
+library('ggplot2')
+ggplot(data = caffPred.df,  
+       aes(x=predicted, y=observed)) + 
+  
+  # Generate the scatter plot
+  geom_point() +
+  
+  # Add our line of slope=1
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") +
+  annotate("text", x = mean(caffPred.df$observed), y = mean(caffPred.df$observed), label = "y=x", color ="blue", size = 5)
+
+```
+
+Apparently, yeast are like people: some like caffeine and others don't . Let's visualize the structure of the genotype data
+
+```{r}
+heatmap(cor(t(wild_yeast_genotypes)))
+```
+
+Now we can see that there are strong genetic correlations here. There are groups of more closely related individuals (cousins?). This is known as "population structure". Our model could be just learning to classify these groups. If the groups are correlated with caffeine tolerance, then we'll be predicting the phenotype based on the **group identity**, not because we've discovered an important gene.
+
+Let's check this.
+
+```{r}
+# Let's build groups based on cutting a tree
+# Note that we'll end up with a named vector 
+ind.hclust <- cutree(hclust(as.dist(1-...(t(wild_yeast_genotypes)))), h=1.2)
+
+# How does cutree split our tree up?
+table(ind.hclust)
+
+# Rebuild our heatmap but add in our grouping data
+heatmap(cor(t(wild_yeast_genotypes)),
+        RowSideColors = rainbow(...)[ind.hclust])
+
+
+```
+
+Now that's the structure we see in the entire dataset. Recall, however, that we only used the wild yeast strains that we had overlapping between our genotype and caffeine phenotype data.
+
+```{r}
+# Pull out just the overlapping strains
+ind.hclust<-...[in_common]
+
+# How much does our training data correlate between the cluster groups and the caffeine phenotype?
+...(ind.hclust[-test],y[-test])
+
+# How much do our test data correlate between genotype group and caffeine phenotype?
+...(ind.hclust[test],y[test])
+```
+
+Across our entire training set, we see a high correlation between the clustered groups we've identified based on genotype vs our observed caffeine phenotype! We see significant correlation with our held out test data as well!
+
+Let's plot our clusters against their phenotype just to be sure.
+
+```{r}
+library('ggplot2')
+ggplot(data = data.frame("cluster"=ind.hclust[-test],
+                         "phenotype"=y[-test]),
+       aes(x=cluster, y=phenotype)) + 
+  # Create a scatterplot but jitter the points a little bit
+  ...(width = 0.1, alpha = 0.5)
+
+
+ggplot(data = data.frame("cluster"=ind.hclust[test],
+                         "phenotype"=y[test]),
+       aes(x=cluster, y=phenotype)) + 
+  # Create a scatterplot but jitter the points a little bit
+  ...(width = 0.1, alpha = 0.5)
+```
+
+You can see that there does seem to a be difference between the two clusters in the population. We could deal with the structure by "holding out" an entire cluster.
+
+```{r}
+# Make a new test set based on the genotype cluster
+test<- ...(ind.hclust==2)
+
+# Retrain our model with the new data
+mod<-glmnet(x[-test,],y[-test])
+
+# Create a comparison of the predicted vs the observed
+caffPredClust.df <- data.frame("predicted" = as.numeric(predict(object = mod,
+                                                       as.matrix(x[test,]),
+                                                       s=sparsity,
+                                                       type="response")),
+                      "observed" = y[test]
+                      )
+
+cor(caffPredClust.df$predicted, caffPredClust.df$observed)^2
+
+#visualize the predictions
+
+ggplot(data = caffPredClust.df,  
+       aes(x=predicted, y=observed)) + 
+  # Add in our points
+  geom_point() +
+  # Add in a line slope=1 and annotate
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") +
+  annotate("text", x = mean(caffPredClust.df$observed), y = mean(caffPredClust.df$observed), label = "y=x", color ="blue", size = 5)
+  
+
+```
+
+Now we see that the model is now actually predicting in the opposite direction! Maybe there's a different genetic basis for these phenotypes in the two populations?! Predicting in the part of the population that the model hasn't seen is more like "extrapolation" and it's a much harder test of whether we've learned something. (It's also not 100% fair experiment because we have much less training data.)
+
+In practice, modern population genetics analysis methods will include population structure and try to find genetic predictions that can't be made using population structure alone.
+
+------------------------------------------------------------------------
+
+# 3.0.0 Class summary
+
+We looked at a key principle to know if a model is useful. Does it generalize to new situations/datasets?
+
+We saw an example where the test split choice (specifically non-independence) made a model seem like it has great predictive power when it doesn't really. Visualization of data is a great way to figure out if you have correlation structure that could impact your evaluation performance.
+
+## 3.1.0 Submit your completed skeleton notebook (2% of final grade)
+
+At the end of this lecture a Quercus assignment portal will be available to submit a **RMD** version of your completed skeletons from today (including the comprehension question answers!). These will be due by 11:59pm on the following Sunday. Each lecture skeleton is worth 2% of your final grade (1% for completed code, 1% for completed comprehension code/questions). To save your notebook:
+
+1.  From the RStudio Notebook in the lower right pane (**Files** tab), select the skeleton file checkbox (left-hand side of the file name)
+2.  Under the **More** button drop down, select the **Export** button and save to your hard drive.
+3.  Upload your RMD file to the Quercus skeleton portal.
+
+::: {align="center"}
+<img src="https://github.com/uoft-csb-datasci/CSBdatasci_Course_Materials/blob/main/IntroR/RStudioServerExportFile.png?raw=true" width="700"/>
+:::
+
+## 3.2.0 Acknowledgements
+
+**Revision 1.0.0**: materials prepared for **CSB280H1**, 09-2025 by Alan Moses, Ph.D. *Professor, University of Toronto.* based on templates by Clavin Mok, Ph.D., *Bioinformatics and education, CAGEF*
+
+------------------------------------------------------------------------
+
+## 3.3.0 Reference and Resources
+
+Alan's slides will be made available on the quercus
